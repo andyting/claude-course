@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 3.3 — 套用 path-specific 規則做條件式慣例載入</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--blue); text-transform: uppercase; margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 12px 16px; margin: 16px 0; font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg); color: #e2e8f0; border-radius: 10px;
+    padding: 18px 20px; overflow-x: auto; font-size: 14px; line-height: 1.6;
+    margin: 0; font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,0.12); color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+    padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900); color: #f1f5f9; border-radius: 12px;
+    padding: 28px 30px; margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12; color: #e2e8f0; border-left: 4px solid var(--blue);
+    border-radius: 10px; padding: 16px 22px; margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 3</div>
+    <h1>Task Statement 3.3<br>套用 path-specific 規則做條件式慣例載入</h1>
+    <p>Apply path-specific rules for conditional convention loading</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 3.3 — Apply path-specific rules for conditional convention loading</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li><code>.claude/rules/</code> files with YAML frontmatter <code>paths</code> fields containing glob patterns for conditional rule activation</li>
+      <li>How path-scoped rules load only when editing matching files, reducing irrelevant context and token usage</li>
+      <li>The advantage of glob-pattern rules over directory-level <code>CLAUDE.md</code> files for conventions that span multiple directories (e.g., test files spread throughout a codebase)</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Creating <code>.claude/rules/</code> files with YAML frontmatter path scoping (e.g., <code>paths: ["terraform/**/*"]</code>) so rules load only when editing matching files</li>
+      <li>Using glob patterns in path-specific rules to apply conventions to files by type regardless of directory location (e.g., <code>**/*.test.tsx</code> for all test files)</li>
+      <li>Choosing path-specific rules over subdirectory <code>CLAUDE.md</code> files when conventions must apply to files spread across the codebase</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 2</span><br>
+    <span class="scen-name">Scenario 2 — Code Generation with Claude Code</span>
+    <p>團隊用 Claude Code 寫程式、重構、測試。一個成熟 repo 裡,不同類型的檔案各有慣例:測試檔散落各處、Terraform 檔在 infra 目錄。本 Task 教你用 <code>.claude/rules/</code> 加 glob,讓「對的慣例」只在「編對的檔」時才載入,省 token 又不混淆。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>path-specific rule = 「只在你編到符合 glob 的檔案時,才載入這條慣例」。</b>它解決的痛點是:慣例該按「檔案類型」走,而不是按「目錄」走——而測試檔、infra 檔往往散落在整個 codebase。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;.claude/rules/ 用 YAML frontmatter 的 paths(glob)做條件啟用</h2>
+  <p>在 <code>.claude/rules/</code> 放規則檔,每份檔開頭用 YAML frontmatter 寫一個 <code>paths</code> 欄位,裡面放 <b>glob pattern</b>。這個 glob 決定:<b>當你編輯到符合的檔案時,這條規則才會被啟用</b>。沒編到符合的檔,它就靜靜躺著、不佔 context。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># .claude/rules/test-conventions.md</span>
+---
+paths: [<span class="tok-str">"**/*.test.tsx"</span>]   <span class="tok-com"># 只在編輯測試檔時啟用</span>
+---
+本專案測試慣例:
+- 每個測試用 describe/it 結構
+- 一個 it 只測一件事
+- 不要在測試裡呼叫真實網路</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>規則放 <code>.claude/rules/</code>,用 frontmatter 的 <code>paths</code>(glob)做<b>條件式啟用</b>。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;path-scoped 規則只在編到符合檔案時載入 → 省 context / token</h2>
+  <p>這是 path rule 的核心好處。一般的 <code>CLAUDE.md</code> 是<b>永遠載入</b>;但很多慣例其實只跟某類檔案有關。如果把所有慣例都塞進常駐 context,會浪費 token、也讓不相關的規範干擾判斷。</p>
+  <p>path-scoped 規則是<b>條件載入</b>:你在編 <code>auth.py</code> 時,測試慣例根本不會被載進來;只有你真的打開 <code>auth.test.tsx</code> 時,測試規則才上場。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 全塞進 CLAUDE.md:測試慣例、infra 慣例永遠常駐</span>
+<span class="tok-com"># CLAUDE.md:測試要... / Terraform 要... / 前端要...</span>
+<span class="tok-com"># → 編任何檔都載一整包,大多無關,浪費 token</span>
+
+<span class="tok-good"># ✅ 拆成 path rule:各自只在相關檔案出現時載入</span>
+<span class="tok-com"># .claude/rules/test.md     paths: ["**/*.test.tsx"]</span>
+<span class="tok-com"># .claude/rules/infra.md    paths: ["terraform/**/*"]</span>
+<span class="tok-com"># → 編 auth.py 時,以上兩條都不載入</span></code></pre>
+  </div>
+  <div class="key"><b>一句話記住:</b>條件載入 = 只在相關時出現 → 少無關 context、省 token。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;glob 規則勝過 directory 級 CLAUDE.md:適合「跨多目錄」的慣例</h2>
+  <p>你也可以在子目錄放 <code>CLAUDE.md</code>,但它是<b>綁目錄</b>的——只對「那個資料夾底下」生效。問題是:很多慣例是<b>按檔案類型</b>走,而那類檔案<b>散落在整個 codebase</b>。最典型的就是測試檔——它們跟著各自的模組散在四處,不集中在一個資料夾。</p>
+  <p>這時用 directory 級 CLAUDE.md 會很痛:你得在每個有測試檔的資料夾各放一份、還要同步維護。glob pattern 一條 <code>**/*.test.tsx</code> 就全包了,不管它在哪個目錄。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ directory CLAUDE.md:測試檔散在 10 個資料夾</span>
+<span class="tok-com"># → 要在 10 個資料夾各放一份 CLAUDE.md,難維護、易不一致</span>
+
+<span class="tok-good"># ✅ 一條 glob 全包,不管檔案在哪個目錄</span>
+---
+paths: [<span class="tok-str">"**/*.test.tsx"</span>]   <span class="tok-com"># ** = 任意層目錄</span>
+---</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>慣例跟著「檔案類型」而非「目錄」時,glob path rule &gt; directory CLAUDE.md。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;建 .claude/rules/ 檔,用 YAML paths 做 path scoping</h2>
+  <p>知識 1 的實作。官方範例就是 <code>paths: ["terraform/**/*"]</code>:讓這條 infra 慣例只在編輯 Terraform 目錄底下的檔案時載入。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># .claude/rules/terraform.md</span>
+---
+paths: [<span class="tok-str">"terraform/**/*"</span>]   <span class="tok-com"># 只在編輯 terraform/ 下的檔時載入</span>
+---
+基礎設施慣例:
+- 所有 resource 命名用 snake_case
+- 一律加 tags(team、env)
+- state 不可手改,改走 plan/apply</code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;用 glob 依「檔案類型」套慣例,無視目錄位置</h2>
+  <p>官方範例:<code>**/*.test.tsx</code> 抓住所有測試檔,不管它在哪個資料夾。<code>**</code> 代表「任意層目錄」,<code>*.test.tsx</code> 鎖檔名型態。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># .claude/rules/react-tests.md</span>
+---
+paths: [<span class="tok-str">"**/*.test.tsx"</span>]   <span class="tok-com"># 全 codebase 的 React 測試檔</span>
+---
+React 測試慣例:
+- 用 React Testing Library,query by role
+- 避免測 implementation detail
+- mock 外部 API,不打真實網路
+
+<span class="tok-com"># 不論測試檔在 src/auth/、src/cart/、packages/ui/ 都會套用</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b><code>**</code> 跨任意目錄 + <code>*.副檔名</code> 鎖類型 → 一條規則涵蓋散落各處的同類檔。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;何時選 path rule、何時選 subdirectory CLAUDE.md</h2>
+  <p>判斷準則很乾脆:慣例的<b>適用範圍是「整個子目錄」</b>(例如某個 service 自己的規矩)→ 放那個目錄的 <code>CLAUDE.md</code>。慣例<b>適用於「散落各處的同類檔」</b>(測試、migration、stories...)→ 用 <code>.claude/rules/</code> + glob。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 慣例綁某個目錄 → subdirectory CLAUDE.md</span>
+<span class="tok-com"># services/payments/CLAUDE.md:本 service 專屬規範</span>
+
+<span class="tok-good"># ✅ 慣例綁某種「散落各處」的檔案類型 → path rule</span>
+---
+paths: [<span class="tok-str">"**/*.test.tsx"</span>, <span class="tok-str">"**/*.stories.tsx"</span>]
+---
+<span class="tok-com"># 測試檔、stories 檔遍布 codebase → 用 glob 一網打盡</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>範圍=整個目錄 → CLAUDE.md;範圍=跨目錄的某類檔 → path-specific rule。</div>
+
+  <div class="summary">
+    <h2>整個 Task 3.3 的記憶骨架</h2>
+    <p>在 Scenario 2 的 repo 裡,把慣例放進 <span class="num">.claude/rules/</span>,用 YAML frontmatter 的 <span class="num">paths(glob)</span> 做條件式啟用——<span class="num">只在編到符合的檔案時才載入</span>,因此<span class="num">省 context、省 token</span>。當慣例跟著「檔案類型」而非「目錄」走(測試檔散在整個 codebase),用 <span class="num">**/*.test.tsx 這種 glob</span> 勝過在每個資料夾放 CLAUDE.md。一句判斷:<span class="num">綁目錄用 CLAUDE.md,綁散落各處的檔案類型用 path rule</span>。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

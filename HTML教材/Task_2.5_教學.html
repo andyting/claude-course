@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 2.5 — 有效選用內建工具(Read / Write / Edit / Bash / Grep / Glob)</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 2</div>
+    <h1>Task Statement 2.5<br>有效選用內建工具(Read / Write / Edit / Bash / Grep / Glob)</h1>
+    <p>Select and apply built-in tools (Read, Write, Edit, Bash, Grep, Glob) effectively</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 2.5 — Select and apply built-in tools (Read, Write, Edit, Bash, Grep, Glob) effectively</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Grep for content search (searching file contents for patterns like function names, error messages, or import statements)</li>
+      <li>Glob for file path pattern matching (finding files by name or extension patterns)</li>
+      <li>Read/Write for full file operations; Edit for targeted modifications using unique text matching</li>
+      <li>When Edit fails due to non-unique text matches, using Read + Write as a fallback for reliable file modifications</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Selecting Grep for searching code content across a codebase (e.g., finding all callers of a function, locating error messages)</li>
+      <li>Selecting Glob for finding files matching naming patterns (e.g., <code>**/*.test.tsx</code>)</li>
+      <li>Using Read to load full file contents followed by Write when Edit cannot find unique anchor text</li>
+      <li>Building codebase understanding incrementally: starting with Grep to find entry points, then using Read to follow imports and trace flows, rather than reading all files upfront</li>
+      <li>Tracing function usage across wrapper modules by first identifying all exported names, then searching for each name across the codebase</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 4</span><br>
+    <span class="scen-name">Scenario 4 — Developer Productivity with Claude</span>
+    <p>用 Claude Agent SDK 幫工程師探索<b>陌生 / legacy codebase</b>、理解既有架構、產 boilerplate。本 Task 講的就是這時手上那六把內建工具(Read、Write、Edit、Bash、Grep、Glob)各自擅長什麼、何時用哪一把——尤其是「不要一次讀光所有檔,而是先 Grep 找入口、再 Read 沿著 import 追」的探索節奏。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>六把工具各有專長,選錯工具就是繞遠路。</b> 找「內容」用 Grep、找「檔名」用 Glob、改「小段」用 Edit、Edit 卡住就退回 Read+Write;理解陌生程式碼要「漸進式」——先搜入口再追流程,別一開始就把整個 repo 讀進來。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;Grep:搜「檔案內容」裡的模式(函式名、錯誤訊息、import)</h2>
+  <p>當你想找的是<b>檔案內容裡的某個東西</b>——某個函式名出現在哪、某句錯誤訊息哪裡丟的、誰 import 了某個模組——用 <code>Grep</code>。它掃的是「檔案裡寫了什麼」,不是「檔案叫什麼名字」。探索陌生 codebase 時,這通常是你的第一把工具。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 4:剛接手一個陌生服務,想找登入流程從哪開始</span>
+<span class="tok-fn">Grep</span>(pattern=<span class="tok-str">"def authenticate_user"</span>)        <span class="tok-com"># 找函式定義在哪</span>
+<span class="tok-fn">Grep</span>(pattern=<span class="tok-str">"InvalidTokenError"</span>)           <span class="tok-com"># 找這個錯誤從哪丟出</span>
+<span class="tok-fn">Grep</span>(pattern=<span class="tok-str">"from auth.session import"</span>)    <span class="tok-com"># 找誰 import 了 session 模組</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>Grep = 搜「內容」(content)。找字串、找模式、找誰用了什麼 → Grep。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;Glob:用「檔名 / 路徑模式」找檔案</h2>
+  <p>當你要找的是<b>符合某種命名模式的檔案</b>——所有測試檔、所有 <code>.tsx</code> 元件、某資料夾下所有設定檔——用 <code>Glob</code>。它比對的是「檔案路徑長怎樣」,不看裡面內容。<code>**</code> 代表任意層資料夾,<code>*</code> 代表任意檔名片段。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 4:想盤點這個前端專案有哪些測試檔</span>
+<span class="tok-fn">Glob</span>(pattern=<span class="tok-str">"**/*.test.tsx"</span>)     <span class="tok-com"># 任意層底下所有 .test.tsx</span>
+<span class="tok-fn">Glob</span>(pattern=<span class="tok-str">"src/**/*.py"</span>)        <span class="tok-com"># src 底下所有 Python 檔</span>
+<span class="tok-fn">Glob</span>(pattern=<span class="tok-str">"**/config.*"</span>)        <span class="tok-com"># 任意層的 config.* 設定檔</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>Glob = 比對「路徑 / 檔名」。找「哪些檔」而非「檔裡有什麼」 → Glob。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;Read / Write 是整檔操作;Edit 是靠「唯一文字比對」做定點修改</h2>
+  <p>三把改檔工具分工:<b>Read</b> 把整個檔讀進來、<b>Write</b> 把整個檔寫出去(會覆蓋),這兩把是「整檔」級。<b>Edit</b> 則是「定點」——你給它一段<b>要被取代的舊文字</b>和<b>新文字</b>,它在檔裡找到那段就替換。關鍵前提:那段舊文字在檔裡必須<b>唯一</b>,Edit 才知道要改哪一處。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 4:把 legacy 服務裡某個逾時值從 30 改成 60</span>
+
+<span class="tok-good"># ✅ 小範圍定點修改 → 用 Edit(old_string 在檔內唯一)</span>
+<span class="tok-fn">Edit</span>(
+    file_path=<span class="tok-str">"src/api/client.py"</span>,
+    old_string=<span class="tok-str">"REQUEST_TIMEOUT = 30  # legacy default"</span>,
+    new_string=<span class="tok-str">"REQUEST_TIMEOUT = 60  # raised for slow upstream"</span>,
+)
+
+<span class="tok-com"># 整檔讀取 / 整檔覆寫 → Read / Write</span>
+content = <span class="tok-fn">Read</span>(file_path=<span class="tok-str">"src/api/client.py"</span>)
+<span class="tok-fn">Write</span>(file_path=<span class="tok-str">"src/api/client.py"</span>, content=content)</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>整檔 → Read/Write;改一小段 → Edit(但 old_string 要唯一)。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;Edit 因「文字不唯一」失敗時:退回 Read + Write</h2>
+  <p>這是最常考的一條。當你要改的那段文字在檔裡<b>出現了好幾次</b>(例如同樣一行 <code>timeout = 30</code> 出現三處),Edit 不知道該改哪一個,就會失敗。這時的可靠後備是:<b>Read</b> 把整檔讀進來、在記憶裡做好替換、再用 <b>Write</b> 整檔寫回去。用「整檔覆寫」繞過「定點比對不唯一」的問題。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ old_string 在檔內出現多次 → Edit 無法定位,失敗</span>
+<span class="tok-fn">Edit</span>(file_path=<span class="tok-str">"config.py"</span>, old_string=<span class="tok-str">"timeout = 30"</span>, new_string=<span class="tok-str">"timeout = 60"</span>)
+
+<span class="tok-good"># ✅ 後備:Read 整檔 → 處理 → Write 整檔寫回</span>
+text = <span class="tok-fn">Read</span>(file_path=<span class="tok-str">"config.py"</span>)
+text = text.<span class="tok-fn">replace</span>(<span class="tok-str">"timeout = 30"</span>, <span class="tok-str">"timeout = 60"</span>)   <span class="tok-com"># 一次全換</span>
+<span class="tok-fn">Write</span>(file_path=<span class="tok-str">"config.py"</span>, content=text)</code></pre>
+  </div>
+  <div class="key"><b>一句話記住:</b>Edit 卡在「文字不唯一」→ 換 Read + Write 整檔處理。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;跨整個 codebase 搜程式內容,用 Grep(找呼叫點、找錯誤訊息)</h2>
+  <p>技能版的知識 1。探索陌生服務時最常做的兩件事:找「某函式的所有呼叫者」、定位「某句錯誤訊息」。兩者都是搜內容,都用 <code>Grep</code>。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 4:評估改 charge_customer() 會影響誰 → 找所有呼叫點</span>
+<span class="tok-fn">Grep</span>(pattern=<span class="tok-str">"charge_customer\\("</span>)        <span class="tok-com"># 找出每一處呼叫</span>
+
+<span class="tok-com"># 線上報的這句錯誤,程式裡哪裡丟的?</span>
+<span class="tok-fn">Grep</span>(pattern=<span class="tok-str">"Payment gateway timeout"</span>)   <span class="tok-com"># 直接定位來源</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;用 Glob 找符合命名模式的檔案(如 **/*.test.tsx)</h2>
+  <p>技能版的知識 2。盤點專案結構時,用命名模式一次撈出整類檔案。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 4:接手前端,先看測試覆蓋了哪些元件</span>
+<span class="tok-fn">Glob</span>(pattern=<span class="tok-str">"**/*.test.tsx"</span>)        <span class="tok-com"># 所有 React 測試檔</span>
+<span class="tok-fn">Glob</span>(pattern=<span class="tok-str">"src/components/**/*.tsx"</span>)  <span class="tok-com"># 所有元件檔</span>
+<span class="tok-com"># 比對清單 → 哪些元件還沒測試,一目了然</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 3</span> &nbsp;Read 載入整檔 → 當 Edit 找不到唯一 anchor 時改用 Write</h2>
+  <p>技能版的知識 4,流程化。先試 Edit;一旦因為 anchor 文字不唯一而失敗,就 Read 整檔、在記憶裡精準處理、Write 寫回。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">safe_modify</span>(path, old, new):
+    <span class="tok-kw">try</span>:
+        <span class="tok-kw">return</span> <span class="tok-fn">Edit</span>(file_path=path, old_string=old, new_string=new)
+    <span class="tok-kw">except</span> NonUniqueMatch:
+        <span class="tok-com"># anchor 不唯一 → 退回整檔 Read+Write</span>
+        text = <span class="tok-fn">Read</span>(file_path=path)
+        text = text.<span class="tok-fn">replace</span>(old, new)
+        <span class="tok-kw">return</span> <span class="tok-fn">Write</span>(file_path=path, content=text)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>Edit 優先(改動小、精準);失敗就 Read+Write 兜底。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;漸進式理解 codebase:先 Grep 找入口,再 Read 沿 import 追流程</h2>
+  <p>這條是探索陌生程式碼的<b>正確節奏</b>,也最常考。<b>不要</b>一開始就把整個 repo 的檔全 Read 進來(浪費 context、抓不到重點)。正確做法:先用 <code>Grep</code> 找到<b>入口點</b>(main、route handler、某功能的起始函式),再用 <code>Read</code> 讀那個檔、看它 import 了什麼,<b>沿著 import 一路往下追</b>,只讀真正相關的檔。像偵探循線索,而不是把整個圖書館搬回家。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 一開始就 Read 全部檔 → context 爆掉、抓不到重點</span>
+<span class="tok-kw">for</span> f <span class="tok-kw">in</span> <span class="tok-fn">Glob</span>(pattern=<span class="tok-str">"**/*.py"</span>):
+    <span class="tok-fn">Read</span>(file_path=f)   <span class="tok-com"># 把整個 repo 讀進來 = 反模式</span>
+
+<span class="tok-good"># ✅ 漸進式:Grep 找入口 → Read 沿 import 追</span>
+<span class="tok-com"># 1) 找功能入口</span>
+entry = <span class="tok-fn">Grep</span>(pattern=<span class="tok-str">"@app.route\\(.*checkout"</span>)
+<span class="tok-com"># 2) 讀入口檔,看它依賴誰</span>
+src = <span class="tok-fn">Read</span>(file_path=<span class="tok-str">"src/routes/checkout.py"</span>)
+<span class="tok-com"># 3) 沿 import 往下追,只讀相關模組</span>
+<span class="tok-fn">Read</span>(file_path=<span class="tok-str">"src/services/payment.py"</span>)   <span class="tok-com"># checkout 引用的</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>先 Grep 找入口、再 Read 循 import 追;別一次讀光整個 repo。</div>
+
+  <h2><span class="num">技能 5</span> &nbsp;追函式在 wrapper 模組間的使用:先列出所有匯出名,再逐名搜尋</h2>
+  <p>有些 codebase 會層層包裝:一個工具函式被 <code>utils/__init__.py</code> re-export、又被別的模組換名匯出,直接搜原始函式名會漏掉這些「換了馬甲」的呼叫。正確做法:先找出某模組<b>所有匯出的名稱</b>(原名 + 別名),再拿<b>每一個名字</b>去整個 codebase 搜一遍,才能完整追出真實用量。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 4:retry_request 被多個 wrapper re-export,要找真實用量</span>
+
+<span class="tok-com"># 1) 先找出 utils 模組匯出了哪些名字(含別名)</span>
+<span class="tok-fn">Grep</span>(pattern=<span class="tok-str">"retry_request|as retry|__all__"</span>, path=<span class="tok-str">"src/utils/"</span>)
+<span class="tok-com"># 假設得到:retry_request、retry(別名)、do_retry(另一個 wrapper 名)</span>
+
+<span class="tok-com"># 2) 拿每個名字分別全庫搜尋,才不漏掉換名的呼叫</span>
+<span class="tok-kw">for</span> name <span class="tok-kw">in</span> [<span class="tok-str">"retry_request"</span>, <span class="tok-str">"retry"</span>, <span class="tok-str">"do_retry"</span>]:
+    <span class="tok-fn">Grep</span>(pattern=name)   <span class="tok-com"># 逐名搜,拼出完整呼叫圖</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>先列「所有匯出名(含別名)」,再逐名 Grep → 才追得全 wrapper 後的真實用量。</div>
+
+  <div class="summary">
+    <h2>整個 Task 2.5 的記憶骨架</h2>
+    <p>六把內建工具,選對才不繞路:找<span class="num">內容</span>(函式名、錯誤訊息、import)用 <span class="num">Grep</span>;找<span class="num">檔名/路徑模式</span>(<code>**/*.test.tsx</code>)用 <span class="num">Glob</span>;整檔讀寫用 <span class="num">Read/Write</span>,改一小段用 <span class="num">Edit</span>(old_string 要唯一);Edit 因<span class="num">文字不唯一</span>失敗,就退回 <span class="num">Read+Write</span> 整檔處理。理解陌生 codebase 要<span class="num">漸進式</span>——先 Grep 找入口、再 Read 沿 import 追,別一次讀光整個 repo;追 wrapper 後的函式用量,先列<span class="num">所有匯出名(含別名)</span>再逐名搜。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 2: Tool Design &amp; MCP Integration
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

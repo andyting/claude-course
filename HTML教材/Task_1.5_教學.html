@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 1.5 — 用 Agent SDK hooks 攔截工具呼叫與正規化資料</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 1</div>
+    <h1>Task Statement 1.5<br>用 Agent SDK hooks 攔截工具呼叫與正規化資料</h1>
+    <p>Apply Agent SDK hooks for tool call interception and data normalization</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 1.5 — Apply Agent SDK hooks for tool call interception and data normalization</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Hook patterns (e.g., <code>PostToolUse</code>) that intercept tool results for transformation before the model processes them</li>
+      <li>Hook patterns that intercept outgoing tool calls to enforce compliance rules (e.g., blocking refunds above a threshold)</li>
+      <li>The distinction between using hooks for deterministic guarantees versus relying on prompt instructions for probabilistic compliance</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Implementing <code>PostToolUse</code> hooks to normalize heterogeneous data formats (Unix timestamps, ISO 8601, numeric status codes) from different MCP tools before the agent processes them</li>
+      <li>Implementing tool call interception hooks that block policy-violating actions (e.g., refunds exceeding $500) and redirect to alternative workflows (e.g., human escalation)</li>
+      <li>Choosing hooks over prompt-based enforcement when business rules require guaranteed compliance</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 1</span><br>
+    <span class="scen-name">Scenario 1 — Customer Support Resolution Agent</span>
+    <p>延續客服解決 agent:用 hook 攔截 process_refund 之類的高風險工具呼叫,在送出前強制檢查 compliance(如尚未驗證客戶就擋下)。本 Task 的攔截與正規化,就是這道確定性防線。</p>
+  </div>
+
+
+  <div class="lead">
+    一句話抓住主軸:<b>Hook 是「掛」在工具呼叫前後的攔截器,讓你用程式碼(而非靠 prompt 拜託模型)強制做兩件事——把回傳資料洗乾淨、把違規動作擋下來。</b> 核心對比始終是:<b>hook = 確定性保證(deterministic);prompt = 機率性遵守(probabilistic)。</b>
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;PostToolUse:在模型「看到」工具結果前先轉換它</h2>
+  <p>工具(例如某個 MCP API)回傳結果後,結果<b>不會直接</b>送進模型。<code>PostToolUse</code> hook 卡在中間,先攔下這份結果,讓你做轉換、清洗、補欄位,再把處理過的版本交給模型。模型看到的是你整理好的乾淨資料。</p>
+  <p>想像成郵件分檢:包裹(工具結果)送到你手上前,先經過一個分檢站(hook),貼好標籤、整理格式,你才收到。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># PostToolUse:工具回傳後、模型處理前,先攔截轉換</span>
+<span class="tok-kw">def</span> <span class="tok-fn">post_tool_use_hook</span>(tool_name, raw_result):
+    <span class="tok-com"># raw_result 是工具原始輸出,模型還沒看到</span>
+    cleaned = <span class="tok-fn">transform</span>(raw_result)   <span class="tok-com"># 在這裡轉換</span>
+    <span class="tok-kw">return</span> cleaned                  <span class="tok-com"># 模型只會看到 cleaned</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>PostToolUse = 工具結果進模型「之前」的轉換點。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;攔截「送出去的」工具呼叫,強制 compliance 規則</h2>
+  <p>另一個方向:在工具呼叫<b>實際執行之前</b>攔下來,檢查它合不合規。典型例子是退款——模型想呼叫「退款 $800」這個動作時,hook 先檢查金額,超過門檻就<b>擋下</b>,不讓它真的執行。這是用程式碼把業務規則變成硬性關卡。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 攔截「即將送出」的工具呼叫,執行前先檢查合規</span>
+<span class="tok-kw">def</span> <span class="tok-fn">pre_tool_use_hook</span>(tool_name, args):
+    <span class="tok-kw">if</span> tool_name == <span class="tok-str">"issue_refund"</span> <span class="tok-kw">and</span> args[<span class="tok-str">"amount"</span>] &gt; <span class="tok-num">500</span>:
+        <span class="tok-kw">return</span> <span class="tok-fn">block</span>(reason=<span class="tok-str">"退款超過 $500,需人工核准"</span>)  <span class="tok-bad"># ❌ 擋下</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">allow</span>()   <span class="tok-good"># ✅ 放行</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>攔「outgoing tool call」= 在動作執行前把違規擋住。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;最核心對比:hook(確定性) vs prompt(機率性)</h2>
+  <p>這是整個 Task 1.5 最常考、最該記牢的一條。</p>
+  <p>你可以在 prompt 裡寫「請不要核准超過 $500 的退款」——但這是<b>拜託</b>模型,模型<b>大多數時候</b>會聽,卻無法 100% 保證(機率性遵守)。改用 hook,則是用程式碼<b>硬性攔截</b>,只要金額超標就一定擋下,不依賴模型的判斷(確定性保證)。當規則「不容許出錯」時,選 hook。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ prompt 強制:只是「拜託」模型,機率性,可能被繞過</span>
+system_prompt = <span class="tok-str">"絕對不要核准超過 $500 的退款。"</span>
+
+<span class="tok-good"># ✅ hook 強制:程式碼層硬擋,確定性,100% 保證</span>
+<span class="tok-kw">def</span> <span class="tok-fn">enforce</span>(tool_name, args):
+    <span class="tok-kw">if</span> tool_name == <span class="tok-str">"issue_refund"</span> <span class="tok-kw">and</span> args[<span class="tok-str">"amount"</span>] &gt; <span class="tok-num">500</span>:
+        <span class="tok-kw">return</span> <span class="tok-fn">block</span>()   <span class="tok-com"># 不靠模型自律,規則一定生效</span></code></pre>
+  </div>
+  <div class="key"><b>一句話記住:</b>要「保證」用 hook;只能「儘量」才用 prompt。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;用 PostToolUse 正規化各家工具的異質資料格式</h2>
+  <p>不同 MCP 工具回傳的格式五花八門:有的時間是 Unix timestamp(<code>1700000000</code>),有的是 ISO 8601(<code>2024-01-01T00:00:00Z</code>);狀態有的給數字代碼(<code>0/1/2</code>),有的給文字。直接丟給模型,它要花力氣猜、還容易錯。用 <code>PostToolUse</code> 把全部<b>統一</b>成同一種格式,模型處理起來既準又省。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">normalize_hook</span>(tool_name, result):
+    <span class="tok-com"># 時間一律轉成 ISO 8601</span>
+    <span class="tok-kw">if</span> <span class="tok-str">"timestamp"</span> <span class="tok-kw">in</span> result:
+        ts = result[<span class="tok-str">"timestamp"</span>]
+        <span class="tok-kw">if</span> <span class="tok-fn">isinstance</span>(ts, (<span class="tok-fn">int</span>, <span class="tok-fn">float</span>)):       <span class="tok-com"># Unix → ISO</span>
+            result[<span class="tok-str">"timestamp"</span>] = datetime.<span class="tok-fn">utcfromtimestamp</span>(ts).<span class="tok-fn">isoformat</span>()
+
+    <span class="tok-com"># 數字狀態碼 → 統一文字</span>
+    status_map = {<span class="tok-num">0</span>: <span class="tok-str">"pending"</span>, <span class="tok-num">1</span>: <span class="tok-str">"active"</span>, <span class="tok-num">2</span>: <span class="tok-str">"closed"</span>}
+    <span class="tok-kw">if</span> <span class="tok-fn">isinstance</span>(result.<span class="tok-fn">get</span>(<span class="tok-str">"status"</span>), <span class="tok-fn">int</span>):
+        result[<span class="tok-str">"status"</span>] = status_map[result[<span class="tok-str">"status"</span>]]
+
+    <span class="tok-kw">return</span> result   <span class="tok-good"># ✅ 模型收到的是統一格式</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>異質格式(Unix / ISO / 數字碼)在 PostToolUse 統一,再交給模型。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;攔截違規動作並改導到替代流程(如人工升級)</h2>
+  <p>光擋下還不夠好——擋下之後要<b>給出路</b>。退款超過 $500 不只是拒絕,而是把它<b>改導(redirect)</b>到人工升級流程,讓真人來處理。hook 不只是個「不」,也是個「轉接」。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">refund_guard_hook</span>(tool_name, args):
+    <span class="tok-kw">if</span> tool_name == <span class="tok-str">"issue_refund"</span> <span class="tok-kw">and</span> args[<span class="tok-str">"amount"</span>] &gt; <span class="tok-num">500</span>:
+        <span class="tok-com"># 不只擋下,還改導到人工升級工作流</span>
+        <span class="tok-kw">return</span> {
+            <span class="tok-str">"action"</span>: <span class="tok-str">"block"</span>,
+            <span class="tok-str">"redirect_to"</span>: <span class="tok-str">"human_escalation"</span>,   <span class="tok-good"># ✅ 給替代流程</span>
+            <span class="tok-str">"message"</span>: <span class="tok-str">"金額超過上限,已轉交專員審核。"</span>,
+        }
+    <span class="tok-kw">return</span> {<span class="tok-str">"action"</span>: <span class="tok-str">"allow"</span>}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>block 違規動作 + redirect 到替代流程(human escalation),不是單純拒絕。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;當規則「必須保證」時,選 hook 而非 prompt</h2>
+  <p>這是知識 3 的決策版。面對一條業務規則,你要會判斷:它是「最好遵守」還是「不容違反」?若是後者(法遵、財務上限、安全紅線),就<b>不能</b>把它交給 prompt 碰運氣,必須用 hook 在程式碼層保證。判斷準則:出錯的代價是否無法承受。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 決策準則:這條規則「違反的代價」能不能承受?</span>
+
+<span class="tok-com"># 不容違反(財務上限、法遵、安全) → 用 hook 確定性保證</span>
+<span class="tok-kw">if</span> rule.<span class="tok-fn">is_critical</span>():          <span class="tok-good"># ✅ guaranteed</span>
+    <span class="tok-fn">enforce_with_hook</span>(rule)
+
+<span class="tok-com"># 偏好 / 風格 / 軟性建議 → prompt 就夠了</span>
+<span class="tok-kw">else</span>:                            <span class="tok-com"># 機率性遵守可接受</span>
+    <span class="tok-fn">add_to_prompt</span>(rule)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>關鍵/不可違反的規則 → hook;軟性偏好 → prompt。判準=出錯代價。</div>
+
+  <div class="summary">
+    <h2>整個 Task 1.5 的記憶骨架</h2>
+    <p>Hook 是掛在工具呼叫前後的<span class="num">攔截器</span>:<span class="num">PostToolUse</span> 在結果進模型前做<span class="num">正規化</span>(Unix/ISO/數字碼統一);攔截 outgoing 呼叫可在動作執行前<span class="num">擋下違規</span>(退款 &gt; $500)並<span class="num">改導到人工升級</span>。最核心的一條對比:<span class="num">hook = 確定性保證</span>,<span class="num">prompt = 機率性遵守</span>——規則不容違反就用 hook,軟性偏好才交給 prompt。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

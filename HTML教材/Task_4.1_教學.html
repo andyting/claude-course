@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 4.1 — 用明確標準提升精準度、降低 false positive</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--blue); text-transform: uppercase; margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 12px 16px; margin: 16px 0; font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg); color: #e2e8f0; border-radius: 10px;
+    padding: 18px 20px; overflow-x: auto; font-size: 14px; line-height: 1.6;
+    margin: 0; font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,0.12); color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+    padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900); color: #f1f5f9; border-radius: 12px;
+    padding: 28px 30px; margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12; color: #e2e8f0; border-left: 4px solid var(--blue);
+    border-radius: 10px; padding: 16px 22px; margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 4</div>
+    <h1>Task Statement 4.1<br>用明確標準提升精準度、降低 false positive</h1>
+    <p>Design prompts with explicit criteria to improve precision and reduce false positives</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 4.1 — Design prompts with explicit criteria to improve precision and reduce false positives</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>The importance of explicit criteria over vague instructions (e.g., "flag comments only when claimed behavior contradicts actual code behavior" vs "check that comments are accurate")</li>
+      <li>How general instructions like "be conservative" or "only report high-confidence findings" fail to improve precision compared to specific categorical criteria</li>
+      <li>The impact of false positive rates on developer trust: high false positive categories undermine confidence in accurate categories</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Writing specific review criteria that define which issues to report (bugs, security) versus skip (minor style, local patterns) rather than relying on confidence-based filtering</li>
+      <li>Temporarily disabling high false-positive categories to restore developer trust while improving prompts for those categories</li>
+      <li>Defining explicit severity criteria with concrete code examples for each severity level to achieve consistent classification</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 5</span><br>
+    <span class="scen-name">Scenario 5 — Claude Code for Continuous Integration</span>
+    <p>把 Claude Code 接進 CI 做自動 code review。重點不是「找更多問題」,而是設計能給<b>可行動回饋、降低 false positive</b> 的 prompt——因為一旦 reviewer 常誤報,工程師就不再信任它的留言。本 Task 教你怎麼用明確標準取代模糊指令,把誤報壓下來。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>提升精準、降誤報靠的是「明確的分類標準」,不是「叫它保守一點」。</b>把「報什麼、跳過什麼」用具體準則寫死;誤報高的類別先暫時關掉以挽回信任;每個 severity 都配具體 code 範例,讓分級一致。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;明確標準 &gt; 模糊指令</h2>
+  <p>提升精準度的根本:把指令<b>具體化、可判定</b>。官方對照超經典——「<b>只在註解宣稱的行為與實際程式行為相矛盾時才標記</b>」遠勝於「<b>檢查註解是否準確</b>」。前者給了一條清楚的判定線(矛盾才報),後者全憑模型自由心證,什麼都可能被當成「不準確」。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 模糊:全憑自由心證 → 誤報一堆</span>
+claude -p <span class="tok-str">"review 這份 diff,檢查註解是否準確。"</span>
+
+<span class="tok-good"># ✅ 明確:給可判定的標準 → 只報真矛盾</span>
+claude -p <span class="tok-str">"review 這份 diff。只有當『註解宣稱的行為』
+與『程式實際行為』相矛盾時才標記該註解;
+單純不夠詳細、風格問題,不要報。"</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>「矛盾才標記」這類可判定標準 &gt; 「檢查是否準確」這類模糊指令。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;「保守一點」「只報高信心」這類通則無效</h2>
+  <p>很多人想靠調語氣降誤報:「<b>be conservative</b>」「<b>only report high-confidence findings</b>」。考點明說:這些<b>通則無法真正提升精準度</b>,因為它們沒告訴模型「具體哪一類該報、哪一類不報」——模型還是用自己的標準判斷,只是嘴上更謹慎。真正有效的是<b>具體的分類準則(categorical criteria)</b>。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 信心式過濾:沒有可操作的界線</span>
+claude -p <span class="tok-str">"review 時保守一點,只回報高信心的問題。"</span>
+<span class="tok-com"># → 模型仍自由心證,誤報照樣發生</span>
+
+<span class="tok-good"># ✅ 改用具體分類準則</span>
+claude -p <span class="tok-str">"只回報:① 會造成錯誤行為的 bug
+② 安全漏洞(注入、認證繞過)。
+不報:命名偏好、可讀性建議、本地慣例。"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>"be conservative" / "high-confidence" 是信心式過濾,無效;要用具體 categorical criteria。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;false positive 會侵蝕信任,還會拖累準確的類別</h2>
+  <p>關鍵後果:某一類誤報太高,工程師會<b>連帶不信任其他準確的類別</b>。一旦 reviewer 留言常常是雜訊,大家就學會「直接無視」——這時連它真的抓到的嚴重 bug 也被一起跳過。所以降誤報不只是品質問題,更是<b>維持整套自動 review 可信度</b>的問題。</p>
+  <div class="key"><b>考點重點:</b>高 false positive 的類別會拉低開發者對「準確類別」的整體信任,導致真問題也被忽略。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;寫明確 review 準則:界定「報什麼 / 跳過什麼」</h2>
+  <p>知識 1、2 的落點。與其靠信心過濾,不如直接列<b>要報</b>(bug、安全)與<b>要跳過</b>(小風格、本地慣例)的清單。在 Scenario 5 的 CI review,這份準則就是 prompt 的核心。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ CI review prompt:明列 report vs skip</span>
+git diff origin/main...HEAD | claude -p <span class="tok-str">"
+你是 CI 的 code reviewer。
+【要回報】
+  - bug:會導致錯誤輸出 / 例外 / 資料損毀
+  - security:注入、認證/授權繞過、機密外洩
+【要跳過】
+  - 次要風格(命名、排版、import 順序)
+  - 不影響行為的本地慣例
+依此準則 review 下方 diff。"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>用「report(bug/security)vs skip(minor style/local pattern)」的具體清單,取代信心式過濾。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;暫時關掉高誤報類別,先把信任救回來</h2>
+  <p>當某一類(例如「可讀性建議」)誤報失控、工程師開始無視整個 bot 時,務實做法:<b>先把那一類關掉</b>,讓 reviewer 只留下精準的類別、恢復信任;同時在背景<b>慢慢改善那一類的 prompt</b>,改好再開回來。先止血,再修因。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 暫時停用高誤報類別,挽回信任</span>
+git diff origin/main...HEAD | claude -p <span class="tok-str">"
+本輪 review 暫時【停用】可讀性/風格類建議
+(該類誤報過高、正在重寫準則)。
+只回報 bug 與 security,兩類都附可行動的修法。"</span>
+<span class="tok-com"># → 留言乾淨、可信;待風格準則改好再重新啟用</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>高 false-positive 類別先暫時 disable 救信任,同時離線改 prompt,改好再上。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;為每個 severity 配具體 code 範例,讓分級一致</h2>
+  <p>要讓「critical / high / medium / low」每次分級都一致,光給形容詞不夠,要<b>為每一級附具體的 code 範例</b>。模型有了錨點,分類才穩定,不會同一種問題這次 high 下次 low。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 每個 severity 配具體範例 → 分級一致</span>
+git diff origin/main...HEAD | claude -p <span class="tok-str">"
+依下列 severity 定義分類 findings:
+  critical 例:SQL 字串拼接造成注入 → execute(f'... {user}')
+  high     例:未檢查的 None 解參照 → user.id 但 user 可能為 None
+  medium   例:吞掉例外只 log,未向上拋
+  low      例:magic number 未具名常數
+"</span> --json-schema review_schema.json</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>每個 severity 都給具體 code 範例當錨點 → classification 一致、可重現。</div>
+
+  <div class="summary">
+    <h2>整個 Task 4.1 的記憶骨架</h2>
+    <p>在 Scenario 5 設計 CI code review 的 prompt,核心是<span class="num">用明確標準提升精準、降低 false positive</span>:① <span class="num">明確標準 &gt; 模糊指令</span>——「註解與實際行為矛盾才標記」勝過「檢查註解是否準確」;② <span class="num">「保守一點 / 只報高信心」這類信心式通則無效</span>,要改用具體 categorical criteria;③ 記住<span class="num">高誤報會侵蝕信任</span>,還拖累準確類別。三個技能:寫明列 <span class="num">report(bug/security)vs skip(minor style)</span> 的準則;誤報失控時<span class="num">先暫時關掉該類別</span>救信任、再離線改 prompt;為每個 <span class="num">severity 配具體 code 範例</span>讓分級一致。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

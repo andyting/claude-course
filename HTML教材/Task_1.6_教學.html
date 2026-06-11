@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 1.6 — 為複雜工作流設計任務拆解策略</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 1</div>
+    <h1>Task Statement 1.6<br>為複雜工作流設計任務拆解策略</h1>
+    <p>Design task decomposition strategies for complex workflows</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 1.6 — Design task decomposition strategies for complex workflows</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>When to use fixed sequential pipelines (prompt chaining) versus dynamic adaptive decomposition based on intermediate findings</li>
+      <li>Prompt chaining patterns that break reviews into sequential steps (e.g., analyze each file individually, then run a cross-file integration pass)</li>
+      <li>The value of adaptive investigation plans that generate subtasks based on what is discovered at each step</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Selecting task decomposition patterns appropriate to the workflow: prompt chaining for predictable multi-aspect reviews, dynamic decomposition for open-ended investigation tasks</li>
+      <li>Splitting large code reviews into per-file local analysis passes plus a separate cross-file integration pass to avoid attention dilution</li>
+      <li>Decomposing open-ended tasks (e.g., "add comprehensive tests to a legacy codebase") by first mapping structure, identifying high-impact areas, then creating a prioritized plan that adapts as dependencies are discovered</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 5</span><br>
+    <span class="scen-name">Scenario 5 — Claude Code for Continuous Integration</span>
+    <p>你在把 Claude Code 接進 CI/CD 做自動 code review。本 Task 的任務拆解策略,決定大型 PR 要拆成逐檔 local review 還是跨檔 integration review,以維持注意力不被稀釋。</p>
+  </div>
+
+
+  <div class="lead">
+    一句話抓住主軸:<b>把大任務拆小有兩種路——「固定流水線」(prompt chaining,步驟事先排好)和「動態適應拆解」(走一步看一步,依發現生成下一步)。</b> 整個 Task 就在教你「什麼時候用哪一種」。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;固定流水線(prompt chaining) vs 動態適應拆解</h2>
+  <p>這是 Task 1.6 的主軸對比。<br>
+  <b>固定流水線</b>:步驟在開始前就排定,一步接一步固定走,適合<b>可預測</b>的任務(我事先就知道要做哪幾步)。<br>
+  <b>動態適應拆解</b>:下一步要做什麼,<b>取決於上一步發現了什麼</b>,適合<b>開放式</b>、事前無法把步驟列完的任務。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 固定流水線:步驟事先排好,照順序跑(可預測任務)</span>
+<span class="tok-kw">def</span> <span class="tok-fn">fixed_pipeline</span>(doc):
+    a = <span class="tok-fn">step_extract</span>(doc)     <span class="tok-com"># 步驟固定</span>
+    b = <span class="tok-fn">step_summarize</span>(a)
+    c = <span class="tok-fn">step_translate</span>(b)
+    <span class="tok-kw">return</span> c
+
+<span class="tok-com"># 動態適應:下一步依「這一步的發現」決定(開放式任務)</span>
+<span class="tok-kw">def</span> <span class="tok-fn">adaptive</span>(goal):
+    findings = <span class="tok-fn">investigate</span>(goal)
+    next_tasks = <span class="tok-fn">plan_from</span>(findings)   <span class="tok-com"># 依發現生成子任務</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">run</span>(next_tasks)</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>可預測 → 固定流水線;開放/未知 → 動態適應拆解。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;Prompt chaining:把審查拆成「逐步」的序列</h2>
+  <p>prompt chaining 的經典用法是把一個複雜審查切成幾個固定步驟,前一步的輸出餵給後一步。官方例子:<b>先逐一分析每個檔案,再跑一個跨檔整合(cross-file integration)pass</b>。先個別、再整體,兩階段串起來。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Prompt chaining:逐檔分析 → 跨檔整合(兩階段序列)</span>
+<span class="tok-kw">def</span> <span class="tok-fn">review_codebase</span>(files):
+    <span class="tok-com"># 階段一:每個檔案各自分析</span>
+    per_file = [<span class="tok-fn">analyze_one_file</span>(f) <span class="tok-kw">for</span> f <span class="tok-kw">in</span> files]
+
+    <span class="tok-com"># 階段二:把各檔結果合起來,跑一次跨檔整合</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">cross_file_integration_pass</span>(per_file)</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>典型 chain = 逐檔 local 分析 →(串)→ 跨檔 integration pass。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;適應式調查計畫的價值:依「每步的發現」長出子任務</h2>
+  <p>開放式任務的價值在於:你<b>事前不可能列完所有步驟</b>。適應式計畫讓系統在每一步根據實際發現,動態生成接下來該做什麼。發現了相依性、發現了高風險區,計畫就跟著長出對應的新子任務。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 適應式調查:每步的發現,決定下一批子任務</span>
+<span class="tok-kw">def</span> <span class="tok-fn">adaptive_investigation</span>(goal):
+    plan = [<span class="tok-fn">initial_step</span>(goal)]
+    results = []
+    <span class="tok-kw">while</span> plan:
+        step = plan.<span class="tok-fn">pop</span>(<span class="tok-num">0</span>)
+        found = <span class="tok-fn">execute</span>(step)
+        results.<span class="tok-fn">append</span>(found)
+        <span class="tok-com"># 依「這步發現了什麼」生成新的子任務,加回計畫</span>
+        plan += <span class="tok-fn">generate_subtasks_from</span>(found)   <span class="tok-good"># ✅ 計畫會長大</span>
+    <span class="tok-kw">return</span> results</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>適應式計畫 = 子任務由「中途發現」生成,而非一開始就寫死。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;為工作流挑對拆解模式</h2>
+  <p>這是知識 1 的實作判斷。看到任務先分類:<b>可預測的多面向審查</b>(我知道要查哪幾項)→ 用 <b>prompt chaining</b>;<b>開放式調查</b>(終點不明、得邊查邊定方向)→ 用 <b>動態拆解</b>。挑錯模式的代價:用固定流水線做開放任務會卡住,用動態拆解做可預測任務則徒增複雜度。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">choose_decomposition</span>(task):
+    <span class="tok-kw">if</span> task.<span class="tok-fn">is_predictable</span>():       <span class="tok-com"># 面向已知、步驟可列</span>
+        <span class="tok-kw">return</span> <span class="tok-str">"prompt_chaining"</span>      <span class="tok-good"># ✅ 固定流水線</span>
+    <span class="tok-kw">else</span>:                            <span class="tok-com"># 開放式、終點不明</span>
+        <span class="tok-kw">return</span> <span class="tok-str">"dynamic_decomposition"</span> <span class="tok-good"># ✅ 動態適應</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>可預測多面向審查 → chaining;開放式調查 → 動態拆解。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;大型 code review 拆成「逐檔 local + 跨檔 integration」避免注意力稀釋</h2>
+  <p>為什麼要拆?因為一次把所有檔案塞進同一個 context,模型的注意力會被<b>稀釋(attention dilution)</b>——看了太多東西,每個都看不細。解法:每個檔案<b>單獨</b>跑一個 local 分析 pass(注意力集中在一個檔),再用一個<b>獨立</b>的 pass 處理跨檔關係。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 全部塞一起 → 注意力稀釋,每個檔都看不深</span>
+<span class="tok-fn">review</span>(all_files_concatenated)
+
+<span class="tok-good"># ✅ 拆開:CI 中對 PR 的每個變更檔各跑一次 local pass</span>
+<span class="tok-com"># 每個 pass 用 `claude -p` 非互動執行,避免 CI job 卡在等待輸入</span>
+<span class="tok-kw">def</span> <span class="tok-fn">review_pull_request</span>(changed_files):
+    local = [<span class="tok-fn">claude_p</span>(<span class="tok-str">f"review {f}"</span>) <span class="tok-kw">for</span> f <span class="tok-kw">in</span> changed_files]  <span class="tok-com"># 一次專心一個檔</span>
+    integration = <span class="tok-fn">cross_file_pass</span>(local)        <span class="tok-com"># 另一個 pass 看全局</span>
+    <span class="tok-kw">return</span> local, integration</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>逐檔 local + 獨立跨檔 integration → 避免 attention dilution。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;拆開放式任務:先測繪結構 → 找高影響區 → 建可調整的優先計畫</h2>
+  <p>官方例子是「為老舊程式庫補上完整測試」。這種沒有現成步驟的任務,正確拆法是三段:<b>(1) 先 map 結構</b>(摸清整體長相)→ <b>(2) 找出高影響區</b>(哪些地方最該先測)→ <b>(3) 排出優先順序的計畫,並隨著發現相依性而調整</b>。重點在最後一句:計畫不是死的,發現新相依性就更新。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 開放式任務拆解三步:測繪 → 找高影響區 → 可調整計畫</span>
+<span class="tok-kw">def</span> <span class="tok-fn">decompose_legacy_testing</span>(codebase):
+    structure   = <span class="tok-fn">map_structure</span>(codebase)        <span class="tok-com"># 1. 先摸清結構</span>
+    high_impact = <span class="tok-fn">find_high_impact_areas</span>(structure) <span class="tok-com"># 2. 找最該先測的</span>
+    plan        = <span class="tok-fn">prioritize</span>(high_impact)         <span class="tok-com"># 3. 排優先序</span>
+
+    <span class="tok-kw">for</span> area <span class="tok-kw">in</span> plan:
+        deps = <span class="tok-fn">discover_dependencies</span>(area)
+        plan = <span class="tok-fn">adapt_plan</span>(plan, deps)   <span class="tok-good"># ✅ 發現相依性就調整計畫</span>
+    <span class="tok-kw">return</span> plan</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>map 結構 → 找高影響區 → 排優先序 → 隨相依性發現持續調整。</div>
+
+  <div class="summary">
+    <h2>整個 Task 1.6 的記憶骨架</h2>
+    <p>任務拆解有兩條路:<span class="num">固定流水線(prompt chaining)</span>給可預測任務(例:逐檔分析 → 跨檔整合),<span class="num">動態適應拆解</span>給開放式任務(子任務由<span class="num">中途發現</span>長出)。挑模式看任務可不可預測。大型 review 要拆成<span class="num">逐檔 local + 獨立跨檔 pass</span> 以免<span class="num">注意力稀釋</span>;開放式任務(如補測試)則<span class="num">先測繪結構 → 找高影響區 → 排優先序</span>,並隨相依性發現持續調整。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

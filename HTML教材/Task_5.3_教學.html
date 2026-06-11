@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 5.3 — 在多代理系統中實作錯誤傳播策略</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 5</div>
+    <h1>Task Statement 5.3<br>在多代理系統中實作錯誤傳播策略</h1>
+    <p>Implement error propagation strategies across multi-agent systems</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 5.3 — Implement error propagation strategies across multi-agent systems</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Structured error context (failure type, attempted query, partial results, alternative approaches) as enabling intelligent coordinator recovery decisions</li>
+      <li>The distinction between access failures (timeouts needing retry decisions) and valid empty results (successful queries with no matches)</li>
+      <li>Why generic error statuses ("search unavailable") hide valuable context from the coordinator</li>
+      <li>Why silently suppressing errors (returning empty results as success) or terminating entire workflows on single failures are both anti-patterns</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Returning structured error context including failure type, what was attempted, partial results, and potential alternatives to enable coordinator recovery</li>
+      <li>Distinguishing access failures from valid empty results in error reporting so the coordinator can make appropriate decisions</li>
+      <li>Having subagents implement local recovery for transient failures and only propagate errors they cannot resolve, including what was attempted and partial results</li>
+      <li>Structuring synthesis output with coverage annotations indicating which findings are well-supported versus which topic areas have gaps due to unavailable sources</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 3</span><br>
+    <span class="scen-name">Scenario 3 — Multi-Agent Research System（多代理研究系統）</span>
+    <p>多代理研究系統裡,coordinator 把任務派給 web 搜尋、文件分析、綜合等 subagent。當其中一個 subagent 的搜尋逾時、或某個來源查無資料時,錯誤要怎麼回報才能讓 coordinator 做出聰明的恢復決策?本 Task 教的就是「結構化錯誤傳播」——而不是把一個失敗變成整個研究流程崩潰。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>subagent 出錯時,別回一句「搜尋不可用」就沒了。要回結構化錯誤(失敗類型、試過什麼、部分結果、替代方案),coordinator 才能聰明地重試、改道或標注缺口——而不是默默吞錯,也不是一個失敗就讓整個研究流程崩潰。</b>
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;結構化錯誤 context 讓 coordinator 能做聰明的恢復決策</h2>
+  <p>當 web 搜尋 subagent 失敗,它回給 coordinator 的不該只是「失敗」二字。理想的<b>結構化錯誤 context</b> 含四項:<b>失敗類型</b>、<b>試過的查詢</b>、<b>已拿到的部分結果</b>、<b>可能的替代方案</b>。有了這些,coordinator 才能判斷該重試、換來源、還是先用部分結果。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ web 搜尋 subagent 回結構化錯誤,而非一句「失敗」</span>
+search_error = {
+    <span class="tok-str">"status"</span>: <span class="tok-str">"error"</span>,
+    <span class="tok-str">"failure_type"</span>: <span class="tok-str">"timeout"</span>,
+    <span class="tok-str">"attempted_query"</span>: <span class="tok-str">"2026 固態電池 量產進度"</span>,
+    <span class="tok-str">"partial_results"</span>: [<span class="tok-str">"找到 2 筆初步來源,尚未抓全文"</span>],
+    <span class="tok-str">"alternatives"</span>: [<span class="tok-str">"改用文件分析 subagent 查內部報告"</span>],
+}
+<span class="tok-com"># coordinator 可據此:重試、改派 analysis subagent、或先用 partial</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>結構化錯誤 = 失敗類型 + 試過什麼 + 部分結果 + 替代方案 → 讓 coordinator 能恢復。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;區分「存取失敗」與「合法的空結果」</h2>
+  <p>兩種情況長得像、意義完全不同:<b>存取失敗</b>(逾時、連線斷)是「沒查成功」,coordinator 可能要<b>重試</b>;<b>合法空結果</b>(查詢成功但真的沒有相符)是「查成功、結果就是空」,重試也沒用。把這兩者混為一談,coordinator 就會做錯決定(該重試的不重試、不該重試的狂重試)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 兩種都回 []，coordinator 分不出該不該重試</span>
+<span class="tok-kw">return</span> []
+
+<span class="tok-good"># ✅ 明確區分</span>
+<span class="tok-kw">def</span> <span class="tok-fn">search_subagent</span>(query):
+    <span class="tok-kw">try</span>:
+        hits = <span class="tok-fn">web_search</span>(query)
+        <span class="tok-com"># 查成功但沒結果 = 合法空結果,不需重試</span>
+        <span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"ok"</span>, <span class="tok-str">"results"</span>: hits}   <span class="tok-com"># hits 可能為 []</span>
+    <span class="tok-kw">except</span> Timeout:
+        <span class="tok-com"># 存取失敗 = 沒查成功,coordinator 可決定是否重試</span>
+        <span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"error"</span>, <span class="tok-str">"failure_type"</span>: <span class="tok-str">"timeout"</span>}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>存取失敗(可重試)≠ 合法空結果(查成功就是空)。回報時要分清楚。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;籠統的錯誤狀態會把寶貴 context 藏起來</h2>
+  <p>回一句 <code>"search unavailable"</code> 看似簡潔,實則把所有有用資訊都<b>藏起來</b>了——是逾時還是限流?試過哪個查詢?有沒有拿到一半?coordinator 什麼都不知道,只能放棄或盲目重試。籠統狀態 = 把恢復所需的線索全砍掉。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 籠統狀態,藏掉所有 context</span>
+<span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"search unavailable"</span>}
+<span class="tok-com"># coordinator 不知道:為什麼?試過什麼?能不能換條路?</span>
+
+<span class="tok-good"># ✅ 揭露細節,coordinator 才有材料做決策</span>
+<span class="tok-kw">return</span> {
+    <span class="tok-str">"status"</span>: <span class="tok-str">"error"</span>,
+    <span class="tok-str">"failure_type"</span>: <span class="tok-str">"rate_limited"</span>,
+    <span class="tok-str">"attempted_query"</span>: <span class="tok-str">"固態電池 專利 2025"</span>,
+    <span class="tok-str">"retry_after_sec"</span>: <span class="tok-num">30</span>,
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>「search unavailable」這類籠統狀態藏掉 context;要揭露失敗細節。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;兩個反模式:默默吞錯 與 單一失敗就終止整個流程</h2>
+  <p>兩個極端都錯。<b>默默吞錯</b>:把錯誤當空結果回成「成功」——coordinator 以為這塊查過了沒東西,最終報告就缺了一塊還不自知。<b>單一失敗終止全流程</b>:一個 subagent 逾時就讓整個研究崩潰——其他 subagent 明明成功了,成果全丟。正解在兩者之間:回報錯誤、但讓流程帶著缺口繼續。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 反模式 A:默默吞錯,把失敗偽裝成「查到空」</span>
+<span class="tok-kw">except</span> Exception:
+    <span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"ok"</span>, <span class="tok-str">"results"</span>: []}   <span class="tok-com"># 缺口被藏起來</span>
+
+<span class="tok-bad"># ❌ 反模式 B:一個 subagent 失敗就 raise,炸掉整個研究</span>
+<span class="tok-kw">except</span> Exception <span class="tok-kw">as</span> e:
+    <span class="tok-kw">raise</span> e   <span class="tok-com"># 其他成功的 subagent 成果全被犧牲</span>
+
+<span class="tok-good"># ✅ 正解:回報錯誤,讓 coordinator 帶著缺口繼續</span>
+<span class="tok-kw">except</span> Exception <span class="tok-kw">as</span> e:
+    <span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"error"</span>, <span class="tok-str">"failure_type"</span>: <span class="tok-fn">type</span>(e).__name__}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>不默默吞錯(會藏缺口)、不單點失敗炸全流程(會丟成果)。回報並繼續。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;回傳含失敗類型/嘗試/部分結果/替代方案的結構化錯誤</h2>
+  <p>知識 1 的實作。把 subagent 的錯誤回傳統一成一個結構,四項齊全,coordinator 接到就能恢復。下面是文件分析 subagent 的範例。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">analysis_subagent</span>(doc_id):
+    <span class="tok-kw">try</span>:
+        <span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"ok"</span>, <span class="tok-str">"findings"</span>: <span class="tok-fn">analyze</span>(doc_id)}
+    <span class="tok-kw">except</span> PartialReadError <span class="tok-kw">as</span> e:
+        <span class="tok-kw">return</span> {
+            <span class="tok-str">"status"</span>: <span class="tok-str">"error"</span>,
+            <span class="tok-str">"failure_type"</span>: <span class="tok-str">"partial_read"</span>,
+            <span class="tok-str">"attempted"</span>: <span class="tok-str">f"分析文件 {doc_id}"</span>,
+            <span class="tok-str">"partial_results"</span>: e.parsed_sections,      <span class="tok-com"># 已解析的段落</span>
+            <span class="tok-str">"alternatives"</span>: [<span class="tok-str">"改用 web 搜尋補齊缺漏章節"</span>],
+        }</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>錯誤回傳四件套:failure_type / attempted / partial_results / alternatives。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;在錯誤回報中區分存取失敗與合法空結果</h2>
+  <p>知識 2 的實作。讓回報明確標出是哪一種,coordinator 才能對「逾時」決定重試、對「查無相符」直接接受。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">coordinator_handle</span>(resp):
+    <span class="tok-kw">if</span> resp[<span class="tok-str">"status"</span>] == <span class="tok-str">"ok"</span> <span class="tok-kw">and</span> <span class="tok-kw">not</span> resp[<span class="tok-str">"results"</span>]:
+        <span class="tok-com"># 合法空結果:這個來源就是沒有,接受並標注</span>
+        <span class="tok-fn">mark_gap</span>(<span class="tok-str">"此來源查無相符"</span>)
+    <span class="tok-kw">elif</span> resp[<span class="tok-str">"status"</span>] == <span class="tok-str">"error"</span> <span class="tok-kw">and</span> resp[<span class="tok-str">"failure_type"</span>] == <span class="tok-str">"timeout"</span>:
+        <span class="tok-com"># 存取失敗:可重試</span>
+        <span class="tok-fn">retry_with_backoff</span>(resp[<span class="tok-str">"attempted_query"</span>])</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>回報要讓 coordinator 一眼分清:空結果→接受標注,存取失敗→考慮重試。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;subagent 先本地恢復暫時性失敗,只把解決不了的往上拋</h2>
+  <p>暫時性失敗(短暫逾時、限流)應該由 subagent <b>自己先試著恢復</b>(重試幾次、退避),別一遇到就丟給 coordinator。只有<b>本地真的救不回來</b>時,才往上傳——而且要附上「試過什麼」與「部分結果」,coordinator 才能接手。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">search_with_local_recovery</span>(query, max_retry=<span class="tok-num">3</span>):
+    partial = []
+    <span class="tok-kw">for</span> attempt <span class="tok-kw">in</span> <span class="tok-fn">range</span>(max_retry):
+        <span class="tok-kw">try</span>:
+            <span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"ok"</span>, <span class="tok-str">"results"</span>: <span class="tok-fn">web_search</span>(query)}
+        <span class="tok-kw">except</span> Timeout:
+            <span class="tok-fn">sleep</span>(<span class="tok-num">2</span> ** attempt)            <span class="tok-com"># 本地退避重試</span>
+    <span class="tok-com"># 本地救不回 → 才往上拋,附 attempted + partial</span>
+    <span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"error"</span>, <span class="tok-str">"failure_type"</span>: <span class="tok-str">"timeout"</span>,
+            <span class="tok-str">"attempted"</span>: query, <span class="tok-str">"partial_results"</span>: partial}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>暫時性失敗 subagent 先本地恢復;救不回才上拋,並帶 attempted + partial。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;綜合輸出加「coverage 註記」,標明哪些有充分支持、哪些有缺口</h2>
+  <p>當部分來源失敗、研究帶著缺口完成,synthesis subagent 的報告不能假裝完整。要加上 <b>coverage 註記</b>:哪些結論有充分來源支持、哪些主題因來源不可用而有缺口。讓最終讀者知道報告的可信邊界在哪。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>report = {
+    <span class="tok-str">"findings"</span>: [...],
+    <span class="tok-str">"coverage"</span>: {
+        <span class="tok-str">"well_supported"</span>: [<span class="tok-str">"市場規模(3 個獨立來源)"</span>],
+        <span class="tok-str">"gaps"</span>: [
+            {<span class="tok-str">"topic"</span>: <span class="tok-str">"專利分布"</span>,
+             <span class="tok-str">"reason"</span>: <span class="tok-str">"專利資料庫搜尋逾時,未取得"</span>},  <span class="tok-good"># 誠實標缺口</span>
+        ],
+    },
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>synthesis 報告加 coverage 註記:well-supported vs. gaps,誠實標明缺口來源。</div>
+
+  <div class="summary">
+    <h2>整個 Task 5.3 的記憶骨架</h2>
+    <p>多代理研究裡,subagent 出錯要回<span class="num">結構化錯誤</span>(失敗類型/試過什麼/部分結果/替代方案),讓 coordinator 能聰明恢復;要分清<span class="num">存取失敗</span>(可重試)與<span class="num">合法空結果</span>(查成功就是空)。<span class="num">籠統狀態</span>(「search unavailable」)會藏掉 context。兩大反模式:<span class="num">默默吞錯</span>(藏缺口)與<span class="num">單點失敗炸全流程</span>(丟成果)都要避免。暫時性失敗 subagent <span class="num">先本地恢復</span>、救不回才上拋;最後 synthesis 報告加 <span class="num">coverage 註記</span>,誠實標明哪些有支持、哪些有缺口。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

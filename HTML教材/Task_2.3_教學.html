@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 2.3 — 在各 agent 間妥善分配工具並設定 tool choice</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  /* 官方考綱原文區 */
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  /* token 樣式 */
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 2</div>
+    <h1>Task Statement 2.3<br>在各 agent 間妥善分配工具並設定 tool choice</h1>
+    <p>Distribute tools appropriately across agents and configure tool choice</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 2.3 — Distribute tools appropriately across agents and configure tool choice</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>The principle that giving an agent access to too many tools (e.g., 18 instead of 4-5) degrades tool selection reliability by increasing decision complexity</li>
+      <li>Why agents with tools outside their specialization tend to misuse them (e.g., a synthesis agent attempting web searches)</li>
+      <li>Scoped tool access: giving agents only the tools needed for their role, with limited cross-role tools for specific high-frequency needs</li>
+      <li><code>tool_choice</code> configuration options: <code>"auto"</code>, <code>"any"</code>, and forced tool selection (<code>{"type": "tool", "name": "..."}</code>)</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Restricting each subagent's tool set to those relevant to its role, preventing cross-specialization misuse</li>
+      <li>Replacing generic tools with constrained alternatives (e.g., replacing <code>fetch_url</code> with <code>load_document</code> that validates document URLs)</li>
+      <li>Providing scoped cross-role tools for high-frequency needs (e.g., a <code>verify_fact</code> tool for the synthesis agent) while routing complex cases through the coordinator</li>
+      <li>Using <code>tool_choice</code> forced selection to ensure a specific tool is called first (e.g., forcing <code>extract_metadata</code> before enrichment tools), then processing subsequent steps in follow-up turns</li>
+      <li>Setting <code>tool_choice: "any"</code> to guarantee the model calls a tool rather than returning conversational text</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 3</span><br>
+    <span class="scen-name">Scenario 3 — Multi-Agent Research System</span>
+    <p>延續多代理研究系統:把工具依角色分配給各 subagent(搜尋 agent 只給搜尋、分析 agent 只給讀取),並用 tool_choice 控制何時必須呼叫特定工具。本 Task 教的就是這套工具分配與 tool choice。</p>
+  </div>
+
+
+  <div class="lead">
+    一句話抓住主軸:<b>工具不是給愈多愈好。</b> 給太多,模型挑工具就會變得不可靠;給了它本行以外的工具,它就會亂用。原則是「每個 agent 只拿它角色該用的工具」,再用 <code>tool_choice</code> 控制「要不要、用哪個」。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;工具太多,選擇可靠度會下降</h2>
+  <p>核心原則:給一個 agent <b>18 個工具</b>,遠不如給它精準的 <b>4～5 個</b>。工具一多,每次要選的「決策複雜度」就暴增,模型更容易選錯。少而精的工具集,選擇才可靠。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 一個 agent 塞 18 個工具 → 決策複雜度爆炸,常選錯</span>
+overloaded_agent = {<span class="tok-str">"allowedTools"</span>: [
+    <span class="tok-str">"search"</span>, <span class="tok-str">"fetch"</span>, <span class="tok-str">"summarize"</span>, <span class="tok-str">"translate"</span>, <span class="tok-str">"write_file"</span>,
+    <span class="tok-str">"send_email"</span>, <span class="tok-str">"query_db"</span>, <span class="tok-str">"chart"</span>, <span class="tok-str">"...再 10 個..."</span>,
+]}
+
+<span class="tok-good"># ✅ 聚焦 4～5 個與角色相關的工具 → 選擇可靠</span>
+search_agent = {<span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"web_search"</span>, <span class="tok-str">"load_document"</span>]}</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>4～5 個 &gt; 18 個;工具愈多,選擇可靠度愈低。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;拿到本行以外的工具,agent 會誤用</h2>
+  <p>當 agent 手上有<b>不屬於它專長</b>的工具時,它傾向去亂用。官方例子:一個負責「綜合(synthesis)」的 agent,如果給了它網路搜尋工具,它就會跑去搜尋——但那不是它該做的事。把工具限制在角色範圍內,就能避免這種跨專長的誤用。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ synthesis agent 被給了 web_search → 它會跑去搜尋(誤用)</span>
+synthesis_agent = {<span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"web_search"</span>, <span class="tok-str">"summarize"</span>]}
+
+<span class="tok-good"># ✅ synthesis 只該整合既有資料,不該自己去搜尋</span>
+synthesis_agent = {<span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"summarize"</span>]}  <span class="tok-com"># 不給搜尋工具</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>本行外的工具 → 誤用;工具要對齊 agent 的專長。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;Scoped tool access:只給角色需要的,外加少量高頻跨角色工具</h2>
+  <p>實務上的平衡點:每個 agent <b>只拿它角色需要的工具</b>(scoped access),但允許<b>少量</b>例外——那些「高頻、跨角色」的需求,可以給一兩個跨角色工具。重點是「少量、針對特定高頻需求」,不是大開後門。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>agents = {
+    <span class="tok-str">"search"</span>:    {<span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"web_search"</span>, <span class="tok-str">"load_document"</span>]},
+    <span class="tok-str">"analysis"</span>:  {<span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"extract_data_points"</span>, <span class="tok-str">"read_file"</span>]},
+    <span class="tok-str">"synthesis"</span>: {<span class="tok-str">"allowedTools"</span>: [
+        <span class="tok-str">"summarize"</span>,
+        <span class="tok-str">"verify_fact"</span>,   <span class="tok-com"># ← 少量跨角色工具,給高頻的「查證」需求</span>
+    ]},
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>scoped = 角色該用的工具 + 少量高頻跨角色工具。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;tool_choice 三種設定:auto / any / 強制指定</h2>
+  <p>除了「給哪些工具」,還能控制「怎麼用工具」。<code>tool_choice</code> 有三種:</p>
+  <p><b><code>"auto"</code></b>:模型自己決定要不要用工具(預設)。<br>
+  <b><code>"any"</code></b>:強制模型<b>一定要</b>呼叫某個工具(不准只回文字)。<br>
+  <b>強制指定 <code>{"type":"tool","name":"..."}</code></b>:指定<b>非用哪一個工具不可</b>。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>tool_choice_auto   = {<span class="tok-str">"type"</span>: <span class="tok-str">"auto"</span>}      <span class="tok-com"># 模型自行決定用不用</span>
+tool_choice_any    = {<span class="tok-str">"type"</span>: <span class="tok-str">"any"</span>}       <span class="tok-com"># 一定要用某個工具</span>
+tool_choice_forced = {<span class="tok-str">"type"</span>: <span class="tok-str">"tool"</span>,
+                      <span class="tok-str">"name"</span>: <span class="tok-str">"extract_metadata"</span>}  <span class="tok-com"># 指定非用這個不可</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>auto(自行) / any(必用工具) / forced(指定工具),三選一。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;把每個 subagent 的工具集限制在它的角色內</h2>
+  <p>知識 1～2 的實作:逐一替每個 subagent 設定 <code>allowedTools</code>,只放角色相關工具,從源頭杜絕跨專長誤用。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">scoped_tools</span>(role):
+    table = {
+        <span class="tok-str">"search"</span>:    [<span class="tok-str">"web_search"</span>, <span class="tok-str">"load_document"</span>],
+        <span class="tok-str">"analysis"</span>:  [<span class="tok-str">"extract_data_points"</span>, <span class="tok-str">"read_file"</span>],
+        <span class="tok-str">"synthesis"</span>: [<span class="tok-str">"summarize"</span>],
+        <span class="tok-str">"report"</span>:    [<span class="tok-str">"write_file"</span>],
+    }
+    <span class="tok-kw">return</span> table[role]   <span class="tok-com"># 每個角色只拿自己那一份</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;用「受限工具」替換「通用工具」</h2>
+  <p>通用工具(如 <code>fetch_url</code> 能抓任何網址)權限太寬、容易被誤用。改成<b>受限版本</b>:例如 <code>load_document</code>,只接受並驗證「文件 URL」。功能收斂、邊界清楚,模型不會拿去做不該做的事。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 通用:fetch_url 能抓任何網址,範圍太寬</span>
+fetch_url = {<span class="tok-str">"description"</span>: <span class="tok-str">"抓取任意 URL 的內容"</span>}
+
+<span class="tok-good"># ✅ 受限:load_document 只接受並驗證文件 URL</span>
+load_document = {
+    <span class="tok-str">"name"</span>: <span class="tok-str">"load_document"</span>,
+    <span class="tok-str">"description"</span>: <span class="tok-str">"載入文件型 URL(PDF/HTML 文件);會先驗證是否為合法文件連結。"</span>,
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>通用工具 → 受限工具,功能收斂、邊界明確。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;高頻跨角色需求給 scoped 工具,複雜情況才走 coordinator</h2>
+  <p>對應知識 3。像 synthesis agent 常需要「查證事實」,就給它一個專用的 <code>verify_fact</code> 工具處理這個<b>高頻</b>需求;但若遇到<b>複雜</b>狀況,仍要回頭<b>透過 coordinator</b> 協調,而不是讓 synthesis agent 自己越權處理。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>synthesis_agent = {
+    <span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"summarize"</span>, <span class="tok-str">"verify_fact"</span>],  <span class="tok-com"># verify_fact:高頻查證,直接給</span>
+}
+
+<span class="tok-com"># 但複雜案例(需多來源交叉、需重新搜尋)→ 回報 coordinator 處理</span>
+<span class="tok-kw">if</span> case.is_complex:
+    <span class="tok-kw">return</span> <span class="tok-fn">escalate_to_coordinator</span>(case)   <span class="tok-good"># 不自己越權,交給協調者</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>高頻需求給專用工具;複雜案例路由回 coordinator。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;用 forced 強制先呼叫某工具;用 "any" 保證一定呼叫工具</h2>
+  <p>兩個實用設定。<b>forced 強制指定</b>:確保某工具<b>第一個</b>被呼叫(例如先 <code>extract_metadata</code> 再做後續 enrichment),後續步驟在接下來的回合處理。<b><code>"any"</code></b>:當你<b>不要模型只回閒聊文字</b>、一定要它呼叫某個工具時使用。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># ✅ 強制先抽 metadata,再進入 enrichment;後續步驟下一回合再處理</span>
+first_turn = {
+    <span class="tok-str">"tools"</span>: [extract_metadata, enrich_a, enrich_b],
+    <span class="tok-str">"tool_choice"</span>: {<span class="tok-str">"type"</span>: <span class="tok-str">"tool"</span>, <span class="tok-str">"name"</span>: <span class="tok-str">"extract_metadata"</span>},  <span class="tok-com"># 非它不可,且最先</span>
+}
+
+<span class="tok-good"># ✅ 保證模型呼叫工具,而不是回一句閒聊文字</span>
+must_use_tool = {<span class="tok-str">"tool_choice"</span>: {<span class="tok-str">"type"</span>: <span class="tok-str">"any"</span>}}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>forced = 指定先用哪個工具;"any" = 保證一定用工具(不回純文字)。</div>
+
+  <div class="summary">
+    <h2>整個 Task 2.3 的記憶骨架</h2>
+    <p>工具<span class="num">少而精</span>(4～5 個 &gt; 18 個);給了本行外工具,agent 就<span class="num">誤用</span>。原則是 <span class="num">scoped access</span>——每個 agent 只拿角色該用的工具,外加少量高頻跨角色工具(如 synthesis 的 verify_fact),複雜案例走 coordinator。通用工具換成<span class="num">受限工具</span>(fetch_url → load_document)。用 <span class="num">tool_choice</span> 控制:auto 自行、any 保證用工具、forced 指定先用哪個。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 2: Tool Design &amp; MCP Integration
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

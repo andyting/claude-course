@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 5.2 — 設計有效的升級與歧義處理模式</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 5</div>
+    <h1>Task Statement 5.2<br>設計有效的升級與歧義處理模式</h1>
+    <p>Design effective escalation and ambiguity resolution patterns</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 5.2 — Design effective escalation and ambiguity resolution patterns</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Appropriate escalation triggers: customer requests for a human, policy exceptions/gaps (not just complex cases), and inability to make meaningful progress</li>
+      <li>The distinction between escalating immediately when a customer explicitly demands it versus offering to resolve when the issue is straightforward</li>
+      <li>Why sentiment-based escalation and self-reported confidence scores are unreliable proxies for actual case complexity</li>
+      <li>How multiple customer matches require clarification (requesting additional identifiers) rather than heuristic selection</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Adding explicit escalation criteria with few-shot examples to the system prompt demonstrating when to escalate versus resolve autonomously</li>
+      <li>Honoring explicit customer requests for human agents immediately without first attempting investigation</li>
+      <li>Acknowledging frustration while offering resolution when the issue is within the agent's capability, escalating only if the customer reiterates their preference</li>
+      <li>Escalating when policy is ambiguous or silent on the customer's specific request (e.g., competitor price matching when policy only addresses own-site adjustments)</li>
+      <li>Instructing the agent to ask for additional identifiers when tool results return multiple matches, rather than selecting based on heuristics</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 1</span><br>
+    <span class="scen-name">Scenario 1 — Customer Support Resolution Agent（客服解決 agent）</span>
+    <p>客服 agent 目標是 80%+ 首次解決,但同樣關鍵的是「知道何時放手交給人」。本 Task 教 agent 何時呼叫 <code>escalate_to_human</code>、何時自己解決,以及當 <code>get_customer</code> 回傳多筆相符時該怎麼問清楚,而不是亂猜一個。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>升級不是「客戶看起來生氣」就升,而是有明確觸發條件:客戶點名要真人、政策沒寫到、或真的卡住推不動。情緒與自評信心都不可靠。遇到多筆相符,要問更多識別資訊,不要憑啟發法選一個。</b>
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;合理的升級觸發條件:點名要真人、政策例外/空白、推不動</h2>
+  <p>什麼時候該 <code>escalate_to_human</code>?官方列出三類觸發:<b>(1)</b> 客戶明確要求真人;<b>(2)</b> 遇到政策例外或政策根本沒寫到的情況(不只是「案件很複雜」);<b>(3)</b> agent 已經沒辦法有意義地推進。注意第二點:政策<b>空白</b>本身就是升級理由,不是非得很難才升。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">should_escalate</span>(state):
+    <span class="tok-kw">if</span> state.customer_asked_for_human:
+        <span class="tok-kw">return</span> <span class="tok-fn">escalate_to_human</span>(reason=<span class="tok-str">"customer_request"</span>)
+    <span class="tok-kw">if</span> state.policy_silent_or_exception:
+        <span class="tok-kw">return</span> <span class="tok-fn">escalate_to_human</span>(reason=<span class="tok-str">"policy_gap"</span>)   <span class="tok-com"># 政策沒寫到也要升</span>
+    <span class="tok-kw">if</span> state.no_meaningful_progress:
+        <span class="tok-kw">return</span> <span class="tok-fn">escalate_to_human</span>(reason=<span class="tok-str">"stuck"</span>)
+    <span class="tok-kw">return</span> <span class="tok-fn">resolve_autonomously</span>(state)</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>三觸發 = 要真人 / 政策空白或例外 / 推不動。政策空白≠案件複雜,但同樣要升。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;客戶明確要求 vs. 問題很單純:該立刻升 還是 提議先解決</h2>
+  <p>關鍵的二分法:如果客戶<b>明確要求真人</b>,就<b>立刻升</b>,不要先自己查一輪;但如果問題其實很單純,agent 可以<b>提議「我可以直接幫您處理」</b>。差別在於「客戶是否明講要真人」。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 客戶明講「我要找真人」→ 立刻升,不先調查</span>
+<span class="tok-kw">if</span> message == <span class="tok-str">"我要跟真人講話"</span>:
+    <span class="tok-fn">escalate_to_human</span>(reason=<span class="tok-str">"explicit_request"</span>)
+
+<span class="tok-good"># ✅ 問題單純(查退貨期)→ 提議直接解決</span>
+<span class="tok-kw">if</span> issue == <span class="tok-str">"還在退貨期嗎"</span>:
+    <span class="tok-kw">return</span> <span class="tok-str">"我可以直接幫您確認並處理退貨喔!"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>明講要真人 → 立刻升;單純問題 → 提議自己解決。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;情緒升級與「自評信心分數」都不可靠</h2>
+  <p>兩個常見的<b>錯誤代理指標</b>:<b>(a)</b> 用「客戶語氣」決定升級——語氣兇不代表案件複雜,語氣好也可能是棘手政策例外;<b>(b)</b> 用模型「自評的信心分數」當複雜度代理——模型常常該不確定時很有自信。真正該看的是<b>案件本身的複雜度</b>(政策有沒有寫、能不能推進),不是情緒或自評。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 用情緒當升級依據:語氣兇就升、語氣好就硬解</span>
+<span class="tok-kw">if</span> sentiment == <span class="tok-str">"angry"</span>:
+    <span class="tok-fn">escalate_to_human</span>()           <span class="tok-com"># 情緒 ≠ 複雜度</span>
+
+<span class="tok-bad"># ❌ 用模型自評信心當依據</span>
+<span class="tok-kw">if</span> model_confidence &lt; <span class="tok-num">0.6</span>:
+    <span class="tok-fn">escalate_to_human</span>()           <span class="tok-com"># 自評信心不可靠</span>
+
+<span class="tok-good"># ✅ 看實際案件複雜度:政策是否涵蓋、能否推進</span>
+<span class="tok-kw">if</span> <span class="tok-kw">not</span> policy.<span class="tok-fn">covers</span>(request) <span class="tok-kw">or</span> state.stuck:
+    <span class="tok-fn">escalate_to_human</span>()</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>情緒、自評信心 = 不可靠代理。判斷依據是案件實際複雜度。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;多筆相符要「問清楚」,不要用啟發法亂選</h2>
+  <p>呼叫 <code>get_customer</code> 時若回傳<b>多筆相符</b>(同名、同 email 前綴…),不能憑「選最近一筆」「選訂單最多的」這種啟發法猜。正確做法是<b>請客戶提供更多識別資訊</b>(訂單號、後四碼…)來消歧義。猜錯客戶身分在客服場景是嚴重事故。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>matches = <span class="tok-fn">get_customer</span>(name=<span class="tok-str">"陳怡君"</span>)
+
+<span class="tok-bad"># ❌ 啟發法亂選 → 可能處理到別人的帳號</span>
+<span class="tok-kw">if</span> <span class="tok-fn">len</span>(matches) &gt; <span class="tok-num">1</span>:
+    customer = matches[<span class="tok-num">0</span>]           <span class="tok-com"># 憑「第一筆」亂選</span>
+
+<span class="tok-good"># ✅ 多筆相符 → 請客戶補識別資訊</span>
+<span class="tok-kw">if</span> <span class="tok-fn">len</span>(matches) &gt; <span class="tok-num">1</span>:
+    <span class="tok-kw">return</span> <span class="tok-str">"我查到多筆符合的資料,方便提供訂單編號或手機後四碼嗎?"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>多筆相符 = 請求額外識別碼來消歧義,絕不用啟發法選。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;在 system prompt 用 few-shot 範例寫明確的升級準則</h2>
+  <p>把「何時升、何時自解」用<b>具體 few-shot 例子</b>寫進 system prompt,而不是只給一句抽象規則。例子能讓模型抓到判斷的「語感」,大幅降低該升不升、不該升亂升的情況。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>SYSTEM_PROMPT = <span class="tok-str">"""你是客服解決 agent。升級準則如下:
+
+範例 1 — 升級:
+客戶:「我要直接找你們主管!」
+→ 立刻 escalate_to_human(明確要求真人)
+
+範例 2 — 自行解決:
+客戶:「我這筆 $129.99 還能退嗎?」(在退貨期內)
+→ 直接協助處理,不需升級
+
+範例 3 — 升級:
+客戶要求比對競品價,但政策只寫到本站調價
+→ escalate_to_human(政策未涵蓋此情況)
+"""</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>升級準則 + few-shot 範例寫進 system prompt,讓判斷有依據。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;客戶明確要求真人時,立刻照辦,不先自己調查</h2>
+  <p>知識 2 的實作。客戶說「我要真人」,就<b>馬上</b> <code>escalate_to_human</code>——不要先跑 <code>lookup_order</code>、不要先試圖自己解決。硬要先調查,只會讓已經想找真人的客戶更不耐煩。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 一偵測到明確要求,立刻升,跳過調查步驟</span>
+<span class="tok-kw">def</span> <span class="tok-fn">handle</span>(message, state):
+    <span class="tok-kw">if</span> <span class="tok-fn">is_explicit_human_request</span>(message):
+        <span class="tok-kw">return</span> <span class="tok-fn">escalate_to_human</span>(reason=<span class="tok-str">"explicit_request"</span>)
+    <span class="tok-com"># 否則才進入正常調查/解決流程</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">investigate_and_resolve</span>(message, state)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>明確要求真人 = 立刻升,不先調查。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;能力範圍內:先安撫情緒並提議解決,客戶堅持才升</h2>
+  <p>客戶很挫折、但問題其實在 agent 能力範圍內時,正確做法是:<b>先承認他的挫折</b>,<b>同時提議「我可以直接幫您處理」</b>;只有當客戶<b>再次堅持</b>要真人,才升級。這跟技能 2 不同——技能 2 是客戶「明講要真人」,這裡是客戶「在抱怨但沒明講要真人」。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 安撫 + 提議解決(問題在能力範圍內)</span>
+reply = <span class="tok-str">"很抱歉讓您久等、造成困擾。這筆退款我可以現在直接幫您處理,要為您辦理嗎?"</span>
+
+<span class="tok-com"># 若客戶再次堅持要真人 → 這時才升</span>
+<span class="tok-kw">if</span> customer_reiterates_human:
+    <span class="tok-fn">escalate_to_human</span>(reason=<span class="tok-str">"customer_reiterated"</span>)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>挫折但可解 → 先安撫+提議解決;客戶再堅持才升。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;政策模糊或沒寫到客戶的情況時,升級</h2>
+  <p>知識 1 第二觸發的實作。當客戶的請求落在政策<b>沒明文規範</b>的灰色地帶——例如政策只寫「本站調價」,客戶卻要求<b>比對競品價</b>——agent 不該自己腦補一個規則,而要升級讓有權限的人決定。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">handle_price_match</span>(request, policy):
+    <span class="tok-kw">if</span> request.type == <span class="tok-str">"competitor_price_match"</span> <span class="tok-kw">and</span> \
+       <span class="tok-kw">not</span> policy.<span class="tok-fn">addresses</span>(<span class="tok-str">"competitor_pricing"</span>):
+        <span class="tok-com"># 政策只談本站調價,沒寫到競品 → 升級</span>
+        <span class="tok-kw">return</span> <span class="tok-fn">escalate_to_human</span>(reason=<span class="tok-str">"policy_silent_competitor_match"</span>)
+    <span class="tok-kw">return</span> <span class="tok-fn">apply_own_site_adjustment</span>(request)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>政策對該請求模糊/沉默 → 升級,不要自行腦補規則。</div>
+
+  <h2><span class="num">技能 5</span> &nbsp;工具回傳多筆相符時,指示 agent 請求額外識別資訊</h2>
+  <p>知識 4 的實作。把「多筆相符就問清楚」寫成明確指示,讓 agent 在 <code>get_customer</code> / <code>lookup_order</code> 回多筆時,主動請客戶補識別碼,而不是靠啟發法挑一個。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">resolve_customer</span>(name):
+    matches = <span class="tok-fn">get_customer</span>(name=name)
+    <span class="tok-kw">if</span> <span class="tok-fn">len</span>(matches) == <span class="tok-num">0</span>:
+        <span class="tok-kw">return</span> <span class="tok-str">"查不到資料,方便提供訂單編號嗎?"</span>
+    <span class="tok-kw">if</span> <span class="tok-fn">len</span>(matches) &gt; <span class="tok-num">1</span>:
+        <span class="tok-com"># ✅ 多筆 → 請求額外識別資訊消歧義</span>
+        <span class="tok-kw">return</span> <span class="tok-str">"有多筆符合,請提供訂單編號或註冊 email 以便確認身分。"</span>
+    <span class="tok-kw">return</span> matches[<span class="tok-num">0</span>]   <span class="tok-com"># 唯一相符才直接用</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>把「多筆→請求識別碼」寫成明確指示,杜絕啟發法選人。</div>
+
+  <div class="summary">
+    <h2>整個 Task 5.2 的記憶骨架</h2>
+    <p>客服 agent 的升級要靠<span class="num">明確觸發</span>而非情緒:客戶<span class="num">明講要真人就立刻升</span>、政策<span class="num">空白或例外要升</span>、<span class="num">推不動要升</span>;但問題單純時先<span class="num">提議自己解決</span>,客戶挫折但可解就先安撫+提議、再堅持才升。<span class="num">情緒與自評信心都不可靠</span>,判斷依據是案件實際複雜度。<code>get_customer</code> 回<span class="num">多筆相符</span>時請求額外識別碼消歧義,不用啟發法亂選。所有準則用 <span class="num">few-shot 寫進 system prompt</span>。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

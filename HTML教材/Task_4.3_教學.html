@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 4.3 — 用 tool use 與 JSON schema 強制結構化輸出</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 4</div>
+    <h1>Task Statement 4.3<br>用 tool use 與 JSON schema 強制結構化輸出</h1>
+    <p>Enforce structured output using tool use and JSON schemas</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 4.3 — Enforce structured output using tool use and JSON schemas</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Tool use (<code>tool_use</code>) with JSON schemas as the most reliable approach for guaranteed schema-compliant structured output, eliminating JSON syntax errors</li>
+      <li>The distinction between <code>tool_choice: "auto"</code> (model may return text instead of calling a tool), <code>"any"</code> (model must call a tool but can choose which), and forced tool selection (model must call a specific named tool)</li>
+      <li>That strict JSON schemas via tool use eliminate syntax errors but do not prevent semantic errors (e.g., line items that don't sum to total, values in wrong fields)</li>
+      <li>Schema design considerations: required vs optional fields, enum fields with "other" + detail string patterns for extensible categories</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Defining extraction tools with JSON schemas as input parameters and extracting structured data from the <code>tool_use</code> response</li>
+      <li>Setting <code>tool_choice: "any"</code> to guarantee structured output when multiple extraction schemas exist and the document type is unknown</li>
+      <li>Forcing a specific tool with <code>tool_choice: {"type": "tool", "name": "extract_metadata"}</code> to ensure a particular extraction runs before enrichment steps</li>
+      <li>Designing schema fields as optional (nullable) when source documents may not contain the information, preventing the model from fabricating values to satisfy required fields</li>
+      <li>Adding enum values like "unclear" for ambiguous cases and "other" + detail fields for extensible categorization</li>
+      <li>Including format normalization rules in prompts alongside strict output schemas to handle inconsistent source formatting</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 6</span><br>
+    <span class="scen-name">Scenario 6 — Structured Data Extraction</span>
+    <p>用 Claude 從非結構化文件抽資料,並以 JSON schema 驗證、接下游系統。本 Task 教你用 <code>tool_use</code> + JSON schema 保證輸出「一定」符合結構(消滅 JSON 語法錯誤),搭配 <code>tool_choice</code> 控制要不要/呼叫哪個 <code>extract_*</code> 工具。所有範例都用具名的 extract_invoice / extract_metadata 工具。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>別再請模型「輸出 JSON」然後自己 parse 字串——把抽取設計成一個帶 JSON schema 的工具,讓模型「呼叫工具」,結構就被保證了。</b> 語法錯誤從此消失,但語意錯誤要另外防。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;tool_use + JSON schema 是最可靠的結構化輸出方式</h2>
+  <p>傳統做法:在 prompt 裡叫模型「請回我 JSON」,然後你 <code>json.loads()</code> 它的文字回覆——常常遇到漏引號、多逗號、夾雜說明文字而 parse 失敗。改用 <b>tool use</b>:你定義一個工具,它的 <code>input_schema</code> 就是你要的 JSON 結構;模型「呼叫這個工具」時,參數會<b>保證符合 schema</b>,JSON 語法錯誤直接消滅。</p>
+  <div class="key"><b>考點重點:</b>guaranteed schema-compliant output、eliminate JSON syntax errors = tool use + JSON schema。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;tool_choice 三種模式:auto / any / 強制特定工具</h2>
+  <p>這是 4.3 最常考的辨析,務必記牢:</p>
+  <p><b><code>"auto"</code></b>:模型「可以」呼叫工具,也<b>可以直接回文字</b>(不保證結構化)。<br>
+  <b><code>"any"</code></b>:模型<b>必須</b>呼叫某個工具,但可<b>自己選哪一個</b>。<br>
+  <b>強制特定工具</b> <code>{"type":"tool","name":"..."}</code>:模型<b>必須呼叫你指定的那一個</b>。</p>
+  <div class="key"><b>一句話記住:</b>auto=可不叫;any=一定叫但自選;forced=指定叫哪個。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;schema 消滅「語法錯誤」,但不防「語意錯誤」</h2>
+  <p>很重要的一條警語。strict JSON schema 保證<b>格式</b>對(欄位齊、型別對、是合法 JSON),但它<b>管不到內容對不對</b>:line items 加起來不等於 total、值被放到錯的欄位——這些都是 schema 合法、語意卻錯的情況。語意錯誤要靠驗證流程(Task 4.4)另外抓。</p>
+  <div class="key"><b>重點:</b>schema 治 syntax errors,治不了 semantic errors(不加總、放錯欄位)。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;schema 設計:required vs optional、enum 的 "other" + detail 可擴充模式</h2>
+  <p>設計 schema 時兩個關鍵決策:哪些欄位<b>必填(required)</b>、哪些該<b>選填(optional/nullable)</b>;以及 enum(列舉)欄位要不要留一個 <code>"other"</code> 加一個 detail 字串欄,讓不在清單上的類別也能被表達——這樣未來新類型不用改 schema 就能容納(可擴充)。</p>
+  <div class="key"><b>重點:</b>required/optional 要分清;enum 用 "other" + detail 留擴充空間。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;把抽取定義成「帶 JSON schema 的工具」,從 tool_use 回覆取結構化資料</h2>
+  <p>核心實作。定義 <code>extract_invoice</code> 工具,<code>input_schema</code> 就是發票該有的欄位;呼叫 API 後,從回覆裡 <code>type == "tool_use"</code> 的 block 取 <code>.input</code>,就是保證合規的結構化資料。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">import</span> anthropic
+client = anthropic.<span class="tok-fn">Anthropic</span>()
+
+<span class="tok-com"># Scenario 6:把「抽發票」定義成一個帶 JSON schema 的工具</span>
+extract_invoice = {
+    <span class="tok-str">"name"</span>: <span class="tok-str">"extract_invoice"</span>,
+    <span class="tok-str">"description"</span>: <span class="tok-str">"從發票文件抽出結構化欄位"</span>,
+    <span class="tok-str">"input_schema"</span>: {
+        <span class="tok-str">"type"</span>: <span class="tok-str">"object"</span>,
+        <span class="tok-str">"properties"</span>: {
+            <span class="tok-str">"invoice_number"</span>: {<span class="tok-str">"type"</span>: <span class="tok-str">"string"</span>},
+            <span class="tok-str">"total_amount"</span>:  {<span class="tok-str">"type"</span>: <span class="tok-str">"number"</span>},
+            <span class="tok-str">"currency"</span>:      {<span class="tok-str">"type"</span>: <span class="tok-str">"string"</span>},
+        },
+        <span class="tok-str">"required"</span>: [<span class="tok-str">"invoice_number"</span>, <span class="tok-str">"total_amount"</span>],
+    },
+}
+
+resp = client.messages.<span class="tok-fn">create</span>(
+    model=<span class="tok-str">"claude-sonnet-4-6"</span>,
+    max_tokens=<span class="tok-num">1024</span>,
+    tools=[extract_invoice],
+    tool_choice={<span class="tok-str">"type"</span>: <span class="tok-str">"tool"</span>, <span class="tok-str">"name"</span>: <span class="tok-str">"extract_invoice"</span>},
+    messages=[{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: document}],
+)
+
+<span class="tok-com"># 從 tool_use block 取出保證合規的結構化資料</span>
+<span class="tok-kw">for</span> block <span class="tok-kw">in</span> resp.content:
+    <span class="tok-kw">if</span> block.type == <span class="tok-str">"tool_use"</span>:
+        data = block.input   <span class="tok-com"># 已符合 schema 的 dict</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>工具的 input_schema = 目標結構;從 tool_use block 的 .input 取資料。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;文件類型未知時,用 tool_choice: "any" 保證有結構化輸出</h2>
+  <p>當你準備了多個抽取 schema(發票、收據、論文),但<b>進來的文件不知道是哪一種</b>,設 <code>tool_choice: "any"</code>:強制模型一定要呼叫工具(不准只回文字),但讓它<b>自己選</b>最合適的那個 extract 工具。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 6:多個抽取 schema,文件類型不明 → 讓模型自選</span>
+tools = [extract_invoice, extract_receipt, extract_paper_metadata]
+
+resp = client.messages.<span class="tok-fn">create</span>(
+    model=<span class="tok-str">"claude-sonnet-4-6"</span>,
+    max_tokens=<span class="tok-num">1024</span>,
+    tools=tools,
+    tool_choice={<span class="tok-str">"type"</span>: <span class="tok-str">"any"</span>},   <span class="tok-good"># 一定要叫某個工具,但哪個由模型決定</span>
+    messages=[{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: unknown_document}],
+)
+<span class="tok-com"># 模型會挑出最符合文件型別的 extract_* 工具來呼叫</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>多 schema + 類型不明 → tool_choice: "any"(一定叫、自選)。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;強制特定工具:確保某個抽取先跑(在 enrichment 之前)</h2>
+  <p>有時流程上必須<b>先</b>抽出 metadata,後續步驟才能 enrich(補資料)。這時用強制特定工具,確定模型<b>一定先呼叫 <code>extract_metadata</code></b>,不會跳過或選別的。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 6:強制先跑 extract_metadata,再做後續 enrichment</span>
+resp = client.messages.<span class="tok-fn">create</span>(
+    model=<span class="tok-str">"claude-sonnet-4-6"</span>,
+    max_tokens=<span class="tok-num">1024</span>,
+    tools=[extract_metadata, enrich_record],
+    <span class="tok-good"># 指定名字 → 模型必須先呼叫 extract_metadata</span>
+    tool_choice={<span class="tok-str">"type"</span>: <span class="tok-str">"tool"</span>, <span class="tok-str">"name"</span>: <span class="tok-str">"extract_metadata"</span>},
+    messages=[{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: document}],
+)
+metadata = <span class="tok-fn">next</span>(b.input <span class="tok-kw">for</span> b <span class="tok-kw">in</span> resp.content <span class="tok-kw">if</span> b.type == <span class="tok-str">"tool_use"</span>)
+<span class="tok-com"># 接著才用 metadata 進入 enrichment 步驟</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>{"type":"tool","name":"extract_metadata"} → 保證指定工具先跑。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;來源可能沒有的資訊,欄位設為 optional(nullable),防止模型瞎編</h2>
+  <p>關鍵反幻覺技巧。如果某欄位放進 <code>required</code>,但文件其實沒有那個資訊,模型為了「滿足必填」就會<b>編一個值</b>。正確做法:把「不一定有」的欄位設成 <b>nullable / optional</b>,讓模型可以誠實回 null,而不是捏造。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 6:po_number 不是每張發票都有 → 設 nullable</span>
+schema = {
+    <span class="tok-str">"type"</span>: <span class="tok-str">"object"</span>,
+    <span class="tok-str">"properties"</span>: {
+        <span class="tok-str">"invoice_number"</span>: {<span class="tok-str">"type"</span>: <span class="tok-str">"string"</span>},
+        <span class="tok-com"># ✅ 可為 null:文件沒有時就回 null,不會被逼著瞎編</span>
+        <span class="tok-str">"po_number"</span>: {<span class="tok-str">"type"</span>: [<span class="tok-str">"string"</span>, <span class="tok-str">"null"</span>]},
+    },
+    <span class="tok-com"># po_number 不放進 required → 允許缺漏</span>
+    <span class="tok-str">"required"</span>: [<span class="tok-str">"invoice_number"</span>],
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>來源可能沒有 → optional/nullable,防止為了滿足 required 而捏造。</div>
+
+  <h2><span class="num">技能 5</span> &nbsp;enum 加 "unclear"(模糊)與 "other" + detail(可擴充)</h2>
+  <p>enum 限制了可選值,但現實會有<b>判不準</b>和<b>清單外</b>的情況。兩個慣用補丁:加一個 <code>"unclear"</code> 讓模型在不確定時誠實標註(而非硬猜);加 <code>"other"</code> 搭配一個 detail 字串欄,容納未列舉的新類別。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 6:文件分類 enum,留 unclear 與 other</span>
+schema = {
+    <span class="tok-str">"type"</span>: <span class="tok-str">"object"</span>,
+    <span class="tok-str">"properties"</span>: {
+        <span class="tok-str">"doc_type"</span>: {
+            <span class="tok-str">"type"</span>: <span class="tok-str">"string"</span>,
+            <span class="tok-com"># unclear=判不準也不硬猜;other=清單外的新類型</span>
+            <span class="tok-str">"enum"</span>: [<span class="tok-str">"invoice"</span>, <span class="tok-str">"receipt"</span>, <span class="tok-str">"paper"</span>, <span class="tok-str">"unclear"</span>, <span class="tok-str">"other"</span>],
+        },
+        <span class="tok-str">"other_detail"</span>: {<span class="tok-str">"type"</span>: [<span class="tok-str">"string"</span>, <span class="tok-str">"null"</span>]},  <span class="tok-com"># 當 other 時填說明</span>
+    },
+    <span class="tok-str">"required"</span>: [<span class="tok-str">"doc_type"</span>],
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>enum 加 "unclear"(誠實)與 "other"+detail(可擴充)。</div>
+
+  <h2><span class="num">技能 6</span> &nbsp;在 prompt 裡併入「格式正規化規則」,搭配嚴格 schema</h2>
+  <p>schema 管結構,但<b>來源格式很亂</b>(日期 2024/1/3 vs Jan 3 2024、金額 $1,240 vs 1240.00)。光靠 schema 不會自動統一。做法:在 prompt 裡寫明<b>正規化規則</b>(日期一律 ISO、金額去逗號轉 number),讓輸出進到 schema 前先被統一。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 6:嚴格 schema + prompt 內的正規化規則</span>
+prompt = <span class="tok-str">"""抽取發票欄位。正規化規則:
+- 日期一律轉成 ISO 格式 YYYY-MM-DD
+- 金額去除貨幣符號與千分位逗號,輸出純數字(number)
+- 幣別轉成 ISO 4217 代碼(NT$ → TWD,$ → USD)
+"""</span> + document
+
+resp = client.messages.<span class="tok-fn">create</span>(
+    model=<span class="tok-str">"claude-sonnet-4-6"</span>, max_tokens=<span class="tok-num">1024</span>,
+    tools=[extract_invoice],
+    tool_choice={<span class="tok-str">"type"</span>: <span class="tok-str">"tool"</span>, <span class="tok-str">"name"</span>: <span class="tok-str">"extract_invoice"</span>},
+    messages=[{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: prompt}],
+)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>schema 管結構、prompt 裡的 normalization rules 管「亂格式統一」,兩者並用。</div>
+
+  <div class="summary">
+    <h2>整個 Task 4.3 的記憶骨架</h2>
+    <p>要保證結構化輸出,別 parse 字串——把抽取設計成<span class="num">帶 JSON schema 的工具</span>,從 <span class="num">tool_use</span> 取 <code>.input</code>,JSON 語法錯誤消滅。<span class="num">tool_choice</span> 三模式:auto(可不叫)、any(一定叫、自選,用於文件類型不明)、forced(指定工具先跑,如 extract_metadata)。schema 治<span class="num">語法</span>不治<span class="num">語意</span>(不加總、放錯欄位要靠 4.4)。設計上:來源可能沒有的欄位設 <span class="num">nullable</span> 防瞎編;enum 加 <span class="num">"unclear" / "other"+detail</span>;再把<span class="num">正規化規則</span>寫進 prompt 統一亂格式。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

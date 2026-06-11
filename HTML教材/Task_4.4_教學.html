@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 4.4 — 為抽取品質實作驗證、重試與回饋迴圈</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 4</div>
+    <h1>Task Statement 4.4<br>為抽取品質實作驗證、重試與回饋迴圈</h1>
+    <p>Implement validation, retry, and feedback loops for extraction quality</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 4.4 — Implement validation, retry, and feedback loops for extraction quality</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Retry-with-error-feedback: appending specific validation errors to the prompt on retry to guide the model toward correction</li>
+      <li>The limits of retry: retries are ineffective when the required information is simply absent from the source document (vs format or structural errors)</li>
+      <li>Feedback loop design: tracking which code constructs trigger findings (<code>detected_pattern</code> field) to enable systematic analysis of dismissal patterns</li>
+      <li>The difference between semantic validation errors (values don't sum, wrong field placement) and schema syntax errors (eliminated by tool use)</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Implementing follow-up requests that include the original document, the failed extraction, and specific validation errors for model self-correction</li>
+      <li>Identifying when retries will be ineffective (e.g., information exists only in an external document not provided) versus when they will succeed (format mismatches, structural output errors)</li>
+      <li>Adding <code>detected_pattern</code> fields to structured findings to enable analysis of false positive patterns when developers dismiss findings</li>
+      <li>Designing self-correction validation flows: extracting <code>"calculated_total"</code> alongside <code>"stated_total"</code> to flag discrepancies, adding <code>"conflict_detected"</code> booleans for inconsistent source data</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 6</span><br>
+    <span class="scen-name">Scenario 6 — Structured Data Extraction</span>
+    <p>承接 4.3:tool_use + schema 已消滅語法錯誤,但語意錯誤(line items 不加總、值放錯欄)還在。本 Task 教你怎麼<b>驗證</b>抽取結果、把錯誤<b>回饋</b>給模型 <b>retry</b> 自我修正,以及判斷哪些情況 retry 根本沒用。範例全用具名工具 extract_invoice 與 calculated_total / stated_total / conflict_detected 欄位。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>schema 保證格式對,但保證不了內容對。抽完要驗、驗錯要把「具體錯在哪」餵回去讓模型重抽——但也要認清:資訊根本不在文件裡時,retry 再多次都沒用。</b>
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;Retry-with-error-feedback:把「具體驗證錯誤」附回 prompt 引導修正</h2>
+  <p>重試的正確姿勢不是「再跑一次,祈禱這次對」,而是<b>把這次到底錯在哪寫清楚,連同原文一起餵回去</b>。例如「line items 加總 1,180 但 stated_total 是 1,240,差 60」——模型拿到具體誤差,才知道往哪修。空泛地說「請再檢查」效果差很多。</p>
+  <div class="key"><b>考點重點:</b>retry 時 append specific validation errors → 引導模型修正,而非盲目重跑。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;Retry 的極限:資訊「根本不在文件裡」時,重試無效</h2>
+  <p>非常重要的判斷力。retry 能救的是<b>格式錯、結構錯</b>(模型有資訊只是排錯)。但如果某欄位的資訊<b>壓根不在這份文件裡</b>(例如要 PO 號,但 PO 在另一份沒給的文件),那無論重試幾次,模型只會一直瞎編或一直 null——retry 解決不了「資訊缺席」。</p>
+  <div class="key"><b>重點:</b>retry 治 format/structural 錯;治不了「required 資訊不存在於來源」。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;回饋迴圈設計:用 detected_pattern 追蹤「哪種寫法觸發了 finding」</h2>
+  <p>這條跨到 Scenario 5(CI review)的回饋設計。當 review 產生一個 finding,順便記下<b>是哪種 code 構造觸發的</b>(<code>detected_pattern</code>)。日後若開發者一直「駁回(dismiss)」某種 pattern 的 finding,你就能系統性地分析:這個 pattern 是不是高 false positive,該調整 prompt。</p>
+  <div class="key"><b>重點:</b>detected_pattern 欄位 → 系統性分析 dismissal(駁回)模式、抓 false positive 來源。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;語意驗證錯誤 vs schema 語法錯誤</h2>
+  <p>把 4.3 的警語講透:<b>schema 語法錯誤</b>(漏引號、型別錯)已被 tool use 消滅;但<b>語意驗證錯誤</b>(數字不加總、值放到錯欄)schema 抓不到,要靠你自己寫驗證邏輯。這兩類錯誤的處理方式不同——語法靠 tool use 預防,語意靠驗證+retry 補救。</p>
+  <div class="key"><b>重點:</b>semantic errors(不加總/放錯欄)≠ syntax errors(tool use 已解決);前者需自寫驗證。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;Follow-up 請求:把原文 + 失敗的抽取 + 具體驗證錯誤一起餵回,讓模型自我修正</h2>
+  <p>實作 retry-with-feedback。重試的那一輪,prompt 要包含三樣:<b>原始文件、上次抽錯的結果、這次驗出的具體錯誤</b>。三者齊備,模型才能對照修正。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">retry_with_feedback</span>(document, failed_extraction, errors):
+    <span class="tok-com"># Scenario 6:把原文 + 失敗結果 + 具體錯誤一起餵回 extract_invoice</span>
+    correction_prompt = <span class="tok-str">f"""上一次抽取有錯,請修正後重新呼叫 extract_invoice。
+
+[原始發票文件]
+{document}
+
+[上次抽取結果(有誤)]
+{json.dumps(failed_extraction, ensure_ascii=False)}
+
+[驗證發現的具體錯誤]
+{errors}
+"""</span>
+    <span class="tok-kw">return</span> client.messages.<span class="tok-fn">create</span>(
+        model=<span class="tok-str">"claude-sonnet-4-6"</span>, max_tokens=<span class="tok-num">1024</span>,
+        tools=[extract_invoice],
+        tool_choice={<span class="tok-str">"type"</span>: <span class="tok-str">"tool"</span>, <span class="tok-str">"name"</span>: <span class="tok-str">"extract_invoice"</span>},
+        messages=[{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: correction_prompt}],
+    )</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>retry prompt = 原文 + 失敗抽取 + 具體錯誤,三者缺一不可。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;判斷 retry 會不會有效:資訊缺席 vs 格式/結構錯</h2>
+  <p>retry 不是無腦重跑。先分類錯誤:<b>格式/結構錯 → retry 有救</b>;<b>required 資訊不在來源 → retry 無用,該走別的路</b>(標 needs_external_source、轉人工、或回報缺漏)。亂 retry 只是浪費 token 與時間。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">should_retry</span>(error_type):
+    <span class="tok-com"># Scenario 6:格式/結構錯可救;資訊缺席不可救</span>
+    retryable = {<span class="tok-str">"format_mismatch"</span>, <span class="tok-str">"wrong_field"</span>, <span class="tok-str">"not_summing"</span>}
+    unfixable = {<span class="tok-str">"info_absent"</span>}   <span class="tok-com"># 例:PO 在另一份未提供的文件</span>
+
+    <span class="tok-kw">if</span> error_type <span class="tok-kw">in</span> retryable:
+        <span class="tok-kw">return</span> <span class="tok-good">True</span>           <span class="tok-com"># 餵回錯誤、重抽會成功</span>
+    <span class="tok-kw">if</span> error_type <span class="tok-kw">in</span> unfixable:
+        <span class="tok-kw">return</span> <span class="tok-bad">False</span>          <span class="tok-com"># retry 無效 → 標記缺漏 / 轉人工</span>
+    <span class="tok-kw">return</span> <span class="tok-good">True</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>先分類:format/structural → retry;info_absent → 別 retry,改走人工或標缺漏。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;在 findings 加 detected_pattern,分析開發者駁回的 false positive 模式</h2>
+  <p>承接知識 3。每筆 finding 帶上 <code>detected_pattern</code>,記錄它是被哪種寫法觸發的。累積一陣子後,統計「哪些 pattern 最常被開發者 dismiss」——那多半就是 false positive 大戶,可據此回頭修 prompt(呼應 Task 4.1 暫時停用高誤報類別)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 5/6:finding 帶 detected_pattern,供 dismissal 分析</span>
+finding_schema = {
+    <span class="tok-str">"type"</span>: <span class="tok-str">"object"</span>,
+    <span class="tok-str">"properties"</span>: {
+        <span class="tok-str">"location"</span>:         {<span class="tok-str">"type"</span>: <span class="tok-str">"string"</span>},
+        <span class="tok-str">"issue"</span>:            {<span class="tok-str">"type"</span>: <span class="tok-str">"string"</span>},
+        <span class="tok-str">"severity"</span>:         {<span class="tok-str">"type"</span>: <span class="tok-str">"string"</span>},
+        <span class="tok-com"># ↓ 記錄是哪種寫法觸發的,日後統計被駁回率</span>
+        <span class="tok-str">"detected_pattern"</span>: {<span class="tok-str">"type"</span>: <span class="tok-str">"string"</span>},
+    },
+    <span class="tok-str">"required"</span>: [<span class="tok-str">"location"</span>, <span class="tok-str">"issue"</span>, <span class="tok-str">"detected_pattern"</span>],
+}
+
+<span class="tok-com"># 例:某 detected_pattern 被 dismiss 90% → 高 false positive,回頭修 prompt</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>detected_pattern 讓你量化哪種 pattern 是 false positive 大戶。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;設計自我校驗流程:抽 calculated_total 對照 stated_total、加 conflict_detected</h2>
+  <p>這是抓<b>語意錯誤</b>的關鍵技巧。與其只抽一個 total,不如同時抽<b>文件上寫的 stated_total</b>與<b>由 line items 自己加總出的 calculated_total</b>,兩者一比就能驗出「不加總」的問題;再加一個 <code>conflict_detected</code> 布林,標記來源資料本身互相矛盾的情況。讓驗證內建在 schema 裡。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 6:抽兩個 total 互相對照,內建語意驗證</span>
+extract_invoice = {
+    <span class="tok-str">"name"</span>: <span class="tok-str">"extract_invoice"</span>,
+    <span class="tok-str">"input_schema"</span>: {
+        <span class="tok-str">"type"</span>: <span class="tok-str">"object"</span>,
+        <span class="tok-str">"properties"</span>: {
+            <span class="tok-str">"line_items"</span>:       {<span class="tok-str">"type"</span>: <span class="tok-str">"array"</span>},
+            <span class="tok-str">"stated_total"</span>:     {<span class="tok-str">"type"</span>: <span class="tok-str">"number"</span>},   <span class="tok-com"># 文件上寫的</span>
+            <span class="tok-str">"calculated_total"</span>: {<span class="tok-str">"type"</span>: <span class="tok-str">"number"</span>},   <span class="tok-com"># line_items 自行加總</span>
+            <span class="tok-str">"conflict_detected"</span>:{<span class="tok-str">"type"</span>: <span class="tok-str">"boolean"</span>},  <span class="tok-com"># 來源自相矛盾時 true</span>
+        },
+        <span class="tok-str">"required"</span>: [<span class="tok-str">"stated_total"</span>, <span class="tok-str">"calculated_total"</span>, <span class="tok-str">"conflict_detected"</span>],
+    },
+}
+
+<span class="tok-kw">def</span> <span class="tok-fn">validate</span>(data):
+    <span class="tok-com"># 兩個 total 不一致 → 語意錯誤,觸發 retry-with-feedback</span>
+    <span class="tok-kw">if</span> <span class="tok-fn">abs</span>(data[<span class="tok-str">"stated_total"</span>] - data[<span class="tok-str">"calculated_total"</span>]) > <span class="tok-num">0.01</span>:
+        <span class="tok-kw">return</span> <span class="tok-str">f"stated_total {data['stated_total']} 與加總 {data['calculated_total']} 不符"</span>
+    <span class="tok-kw">return</span> <span class="tok-good">None</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>calculated_total vs stated_total 對照 + conflict_detected,把語意驗證做進 schema。</div>
+
+  <div class="summary">
+    <h2>整個 Task 4.4 的記憶骨架</h2>
+    <p>tool_use 消滅<span class="num">語法錯誤</span>,但<span class="num">語意錯誤</span>(不加總、放錯欄)要自己驗。驗到錯就走 <span class="num">retry-with-error-feedback</span>:把<span class="num">原文 + 失敗抽取 + 具體錯誤</span>一起餵回讓模型自我修正。但要先判斷——<span class="num">格式/結構錯</span> retry 有救,<span class="num">資訊根本不在文件</span>裡時 retry 無用,該轉人工或標缺漏。回饋迴圈用 <span class="num">detected_pattern</span> 追蹤駁回模式抓 false positive;語意驗證的招牌做法是同時抽 <span class="num">calculated_total 對照 stated_total</span>,並加 <span class="num">conflict_detected</span> 標記來源矛盾。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

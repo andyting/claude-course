@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 5.4 — 在大型程式庫探索中有效管理 context</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 5</div>
+    <h1>Task Statement 5.4<br>在大型程式庫探索中有效管理 context</h1>
+    <p>Manage context effectively in large codebase exploration</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 5.4 — Manage context effectively in large codebase exploration</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Context degradation in extended sessions: models start giving inconsistent answers and referencing "typical patterns" rather than specific classes discovered earlier</li>
+      <li>The role of scratchpad files for persisting key findings across context boundaries</li>
+      <li>Subagent delegation for isolating verbose exploration output while the main agent coordinates high-level understanding</li>
+      <li>Structured state persistence for crash recovery: each agent exports state to a known location, and the coordinator loads a manifest on resume</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Spawning subagents to investigate specific questions (e.g., "find all test files," "trace refund flow dependencies") while the main agent preserves high-level coordination</li>
+      <li>Having agents maintain scratchpad files recording key findings, referencing them for subsequent questions to counteract context degradation</li>
+      <li>Summarizing key findings from one exploration phase before spawning sub-agents for the next phase, injecting summaries into initial context</li>
+      <li>Designing crash recovery using structured agent state exports (manifests) that the coordinator loads on resume and injects into agent prompts</li>
+      <li>Using /compact to reduce context usage during extended exploration sessions when context fills with verbose discovery output</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 4</span><br>
+    <span class="scen-name">Scenario 4 — Developer Productivity with Claude（開發者生產力工具）</span>
+    <p>用 Claude Agent SDK 幫工程師探索陌生、龐大的 legacy codebase。探索一久,model 的 context 會塞滿 <code>Read</code>/<code>Grep</code> 的冗長輸出而開始退化。本 Task 教的就是用 scratchpad 檔、subagent 隔離、manifest 崩潰恢復與 <code>/compact</code>,讓 agent 在探索十萬行程式碼時仍記得稍早發現的具體類別。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>探索大型程式庫時,context 會被 Read/Grep 的冗長輸出塞爆而退化——model 開始講「典型做法」而非你稍早查到的具體類別。對策:把關鍵發現寫進 scratchpad 檔、用 subagent 隔離冗長輸出、分階段先摘要再前進,並用 manifest 支援崩潰恢復。</b>
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;延長 session 的 context 退化:開始給不一致答案、講「典型做法」而非具體類別</h2>
+  <p>探索一久,context 被大量 <code>Read</code>/<code>Grep</code> 輸出塞滿,model 會出現<b>退化徵兆</b>:答案前後不一致、開始引用「一般來說 service 層通常會…」這種<b>典型模式</b>,而不是它<b>稍早真的查到的具體類別</b>(例如 <code>RefundProcessor</code>)。這代表早期發現已經被擠出有效 context。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 退化徵兆:從「具體」退回「泛泛」</span>
+<span class="tok-com"># 早期(context 還健康):</span>
+<span class="tok-com">#   "退款由 RefundProcessor.execute() 觸發,呼叫 LedgerClient"</span>
+<span class="tok-com"># 延長 session 後(已退化):</span>
+<span class="tok-com">#   "退款通常由某個 service 處理,一般會寫入帳本" ← 變泛泛,丟了具體類別</span>
+
+<span class="tok-good"># ✅ 偵測到退化 → 該動用 scratchpad / subagent / compact(見下)</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>退化的指標 = 答案不一致 + 引用「典型模式」取代「先前發現的具體類別」。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;scratchpad 檔:把關鍵發現持久化,跨越 context 邊界</h2>
+  <p>對抗退化的核心工具:<b>scratchpad 檔</b>。把探索中的關鍵發現(哪個檔做什麼、關鍵類別、依賴關係)<b>寫進外部檔案</b>。它存在 context 之外,即使對話被 compact 或重啟,發現都還在——之後需要時再 <code>Read</code> 回來。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># ✅ 用內建工具把發現寫進 scratchpad,持久化到 context 之外</span>
+findings = <span class="tok-str">"""## 退款流程關鍵發現
+- 入口: RefundProcessor.execute()  (src/payments/refund.py)
+- 依賴: LedgerClient, NotificationQueue
+- 測試: tests/payments/test_refund.py
+"""</span>
+<span class="tok-fn">Write</span>(path=<span class="tok-str">".scratchpad/refund_flow.md"</span>, content=findings)
+
+<span class="tok-com"># 之後回答相關問題前,先 Read 回來,避免靠退化的記憶硬答</span>
+notes = <span class="tok-fn">Read</span>(<span class="tok-str">".scratchpad/refund_flow.md"</span>)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>scratchpad = 把關鍵發現存在 context 之外的外部檔,跨 context 邊界保命。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;subagent 委派:隔離冗長探索輸出,主 agent 只管高層理解</h2>
+  <p>當某個調查會產生大量輸出(例如 <code>Grep</code> 整個 repo 找所有 test),不要讓主 agent 自己跑——那會把它的 context 灌爆。改成<b>派一個 subagent</b> 去跑,subagent 在自己隔離的 context 裡消化冗長輸出,只把<b>精簡結論</b>回給主 agent。主 agent 因此保持乾淨,專注於高層協調。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 主 agent 自己 Grep 整個 repo → 冗長輸出灌爆主 context</span>
+all_tests = <span class="tok-fn">Grep</span>(<span class="tok-str">"def test_"</span>, path=<span class="tok-str">"."</span>)   <span class="tok-com"># 數千行進主 context</span>
+
+<span class="tok-good"># ✅ 派 subagent 去消化冗長輸出,只回精簡結論</span>
+summary = <span class="tok-fn">Task</span>(
+    agent=<span class="tok-str">"explorer"</span>,
+    prompt=<span class="tok-str">"找出所有測試檔並摘要其覆蓋的模組,只回清單與重點。"</span>,
+).result   <span class="tok-com"># 主 agent 只收到精簡摘要,context 保持乾淨</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>冗長調查交給 subagent 隔離消化,主 agent 只收結論、保高層協調。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;結構化狀態持久化:崩潰恢復用 manifest</h2>
+  <p>長探索可能中途崩潰。對策:每個 agent 把自己的狀態<b>匯出到已知位置</b>,coordinator 在恢復時<b>載入一份 manifest</b>(清單),知道誰做到哪、發現了什麼,再把這些注入 agent 的 prompt 重新接續。這樣崩潰後不必從零重來。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># ✅ 每個 agent 匯出狀態到已知位置</span>
+<span class="tok-fn">Write</span>(<span class="tok-str">".state/explorer_01.json"</span>, agent_state)
+
+<span class="tok-com"># coordinator 恢復時載入 manifest,得知各 agent 進度</span>
+manifest = {
+    <span class="tok-str">"explorer_01"</span>: {<span class="tok-str">"phase"</span>: <span class="tok-str">"refund_flow"</span>, <span class="tok-str">"status"</span>: <span class="tok-str">"done"</span>},
+    <span class="tok-str">"explorer_02"</span>: {<span class="tok-str">"phase"</span>: <span class="tok-str">"auth_module"</span>, <span class="tok-str">"status"</span>: <span class="tok-str">"in_progress"</span>},
+}
+<span class="tok-com"># 把已完成發現注入 prompt,從中斷處接續而非重來</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>狀態匯出到已知位置 + coordinator 載入 manifest = 崩潰可恢復、不從零重來。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;派 subagent 調查特定問題,主 agent 保持高層協調</h2>
+  <p>知識 3 的實作。把具體、會產生大量輸出的調查問題(「找出所有測試檔」「追蹤 refund flow 的依賴」)<b>各派一個 subagent</b> 去查,主 agent 只彙整它們的結論。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">explore_codebase</span>():
+    tests   = <span class="tok-fn">Task</span>(agent=<span class="tok-str">"explorer"</span>,
+                   prompt=<span class="tok-str">"find all test files,回模組對應清單"</span>).result
+    deps    = <span class="tok-fn">Task</span>(agent=<span class="tok-str">"explorer"</span>,
+                   prompt=<span class="tok-str">"trace refund flow dependencies,回依賴圖摘要"</span>).result
+    <span class="tok-com"># 主 agent 只收兩份精簡結論,保持高層視角</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">merge_high_level</span>(tests, deps)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>具體調查問題 → 各派 subagent；主 agent 只收結論、不沾冗長輸出。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;維護 scratchpad 檔記錄關鍵發現,後續問題先參照它以抗退化</h2>
+  <p>知識 2 的實作。每查到一塊就<b>寫進 scratchpad</b>;之後回答後續問題前,<b>先 Read scratchpad</b> 把具體發現拉回 context,而不是靠已退化的記憶硬答。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 探索階段:邊查邊累積到 scratchpad</span>
+<span class="tok-fn">append_to_scratchpad</span>(<span class="tok-str">".scratchpad/findings.md"</span>,
+    <span class="tok-str">"- AuthService 在 src/auth/service.py,使用 JWT,15 分鐘過期"</span>)
+
+<span class="tok-good"># ✅ 回答「auth 怎麼運作?」前,先讀回具體發現</span>
+<span class="tok-kw">def</span> <span class="tok-fn">answer_auth_question</span>(q):
+    notes = <span class="tok-fn">Read</span>(<span class="tok-str">".scratchpad/findings.md"</span>)   <span class="tok-com"># 拉回具體類別</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">answer_with_context</span>(q, notes)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>邊探索邊寫 scratchpad；回答前先 Read 回來,用具體發現取代退化記憶。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;進入下一階段前先摘要本階段發現,注入下一階段初始 context</h2>
+  <p>探索分階段時,在 spawn 下一批 subagent <b>之前</b>,先把本階段的關鍵發現<b>摘要</b>好,並把摘要<b>注入</b>下一階段的初始 context。這樣下一階段一開始就帶著前面的精華,不必重查,也避免把整段原始輸出拖進來。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">run_phases</span>():
+    <span class="tok-com"># 階段一:理解整體架構</span>
+    phase1 = <span class="tok-fn">explore_architecture</span>()
+    summary1 = <span class="tok-fn">summarize</span>(phase1)              <span class="tok-good"># ✅ 先摘要</span>
+
+    <span class="tok-com"># 階段二:把上一階段摘要注入初始 context 再 spawn</span>
+    phase2 = <span class="tok-fn">Task</span>(agent=<span class="tok-str">"explorer"</span>,
+        prompt=<span class="tok-str">f"已知架構摘要:\n{summary1}\n\n請深入 refund 模組。"</span>)
+    <span class="tok-kw">return</span> phase2.result</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>階段交棒 = 先摘要本階段、再把摘要注入下一階段初始 context。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;用結構化狀態匯出(manifest)設計崩潰恢復</h2>
+  <p>知識 4 的實作。把各 agent 狀態<b>結構化匯出</b>成 manifest;coordinator 在 resume 時<b>載入 manifest 並注入</b>各 agent 的 prompt,讓它們從上次中斷處接續。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">resume_exploration</span>():
+    manifest = <span class="tok-fn">load_json</span>(<span class="tok-str">".state/manifest.json"</span>)
+    <span class="tok-kw">for</span> agent_id, state <span class="tok-kw">in</span> manifest.<span class="tok-fn">items</span>():
+        <span class="tok-kw">if</span> state[<span class="tok-str">"status"</span>] != <span class="tok-str">"done"</span>:
+            <span class="tok-com"># ✅ 把既有狀態注入 prompt,從中斷處續跑</span>
+            <span class="tok-fn">Task</span>(agent=<span class="tok-str">"explorer"</span>,
+                 prompt=<span class="tok-str">f"接續未完成探索,已知狀態:{state}"</span>)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>manifest 結構化匯出 + resume 時載入注入 prompt = 從中斷處接續。</div>
+
+  <h2><span class="num">技能 5</span> &nbsp;延長探索時用 /compact 壓低 context 用量</h2>
+  <p>當 context 被冗長探索輸出塞滿,可用 <code>/compact</code> 把對話壓縮,保留要點、丟掉囉嗦的中間過程,騰出空間繼續探索。它是延長 session 中對抗 context 爆滿的直接手段(常與 scratchpad 搭配:compact 前先把關鍵發現寫進 scratchpad,確保不會被壓掉)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 延長探索,context 快滿時:</span>
+<span class="tok-com"># 1) 先把關鍵發現落地到 scratchpad(防止被壓掉)</span>
+<span class="tok-fn">Write</span>(<span class="tok-str">".scratchpad/phase3.md"</span>, key_findings)
+
+<span class="tok-com"># 2) 再用 /compact 壓縮對話,釋放 context 空間</span>
+<span class="tok-com">#    /compact  ← 保留要點、丟掉冗長 Read/Grep 中間輸出</span>
+
+<span class="tok-good"># ✅ compact 後 context 變乾淨,具體發現仍在 scratchpad,可隨時 Read 回來</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>/compact 壓低 context 用量；搭配 scratchpad 先落地關鍵發現,壓縮才安全。</div>
+
+  <div class="summary">
+    <h2>整個 Task 5.4 的記憶骨架</h2>
+    <p>探索大型 codebase 時,<code>Read</code>/<code>Grep</code> 的冗長輸出會讓 context <span class="num">退化</span>(答案不一致、用「典型做法」取代先前查到的具體類別)。四大對策:把關鍵發現寫進 <span class="num">scratchpad 檔</span>(存 context 之外,回答前先 Read 回來)、把冗長調查<span class="num">交給 subagent</span> 隔離消化、階段交棒<span class="num">先摘要再注入</span>下一階段、用 <span class="num">manifest</span> 結構化匯出狀態以支援崩潰恢復。context 快滿時用 <span class="num">/compact</span>,並先把發現落地到 scratchpad 再壓縮。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

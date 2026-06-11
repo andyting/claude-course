@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 5.5 — 設計人工複核流程與信心校準</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 5</div>
+    <h1>Task Statement 5.5<br>設計人工複核流程與信心校準</h1>
+    <p>Design human review workflows and confidence calibration</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 5.5 — Design human review workflows and confidence calibration</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>The risk that aggregate accuracy metrics (e.g., 97% overall) may mask poor performance on specific document types or fields</li>
+      <li>Stratified random sampling for measuring error rates in high-confidence extractions and detecting novel error patterns</li>
+      <li>Field-level confidence scores calibrated using labeled validation sets for routing review attention</li>
+      <li>The importance of validating accuracy by document type and field segment before automating high-confidence extractions</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Implementing stratified random sampling of high-confidence extractions for ongoing error rate measurement and novel pattern detection</li>
+      <li>Analyzing accuracy by document type and field to verify consistent performance across all segments before reducing human review</li>
+      <li>Having models output field-level confidence scores, then calibrating review thresholds using labeled validation sets</li>
+      <li>Routing extractions with low model confidence or ambiguous/contradictory source documents to human review, prioritizing limited reviewer capacity</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 6</span><br>
+    <span class="scen-name">Scenario 6 — Structured Data Extraction（結構化資料抽取）</span>
+    <p>用 Claude 從非結構化文件(發票、合約、表單)以 <code>extract_invoice</code> 等工具 + JSON schema 抽資訊,維持高準確度。本 Task 教的就是:別被「整體 97% 準確率」騙了——要按文件類型/欄位分層檢查,讓 model 輸出欄位級信心分數、用標註驗證集校準門檻,把低信心或來源矛盾的抽取送人工複核。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>「整體 97% 準確率」會掩蓋某些文件類型或欄位的爛表現。要分層抽樣、按文件類型與欄位拆開看,讓 model 輸出欄位級信心分數並用標註集校準,再把低信心與來源矛盾的抽取優先送人工複核。</b>
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;整體準確率(如 97%)會掩蓋特定文件類型或欄位的爛表現</h2>
+  <p>最危險的陷阱:看到「整體 97%」就放心自動化。但這個平均可能藏著:發票抽得很準(99%)、但<b>手寫表單只有 70%</b>;或「金額」欄很準、但<b>「到期日」欄常錯</b>。平均把局部的災難稀釋掉了。自動化前必須<b>拆開看</b>。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 只看整體就決定全自動化</span>
+<span class="tok-kw">if</span> overall_accuracy &gt;= <span class="tok-num">0.97</span>:
+    <span class="tok-fn">enable_full_automation</span>()      <span class="tok-com"># 手寫表單 70% 的災難被藏住</span>
+
+<span class="tok-good"># ✅ 整體高,但要往下拆:哪個文件類型/欄位拖後腿?</span>
+<span class="tok-com"># invoice: 0.99 | contract: 0.96 | handwritten_form: 0.70 ← 危險</span>
+<span class="tok-com"># field due_date: 0.81 ← 危險</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>整體準確率是平均,會掩蓋特定文件類型/欄位的低表現。自動化前要拆開驗。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;分層隨機抽樣:量測高信心抽取的錯誤率、偵測新型錯誤</h2>
+  <p>就算抽取被標為「高信心」,也不能完全不查。用<b>分層隨機抽樣</b>(按文件類型/欄位分層,各層隨機抽幾筆)持續量測高信心抽取的真實錯誤率,並<b>偵測新型錯誤模式</b>(例如新格式的供應商發票開始出錯)。分層的重點是:每一層都被抽到,不會因為樣本都集中在某類而漏看其他類。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">stratified_sample</span>(extractions, per_stratum=<span class="tok-num">30</span>):
+    <span class="tok-com"># 按 (文件類型) 分層,每層隨機抽 N 筆送人工標真值比對</span>
+    strata = <span class="tok-fn">group_by</span>(extractions, key=<span class="tok-str">"doc_type"</span>)
+    <span class="tok-kw">return</span> {dt: <span class="tok-fn">random_sample</span>(items, per_stratum)
+            <span class="tok-kw">for</span> dt, items <span class="tok-kw">in</span> strata.<span class="tok-fn">items</span>()}
+<span class="tok-com"># 每個文件類型都被抽到 → 才抓得到某類別新冒出的錯誤</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>分層隨機抽樣 → 每層都覆蓋,持續量錯誤率 + 抓新型錯誤,不被高信心標籤蒙蔽。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;欄位級信心分數,用標註驗證集校準,以分配複核注意力</h2>
+  <p>信心分數要做到<b>欄位級</b>(每個抽出欄位各一個分數),而不是整份文件一個分數。而且這個分數要用<b>標註驗證集校準</b>——所謂校準是指:「模型說 0.9 信心」的那批,實際正確率真的接近 90%。校準好的分數才能可靠地拿來<b>路由複核注意力</b>(分數低的優先給人看)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 用標註驗證集檢查校準:宣稱 0.9 的那桶,實際正確率是?</span>
+<span class="tok-kw">def</span> <span class="tok-fn">check_calibration</span>(predictions, labels):
+    bucket = [p <span class="tok-kw">for</span> p <span class="tok-kw">in</span> predictions <span class="tok-kw">if</span> <span class="tok-num">0.85</span> &lt;= p.confidence &lt; <span class="tok-num">0.95</span>]
+    actual = <span class="tok-fn">accuracy</span>(bucket, labels)
+    <span class="tok-com"># 校準良好: actual ≈ 0.90;若 actual=0.72 → 信心被高估,需重校</span>
+    <span class="tok-kw">return</span> actual</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>欄位級信心 + 用標註集校準(0.9 那批實際也要 ≈90%)→ 才能可靠路由複核。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;自動化高信心抽取前,先按文件類型與欄位區段驗證準確度</h2>
+  <p>承知識 1:在「減少人工複核 / 開啟高信心自動化」<b>之前</b>,必須先確認<b>每一個文件類型、每一個欄位區段</b>的準確度都達標。只要有一個區段不及格(例如手寫表單的金額欄),那個區段就<b>不能</b>納入自動化,要保留人工複核。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">can_automate</span>(segment_accuracy, threshold=<span class="tok-num">0.97</span>):
+    <span class="tok-com"># 逐 (doc_type, field) 區段檢查,全部達標才自動化</span>
+    unsafe = {seg: acc <span class="tok-kw">for</span> seg, acc <span class="tok-kw">in</span> segment_accuracy.<span class="tok-fn">items</span>()
+              <span class="tok-kw">if</span> acc &lt; threshold}
+    <span class="tok-kw">if</span> unsafe:
+        <span class="tok-kw">return</span> <span class="tok-str">f"以下區段不能自動化,保留人工複核: {unsafe}"</span>
+    <span class="tok-kw">return</span> <span class="tok-str">"全區段達標,可自動化"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>自動化前逐「文件類型 × 欄位」驗證；任一區段不達標就保留人工複核。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;對高信心抽取做分層隨機抽樣,持續量錯誤率、偵測新模式</h2>
+  <p>知識 2 的實作。建立一條<b>持續</b>的分層抽樣管線:即使抽取已標高信心,仍按層抽樣送人工比對真值,長期監看錯誤率與新冒出的錯誤型態。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">ongoing_qa</span>(daily_extractions):
+    sample = <span class="tok-fn">stratified_sample</span>(daily_extractions, per_stratum=<span class="tok-num">30</span>)
+    labeled = <span class="tok-fn">send_to_human_label</span>(sample)
+    error_rate = <span class="tok-fn">measure_errors</span>(sample, labeled)
+    <span class="tok-fn">alert_if_drift</span>(error_rate)          <span class="tok-good"># ✅ 新型錯誤上升即告警</span>
+    <span class="tok-kw">return</span> error_rate</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>持續性分層抽樣 QA：量錯誤率 + 抓 drift/新型錯誤。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;按文件類型與欄位分析準確度,確認各區段一致後才減少人工複核</h2>
+  <p>知識 1/4 的實作。在<b>減少人工複核之前</b>,把準確度<b>按文件類型 × 欄位</b>拆開算,確認<b>每個區段</b>都穩定達標,而不是只看總平均。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">accuracy_by_segment</span>(results):
+    table = {}
+    <span class="tok-kw">for</span> r <span class="tok-kw">in</span> results:
+        key = (r[<span class="tok-str">"doc_type"</span>], r[<span class="tok-str">"field"</span>])
+        table.<span class="tok-fn">setdefault</span>(key, []).<span class="tok-fn">append</span>(r[<span class="tok-str">"correct"</span>])
+    <span class="tok-com"># ✅ 每個 (doc_type, field) 各算一個準確度,逐格檢查</span>
+    <span class="tok-kw">return</span> {k: <span class="tok-fn">mean</span>(v) <span class="tok-kw">for</span> k, v <span class="tok-kw">in</span> table.<span class="tok-fn">items</span>()}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>按 (文件類型 × 欄位) 拆算準確度,各區段一致達標才放手減人工。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;讓 model 輸出欄位級信心分數,用標註驗證集校準複核門檻</h2>
+  <p>知識 3 的實作。在抽取的 JSON schema 裡<b>讓每個欄位都帶一個 confidence</b>,再用<b>標註驗證集</b>找出一個能可靠分流的<b>複核門檻</b>(例如校準後 < 0.92 才送人工)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># extract_invoice 的 schema 要求每欄位附 confidence</span>
+result = <span class="tok-fn">extract_invoice</span>(doc, schema={
+    <span class="tok-str">"total"</span>:   {<span class="tok-str">"value"</span>: ..., <span class="tok-str">"confidence"</span>: ...},
+    <span class="tok-str">"due_date"</span>:{<span class="tok-str">"value"</span>: ..., <span class="tok-str">"confidence"</span>: ...},
+})
+
+<span class="tok-com"># 用標註驗證集找出校準後的複核門檻</span>
+THRESHOLD = <span class="tok-fn">calibrate_threshold</span>(validation_set, target_precision=<span class="tok-num">0.99</span>)
+<span class="tok-kw">for</span> field, info <span class="tok-kw">in</span> result.<span class="tok-fn">items</span>():
+    <span class="tok-kw">if</span> info[<span class="tok-str">"confidence"</span>] &lt; THRESHOLD:
+        <span class="tok-fn">route_to_human</span>(field)       <span class="tok-good"># ✅ 低於校準門檻才送人工</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>欄位級 confidence 寫進 schema；用標註集校準出複核門檻來分流。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;把「低信心」或「來源矛盾/模糊」的抽取送人工,優先分配有限的複核量能</h2>
+  <p>人工複核量能有限,要花在刀口上。兩類最該送人工:<b>(1)</b> model 信心低的;<b>(2)</b> 來源文件本身<b>模糊或自相矛盾</b>的(例如發票上金額與小計對不起來)。其餘高信心又來源清楚的就走自動化,把寶貴的人力集中在真正風險高的那些。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">route_for_review</span>(extraction):
+    <span class="tok-kw">if</span> extraction.confidence &lt; THRESHOLD:
+        <span class="tok-kw">return</span> <span class="tok-str">"human"</span>                  <span class="tok-com"># 低信心</span>
+    <span class="tok-kw">if</span> extraction.source_is_contradictory:
+        <span class="tok-kw">return</span> <span class="tok-str">"human"</span>                  <span class="tok-com"># 來源矛盾/模糊</span>
+    <span class="tok-kw">return</span> <span class="tok-str">"auto"</span>   <span class="tok-good"># ✅ 把有限人力留給高風險案</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>低信心 + 來源矛盾/模糊 → 送人工；其餘自動化,優先分配有限複核量能。</div>
+
+  <div class="summary">
+    <h2>整個 Task 5.5 的記憶骨架</h2>
+    <p>結構化抽取別被<span class="num">整體 97%</span> 騙了——平均會掩蓋某些文件類型/欄位的爛表現,自動化前要<span class="num">按文件類型 × 欄位</span>逐區段驗證。用<span class="num">分層隨機抽樣</span>持續量高信心抽取的真實錯誤率、抓新型錯誤。讓 model 輸出<span class="num">欄位級信心分數</span>,用<span class="num">標註驗證集校準</span>(宣稱 0.9 那批實際也要 ≈90%)出複核門檻。最後把<span class="num">低信心</span>與<span class="num">來源矛盾/模糊</span>的抽取送人工,把有限複核量能用在刀口上。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

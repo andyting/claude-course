@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 2.2 — 為 MCP 工具實作結構化錯誤回應</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  /* 官方考綱原文區 */
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  /* token 樣式 */
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 2</div>
+    <h1>Task Statement 2.2<br>為 MCP 工具實作結構化錯誤回應</h1>
+    <p>Implement structured error responses for MCP tools</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 2.2 — Implement structured error responses for MCP tools</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>The MCP <code>isError</code> flag pattern for communicating tool failures back to the agent</li>
+      <li>The distinction between transient errors (timeouts, service unavailability), validation errors (invalid input), business errors (policy violations), and permission errors</li>
+      <li>Why uniform error responses (generic "Operation failed") prevent the agent from making appropriate recovery decisions</li>
+      <li>The difference between retryable and non-retryable errors, and how returning structured metadata prevents wasted retry attempts</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Returning structured error metadata including <code>errorCategory</code> (transient/validation/permission), <code>isRetryable</code> boolean, and human-readable descriptions</li>
+      <li>Including <code>retriable: false</code> flags and customer-friendly explanations for business rule violations so the agent can communicate appropriately</li>
+      <li>Implementing local error recovery within subagents for transient failures, propagating to the coordinator only errors that cannot be resolved locally along with partial results and what was attempted</li>
+      <li>Distinguishing between access failures (needing retry decisions) and valid empty results (representing successful queries with no matches)</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 1</span><br>
+    <span class="scen-name">Scenario 1 — Customer Support Resolution Agent</span>
+    <p>延續客服解決 agent:當 lookup_order 查無訂單、process_refund 因金額超限被拒、後端暫時斷線時,MCP 工具要回傳結構化錯誤,讓 agent 知道能否重試或該不該 escalate_to_human。</p>
+  </div>
+
+
+  <div class="lead">
+    一句話抓住主軸:<b>工具出錯時,別只丟一句「失敗了」。</b> 要回傳<b>結構化</b>的錯誤資訊——是哪一類錯、能不能重試、人看得懂的說明——這樣 agent 才能做出對的下一步(重試?換做法?還是直接跟使用者道歉)。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;MCP 的 isError 旗標:把「工具失敗」回報給 agent</h2>
+  <p>MCP 工具回傳結果時,有一個 <code>isError</code> 旗標。它就是工具對 agent 說「這次我失敗了」的標準訊號。<code>isError: true</code> 代表這次呼叫沒成功,agent 看到就知道要走錯誤處理,而不是把錯誤內容當成正常結果。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 客服 agent 呼叫 lookup_order 後,MCP 工具回應的基本形狀</span>
+success = {  <span class="tok-com"># lookup_order 成功</span>
+    <span class="tok-str">"isError"</span>: <span class="tok-bad">False</span>,
+    <span class="tok-str">"content"</span>: [{<span class="tok-str">"type"</span>: <span class="tok-str">"text"</span>, <span class="tok-str">"text"</span>: <span class="tok-str">"訂單 A1023 狀態:已出貨"</span>}],
+}
+
+failure = {  <span class="tok-com"># process_refund 打後端時失敗</span>
+    <span class="tok-str">"isError"</span>: <span class="tok-good">True</span>,          <span class="tok-com"># ← 告訴 agent:這次失敗了</span>
+    <span class="tok-str">"content"</span>: [{<span class="tok-str">"type"</span>: <span class="tok-str">"text"</span>, <span class="tok-str">"text"</span>: <span class="tok-str">"退款後端服務暫時無法連線"</span>}],
+}</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b><code>isError</code> 是 MCP 標準的失敗回報旗標。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;四種錯誤類型要分清楚</h2>
+  <p>不是所有錯誤都一樣。官方分四類,因為<b>各類的處理方式完全不同</b>:</p>
+  <p><b>transient(暫時性):</b>逾時、服務暫時不可用 → 通常<b>等一下重試</b>就好。<br>
+  <b>validation(驗證):</b>輸入不合法(如 order_id 格式錯) → <b>重試沒用,要修輸入</b>。<br>
+  <b>business(業務規則):</b>違反政策(如超過退款期限) → <b>不能重試,要照規則溝通</b>。<br>
+  <b>permission(權限):</b>沒有授權 → <b>重試也沒用,要走授權流程</b>。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 四類錯誤,各自對應不同處置</span>
+ERROR_HANDLING = {
+    <span class="tok-str">"transient"</span>:  <span class="tok-str">"等待後重試(retry)"</span>,        <span class="tok-com"># 逾時、服務暫時掛掉</span>
+    <span class="tok-str">"validation"</span>: <span class="tok-str">"修正輸入後再呼叫"</span>,         <span class="tok-com"># 輸入不合法,重試無用</span>
+    <span class="tok-str">"business"</span>:   <span class="tok-str">"照政策向使用者說明"</span>,         <span class="tok-com"># 違反規則,不可重試</span>
+    <span class="tok-str">"permission"</span>: <span class="tok-str">"走授權/升級流程"</span>,           <span class="tok-com"># 無權限,重試無用</span>
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>transient / validation / business / permission，四類處置全不同。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;為什麼「統一的籠統錯誤」是壞事</h2>
+  <p>如果每種錯誤都只回一句 <code>"Operation failed"</code>,agent 就<b>無從判斷該怎麼救</b>。是該重試?還是修輸入?還是放棄?它看不出來,只能瞎猜——很可能做出錯誤的恢復決定(例如對一個不可重試的業務錯誤一直重試,白費功夫)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 籠統錯誤:agent 不知道該重試、修輸入、還是放棄</span>
+bad = {<span class="tok-str">"isError"</span>: <span class="tok-good">True</span>, <span class="tok-str">"content"</span>: [{<span class="tok-str">"text"</span>: <span class="tok-str">"Operation failed"</span>}]}
+
+<span class="tok-good"># ✅ 結構化錯誤:agent 一看就知道下一步</span>
+good = {
+    <span class="tok-str">"isError"</span>: <span class="tok-good">True</span>,
+    <span class="tok-str">"errorCategory"</span>: <span class="tok-str">"transient"</span>,
+    <span class="tok-str">"isRetryable"</span>: <span class="tok-good">True</span>,
+    <span class="tok-str">"content"</span>: [{<span class="tok-str">"text"</span>: <span class="tok-str">"付款服務逾時,稍後可重試"</span>}],
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>籠統錯誤剝奪了 agent 做正確恢復決策的能力。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;可重試 vs 不可重試:用 metadata 避免白費重試</h2>
+  <p>關鍵分野:這個錯<b>重試會不會有用</b>?暫時性逾時 → 重試可能成功;輸入錯誤、違反業務規則、權限不足 → 重試一萬次也一樣失敗。回傳結構化的 <code>isRetryable</code> metadata,就能讓 agent<b>不去做注定失敗的重試</b>,省下時間與成本。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>retryable     = {<span class="tok-str">"errorCategory"</span>: <span class="tok-str">"transient"</span>,  <span class="tok-str">"isRetryable"</span>: <span class="tok-good">True</span>}
+non_retryable = {<span class="tok-str">"errorCategory"</span>: <span class="tok-str">"validation"</span>, <span class="tok-str">"isRetryable"</span>: <span class="tok-bad">False</span>}
+
+<span class="tok-com"># agent 端的判斷</span>
+<span class="tok-kw">if</span> err[<span class="tok-str">"isRetryable"</span>]:
+    <span class="tok-fn">retry_with_backoff</span>()      <span class="tok-good"># 值得再試</span>
+<span class="tok-kw">else</span>:
+    <span class="tok-fn">stop_and_handle</span>(err)       <span class="tok-bad"># 別浪費重試</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b><code>isRetryable</code> metadata 讓 agent 不浪費重試在注定失敗的錯誤上。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;回傳含 errorCategory、isRetryable、人類可讀說明的結構化錯誤</h2>
+  <p>把知識落地成標準回應格式。三件套缺一不可:<code>errorCategory</code>(哪一類)、<code>isRetryable</code>(能不能重試)、人看得懂的 description(出了什麼事)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">error_response</span>(category, retryable, message):
+    <span class="tok-kw">return</span> {
+        <span class="tok-str">"isError"</span>: <span class="tok-good">True</span>,
+        <span class="tok-str">"errorCategory"</span>: category,        <span class="tok-com"># transient / validation / business / permission</span>
+        <span class="tok-str">"isRetryable"</span>: retryable,          <span class="tok-com"># 布林</span>
+        <span class="tok-str">"content"</span>: [{<span class="tok-str">"type"</span>: <span class="tok-str">"text"</span>, <span class="tok-str">"text"</span>: message}],  <span class="tok-com"># 人類可讀</span>
+    }
+
+<span class="tok-com"># 範例:後端逾時(可重試的暫時性錯誤)</span>
+<span class="tok-kw">return</span> <span class="tok-fn">error_response</span>(<span class="tok-str">"transient"</span>, <span class="tok-good">True</span>, <span class="tok-str">"訂單服務逾時,請稍後重試。"</span>)</code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;業務規則違規:加 retriable:false + 對客戶友善的說明</h2>
+  <p>業務錯誤(如超過退款期限)永遠不該重試。回應裡標明 <code>retriable: false</code>,並附上<b>客戶能聽懂、不帶內部術語</b>的說明,讓 agent 可以直接、得體地轉述給使用者。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 業務規則違規:超過 30 天退款期限</span>
+<span class="tok-kw">return</span> {
+    <span class="tok-str">"isError"</span>: <span class="tok-good">True</span>,
+    <span class="tok-str">"errorCategory"</span>: <span class="tok-str">"business"</span>,
+    <span class="tok-str">"retriable"</span>: <span class="tok-bad">False</span>,                  <span class="tok-com"># 重試無意義</span>
+    <span class="tok-str">"content"</span>: [{<span class="tok-str">"type"</span>: <span class="tok-str">"text"</span>,
+        <span class="tok-str">"text"</span>: <span class="tok-str">"此訂單已超過 30 天退款期限,無法退款。"</span>  <span class="tok-com"># 客戶友善,可直接轉述</span>
+    }],
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>business 錯誤要 <code>retriable: false</code> + 客戶友善說明,讓 agent 好溝通。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;agent 就地恢復暫時性錯誤,只把救不了的往上 escalate</h2>
+  <p>好的分層處理:客服 agent 呼叫 <code>lookup_order</code> 遇到<b>暫時性</b>錯誤(後端逾時)時,自己先就地重試恢復(local recovery),不要一有閃失就丟給人工。只有<b>本地解決不了</b>的錯誤才 <code>escalate_to_human</code>,而且要<b>連同已知資訊與「我試過什麼」</b>一起交接,真人才能無縫接手。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">resolve_order_query</span>(order_id, max_retry=<span class="tok-num">3</span>):
+    <span class="tok-kw">for</span> i <span class="tok-kw">in</span> <span class="tok-fn">range</span>(max_retry):
+        r = <span class="tok-fn">lookup_order</span>(order_id)
+        <span class="tok-kw">if</span> <span class="tok-kw">not</span> r[<span class="tok-str">"isError"</span>]:
+            <span class="tok-kw">return</span> r
+        <span class="tok-kw">if</span> r[<span class="tok-str">"errorCategory"</span>] == <span class="tok-str">"transient"</span>:
+            <span class="tok-fn">sleep</span>(<span class="tok-num">2</span> ** i)             <span class="tok-good"># 就地重試,不打擾真人</span>
+            <span class="tok-kw">continue</span>
+        <span class="tok-kw">break</span>
+    <span class="tok-com"># 本地救不了 → escalate,並附已知資訊與嘗試紀錄</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">escalate_to_human</span>(order_id=order_id,
+            attempted=<span class="tok-str">f"lookup_order 重試 {max_retry} 次仍逾時"</span>)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>暫時性錯誤 agent 就地恢復;救不了才 escalate_to_human,並附已知資訊與嘗試紀錄。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;分清「存取失敗」與「查無結果(空但成功)」</h2>
+  <p>容易踩的坑:查詢成功但<b>沒有符合的資料</b>,這不是錯誤!空結果代表「查詢成功,只是沒命中」,應回正常成功 + 空集合。把它誤判成 access failure(存取失敗)去重試,就是浪費——存取失敗才需要重試決策。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 查無結果:成功,只是空 → 不是錯誤,不該重試</span>
+empty_ok = {<span class="tok-str">"isError"</span>: <span class="tok-bad">False</span>, <span class="tok-str">"content"</span>: [{<span class="tok-str">"text"</span>: <span class="tok-str">"找不到符合的訂單"</span>}],
+            <span class="tok-str">"results"</span>: []}
+
+<span class="tok-bad"># ❌ 存取失敗:真的沒查成 → 這才是 error,需要重試決策</span>
+access_fail = {<span class="tok-str">"isError"</span>: <span class="tok-good">True</span>, <span class="tok-str">"errorCategory"</span>: <span class="tok-str">"transient"</span>,
+               <span class="tok-str">"isRetryable"</span>: <span class="tok-good">True</span>, <span class="tok-str">"content"</span>: [{<span class="tok-str">"text"</span>: <span class="tok-str">"資料庫連線失敗"</span>}]}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>空結果 = 成功(別重試);存取失敗 = 錯誤(才需要重試決策)。</div>
+
+  <div class="summary">
+    <h2>整個 Task 2.2 的記憶骨架</h2>
+    <p>工具失敗用 MCP 的 <span class="num">isError</span> 旗標回報,但別只丟「失敗了」。要回<span class="num">結構化錯誤</span>:標明 <span class="num">errorCategory</span>(transient / validation / business / permission)、<span class="num">isRetryable</span>、人類可讀說明。業務違規加 <span class="num">retriable: false</span> + 客戶友善文字;subagent <span class="num">就地恢復</span>暫時性錯誤、救不了才連同部分結果上拋;最後別把<span class="num">空結果</span>誤當存取失敗去重試。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 2: Tool Design &amp; MCP Integration
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

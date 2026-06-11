@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 5.6 — 在多來源綜合中保留資訊溯源並處理不確定性</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 5</div>
+    <h1>Task Statement 5.6<br>在多來源綜合中保留資訊溯源並處理不確定性</h1>
+    <p>Preserve information provenance and handle uncertainty in multi-source synthesis</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>How source attribution is lost during summarization steps when findings are compressed without preserving claim-source mappings</li>
+      <li>The importance of structured claim-source mappings that the synthesis agent must preserve and merge when combining findings</li>
+      <li>How to handle conflicting statistics from credible sources: annotating conflicts with source attribution rather than arbitrarily selecting one value</li>
+      <li>Temporal data: requiring publication/collection dates in structured outputs to prevent temporal differences from being misinterpreted as contradictions</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Requiring subagents to output structured claim-source mappings (source URLs, document names, relevant excerpts) that downstream agents preserve through synthesis</li>
+      <li>Structuring reports with explicit sections distinguishing well-established findings from contested ones, preserving original source characterizations and methodological context</li>
+      <li>Completing document analysis with conflicting values included and explicitly annotated, letting the coordinator decide how to reconcile before passing to synthesis</li>
+      <li>Requiring subagents to include publication or data collection dates in structured outputs to enable correct temporal interpretation</li>
+      <li>Rendering different content types appropriately in synthesis outputs—financial data as tables, news as prose, technical findings as structured lists—rather than converting everything to a uniform format</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 3</span><br>
+    <span class="scen-name">Scenario 3 — Multi-Agent Research System（多代理研究系統）</span>
+    <p>多代理研究系統的終點是「有引用來源的完整報告」。當 web 搜尋與文件分析 subagent 的發現流經 synthesis subagent,出處最容易在摘要步驟中流失,可信來源間的數據也常打架。本 Task 教的就是:用結構化 claim-source mapping 把「哪句話出自哪裡」一路保到底,並誠實標注衝突與發佈日期。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>多來源綜合時,出處會在摘要步驟流失,可信來源間的數字會打架。對策:用結構化 claim-source mapping 把「哪句話來自哪裡」一路保到 synthesis;遇到衝突要標注雙方來源、不要擅自挑一個;並要求附上發佈日期,免得不同時期的數字被當成矛盾。</b>
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;摘要步驟會弄丟出處——當發現被壓縮卻沒保住 claim-source mapping</h2>
+  <p>多代理研究的常見失血點:web 搜尋 subagent 找到「市場成長 35%」並記得出處,但到了<b>摘要 / 綜合步驟</b>,內容被壓縮,而<b>「這句話對應哪個來源」的映射沒被一起保留</b>。最終報告只剩一個沒有出處的數字,無法被引用或查證。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 摘要時只留結論,claim→source 的對應被丟掉</span>
+summary = <span class="tok-str">"市場成長 35%,競爭加劇。"</span>
+<span class="tok-com"># 35% 出自哪份報告?沒了 → synthesis 無法標引用</span>
+
+<span class="tok-good"># ✅ 壓縮內容時,claim-source mapping 必須一起留著</span>
+claim = {
+    <span class="tok-str">"claim"</span>: <span class="tok-str">"市場 2025 成長 35%"</span>,
+    <span class="tok-str">"source_url"</span>: <span class="tok-str">"https://example.com/r"</span>,
+    <span class="tok-str">"document_name"</span>: <span class="tok-str">"2025 市場報告"</span>,
+}</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>出處在摘要步驟流失,因為「claim→source 映射」沒跟著被保留。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;結構化 claim-source mapping:synthesis 必須保留並合併</h2>
+  <p>解法是讓每個發現都帶<b>結構化的 claim-source mapping</b>(主張 ↔ 來源)。重點在 synthesis subagent 的職責:它在<b>合併</b>多個 subagent 的發現時,必須<b>保留每筆 mapping</b>,而不是把它們攪成一段沒有出處的散文。合併後,每個主張仍能追回原始來源。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">synthesis_merge</span>(search_findings, doc_findings):
+    <span class="tok-com"># ✅ 合併時保留每一筆 claim-source mapping,不攪糊</span>
+    merged = []
+    <span class="tok-kw">for</span> f <span class="tok-kw">in</span> search_findings + doc_findings:
+        merged.<span class="tok-fn">append</span>({
+            <span class="tok-str">"claim"</span>: f[<span class="tok-str">"claim"</span>],
+            <span class="tok-str">"source"</span>: f[<span class="tok-str">"source"</span>],     <span class="tok-com"># 出處一路保到底</span>
+            <span class="tok-str">"excerpt"</span>: f[<span class="tok-str">"excerpt"</span>],
+        })
+    <span class="tok-kw">return</span> merged   <span class="tok-com"># 每個主張都還能追回來源</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>synthesis 合併發現時,必須保留並合併 claim-source mapping,出處不能斷。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;可信來源間數據衝突:標注衝突 + 雙方出處,而非任意挑一個</h2>
+  <p>當兩個都可信的來源給出<b>不同數字</b>(A 報告說成長 35%、B 報告說 28%),<b>不可以</b>擅自挑一個寫進報告、把另一個丟掉。正確做法是<b>把衝突標注出來</b>,並附上<b>各自的出處</b>,讓讀者(或下游)知道有分歧、各自從何而來。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 任意挑一個,另一個悄悄消失</span>
+growth = <span class="tok-str">"35%"</span>   <span class="tok-com"># B 報告的 28% 被無聲丟棄</span>
+
+<span class="tok-good"># ✅ 標注衝突,各自附出處</span>
+growth = {
+    <span class="tok-str">"conflict"</span>: <span class="tok-kw">True</span>,
+    <span class="tok-str">"values"</span>: [
+        {<span class="tok-str">"value"</span>: <span class="tok-str">"35%"</span>, <span class="tok-str">"source"</span>: <span class="tok-str">"A 報告"</span>},
+        {<span class="tok-str">"value"</span>: <span class="tok-str">"28%"</span>, <span class="tok-str">"source"</span>: <span class="tok-str">"B 報告"</span>},
+    ],
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>可信來源衝突 → 標注分歧 + 雙方出處,絕不任意選一個值。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;時間性資料:要求附發佈/採集日期,避免時間差被誤判為矛盾</h2>
+  <p>有些「衝突」其實只是<b>時間不同</b>:A 說失業率 4.1%(2024 資料)、B 說 3.8%(2025 資料)——它們不矛盾,只是不同時點。若結構化輸出<b>不帶日期</b>,下游會把時間差<b>誤判成矛盾</b>。所以要求每筆數據都附<b>發佈或採集日期</b>。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 每筆數據附日期,時間差不會被當成矛盾</span>
+stat = {
+    <span class="tok-str">"metric"</span>: <span class="tok-str">"失業率"</span>,
+    <span class="tok-str">"value"</span>: <span class="tok-str">"4.1%"</span>,
+    <span class="tok-str">"collection_date"</span>: <span class="tok-str">"2024-Q4"</span>,   <span class="tok-com"># ← 關鍵:標時點</span>
+    <span class="tok-str">"source"</span>: <span class="tok-str">"勞動統計局"</span>,
+}
+<span class="tok-com"># 下游看到 2024 vs 2025,知道是時序變化而非衝突</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>結構化輸出要附發佈/採集日期,免得不同時期的數字被誤讀為矛盾。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;要求 subagent 輸出結構化 claim-source mapping,讓下游一路保留</h2>
+  <p>知識 1/2 的實作。在 subagent 的輸出規格裡<b>強制</b>每筆發現帶上 source URL、文件名、相關摘錄(excerpt),且要求下游 synthesis <b>原樣保留</b>到最終報告。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># web 搜尋 subagent 的輸出規格</span>
+finding = {
+    <span class="tok-str">"claim"</span>: <span class="tok-str">"再生能源 2025 投資成長 22%"</span>,
+    <span class="tok-str">"source_url"</span>: <span class="tok-str">"https://iea.org/report-2025"</span>,
+    <span class="tok-str">"document_name"</span>: <span class="tok-str">"IEA World Energy Investment 2025"</span>,
+    <span class="tok-str">"excerpt"</span>: <span class="tok-str">"Global renewable investment rose 22% ..."</span>,
+}
+<span class="tok-com"># ✅ synthesis 必須把這四個欄位一路保留到報告引用區</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>subagent 輸出強制帶 URL/文件名/excerpt；下游綜合原樣保留。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;報告分區:明確區分「已確立」與「有爭議」的發現,保留原始來源定性</h2>
+  <p>知識 3 的實作。把最終報告用<b>明確區塊</b>切開:一塊放<b>已充分確立</b>的發現,一塊放<b>仍有爭議</b>的發現;並保留各來源<b>原本的定性描述與方法論脈絡</b>(例如「該數字為估計值,樣本 n=200」),不要抹平成斬釘截鐵的結論。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>report = {
+    <span class="tok-str">"well_established"</span>: [
+        {<span class="tok-str">"claim"</span>: <span class="tok-str">"市場規模逾 500 億美元"</span>, <span class="tok-str">"sources"</span>: [<span class="tok-str">"A"</span>, <span class="tok-str">"B"</span>, <span class="tok-str">"C"</span>]},
+    ],
+    <span class="tok-str">"contested"</span>: [
+        {<span class="tok-str">"claim"</span>: <span class="tok-str">"年成長率"</span>,
+         <span class="tok-str">"positions"</span>: [{<span class="tok-str">"value"</span>: <span class="tok-str">"35%"</span>, <span class="tok-str">"source"</span>: <span class="tok-str">"A(估計)"</span>},
+                       {<span class="tok-str">"value"</span>: <span class="tok-str">"28%"</span>, <span class="tok-str">"source"</span>: <span class="tok-str">"B(實測 n=200)"</span>}]},
+    ],   <span class="tok-good"># ✅ 保留原始定性與方法論</span>
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>報告分「已確立 / 有爭議」兩區,保留原始來源定性與方法論脈絡。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;文件分析帶著衝突值「明確標注」交出,由 coordinator 決定如何調和</h2>
+  <p>知識 3 的職責劃分。文件分析 subagent <b>不該自己解決衝突</b>。它的工作是把<b>衝突值連同標注一起完整交出</b>,把「要怎麼調和」的決定權留給 <b>coordinator</b>——coordinator 有全局視野,再決定傳給 synthesis 前如何處理。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">analysis_subagent</span>(doc):
+    values = <span class="tok-fn">extract_metric</span>(doc, <span class="tok-str">"市占率"</span>)
+    <span class="tok-kw">if</span> <span class="tok-fn">len</span>(<span class="tok-fn">set</span>(values)) &gt; <span class="tok-num">1</span>:
+        <span class="tok-com"># ✅ 不自行決定,標注衝突原樣上交給 coordinator</span>
+        <span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"ok"</span>, <span class="tok-str">"conflict"</span>: <span class="tok-kw">True</span>,
+                <span class="tok-str">"values"</span>: values,
+                <span class="tok-str">"note"</span>: <span class="tok-str">"文件內市占率數字不一致,待調和"</span>}
+    <span class="tok-kw">return</span> {<span class="tok-str">"status"</span>: <span class="tok-str">"ok"</span>, <span class="tok-str">"value"</span>: values[<span class="tok-num">0</span>]}
+<span class="tok-com"># coordinator 收到後再決定如何調和,才傳給 synthesis</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>analysis subagent 把衝突明確標注後上交,調和決策交給 coordinator。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;要求 subagent 在結構化輸出附上發佈/採集日期</h2>
+  <p>知識 4 的實作。把「附日期」寫進 subagent 輸出的<b>硬性規格</b>:每筆數據都要有 publication date 或 data collection date,讓 synthesis 能正確做時序判讀,而非把不同年份的數字當成打架。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>OUTPUT_SCHEMA = {
+    <span class="tok-str">"claim"</span>: <span class="tok-str">"str"</span>,
+    <span class="tok-str">"value"</span>: <span class="tok-str">"str"</span>,
+    <span class="tok-str">"source"</span>: <span class="tok-str">"str"</span>,
+    <span class="tok-str">"publication_date"</span>: <span class="tok-str">"required"</span>,   <span class="tok-good"># ✅ 必填,缺則退回</span>
+}
+<span class="tok-kw">def</span> <span class="tok-fn">validate_finding</span>(f):
+    <span class="tok-kw">if</span> <span class="tok-kw">not</span> f.<span class="tok-fn">get</span>(<span class="tok-str">"publication_date"</span>):
+        <span class="tok-kw">raise</span> <span class="tok-fn">ValueError</span>(<span class="tok-str">"缺發佈日期,無法正確時序判讀"</span>)</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>把「附發佈/採集日期」設為輸出硬性必填,支援正確時序判讀。</div>
+
+  <h2><span class="num">技能 5</span> &nbsp;不同內容類型用適當形式呈現,別全部塞成同一種格式</h2>
+  <p>synthesis 輸出要<b>因內容而異</b>:<b>財務數據用表格</b>、<b>新聞用散文</b>、<b>技術發現用結構化清單</b>。把所有東西硬轉成同一種格式(例如全部寫成散文)會讓財務數字難讀、技術細節難查。讓形式服務內容。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">render_section</span>(content_type, data):
+    <span class="tok-kw">if</span> content_type == <span class="tok-str">"financial"</span>:
+        <span class="tok-kw">return</span> <span class="tok-fn">to_table</span>(data)            <span class="tok-com"># 財務 → 表格</span>
+    <span class="tok-kw">if</span> content_type == <span class="tok-str">"news"</span>:
+        <span class="tok-kw">return</span> <span class="tok-fn">to_prose</span>(data)            <span class="tok-com"># 新聞 → 散文</span>
+    <span class="tok-kw">if</span> content_type == <span class="tok-str">"technical"</span>:
+        <span class="tok-kw">return</span> <span class="tok-fn">to_bullet_list</span>(data)      <span class="tok-com"># 技術 → 結構化清單</span>
+    <span class="tok-com"># ✅ 形式服務內容,不全轉成單一格式</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>財務→表格、新聞→散文、技術→清單;別把所有內容壓成同一格式。</div>
+
+  <div class="summary">
+    <h2>整個 Task 5.6 的記憶骨架</h2>
+    <p>多代理研究的終點是<span class="num">有引用來源的報告</span>,但出處最容易在<span class="num">摘要步驟流失</span>。對策:每筆發現帶結構化 <span class="num">claim-source mapping</span>(URL/文件名/excerpt),synthesis <span class="num">合併時原樣保留</span>。可信來源<span class="num">數據衝突</span>時要<span class="num">標注雙方出處</span>、不擅自挑值,且把調和決定權留給 coordinator;數據一律附<span class="num">發佈/採集日期</span>,避免時間差被誤判為矛盾。報告分<span class="num">已確立 / 有爭議</span>兩區、保留原始定性,並讓<span class="num">財務用表格、新聞用散文、技術用清單</span>,形式服務內容。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

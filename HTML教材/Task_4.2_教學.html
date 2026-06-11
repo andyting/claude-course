@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 4.2 — 用 few-shot prompting 提升輸出一致性與品質</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 4</div>
+    <h1>Task Statement 4.2<br>用 few-shot prompting 提升輸出一致性與品質</h1>
+    <p>Apply few-shot prompting to improve output consistency and quality</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 4.2 — Apply few-shot prompting to improve output consistency and quality</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Few-shot examples as the most effective technique for achieving consistently formatted, actionable output when detailed instructions alone produce inconsistent results</li>
+      <li>The role of few-shot examples in demonstrating ambiguous-case handling (e.g., tool selection for ambiguous requests, branch-level test coverage gaps)</li>
+      <li>How few-shot examples enable the model to generalize judgment to novel patterns rather than matching only pre-specified cases</li>
+      <li>The effectiveness of few-shot examples for reducing hallucination in extraction tasks (e.g., handling informal measurements, varied document structures)</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Creating 2-4 targeted few-shot examples for ambiguous scenarios that show reasoning for why one action was chosen over plausible alternatives</li>
+      <li>Including few-shot examples that demonstrate specific desired output format (location, issue, severity, suggested fix) to achieve consistency</li>
+      <li>Providing few-shot examples distinguishing acceptable code patterns from genuine issues to reduce false positives while enabling generalization</li>
+      <li>Using few-shot examples to demonstrate correct handling of varied document structures (inline citations vs bibliographies, methodology sections vs embedded details)</li>
+      <li>Adding few-shot examples showing correct extraction from documents with varied formats to address empty/null extraction of required fields</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 6</span><br>
+    <span class="scen-name">Scenario 6 — Structured Data Extraction</span>
+    <p>用 Claude 從非結構化文件(發票、研究論文)抽資訊並以 JSON schema 驗證。當「詳細指令」還是抽得時好時壞、必填欄位變空值、非正式量詞被亂猜時,few-shot 範例就是把品質拉穩的最強手段。本 Task 的程式碼也會帶到 Scenario 5(CI code review)的降 false positive 用法。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>當你把規則寫到天花亂墜、模型還是輸出得時好時壞時,別再加指令——「示範」幾個例子給它看,效果遠勝再多文字描述。</b> 這就是 few-shot 的核心。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;當「詳細指令」失靈時,few-shot 是拉穩格式的最強手段</h2>
+  <p>你可以把輸出規則寫成一大段文字:「請輸出 location、issue、severity、suggested_fix 四欄,severity 用 high/medium/low……」。但實務上,光靠文字指令,模型常常今天這樣排、明天那樣排。<b>給它看 2~4 個「長這樣」的實際範例</b>,一致性立刻拉起來——示範比描述有效。</p>
+  <p>在 Scenario 6 的抽取任務裡,這特別明顯:你描述了 invoice 該抽哪些欄位,但不同格式的發票一進來,輸出就歪掉;放幾個 input→output 範例,模型就「抓到感覺」了。</p>
+  <div class="key"><b>考點重點:</b>detailed instructions 還是不一致 → 改用 few-shot examples,這是最有效的技巧。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;few-shot 專治「模糊案例」的處理示範</h2>
+  <p>規則最難寫清楚的,就是<b>模糊地帶</b>:這個請求到底該用哪個工具?這段測試到底算不算覆蓋到某個 branch?與其用文字硬解釋,不如<b>示範一個模糊案例怎麼判</b>,並把「為什麼選 A 不選 B」的理由寫進範例裡。模型學的不是答案,是判斷的尺度。</p>
+  <div class="key"><b>重點:</b>ambiguous-case(工具選擇、branch 覆蓋缺口)用範例示範,比寫規則有效。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;few-shot 讓模型「類推」到沒見過的新樣式,而非只配對已列舉的案例</h2>
+  <p>這條最容易被誤解。few-shot 不是「把所有情況都列出來當查表」——那永遠列不完。好的範例是讓模型<b>學會背後的判斷邏輯,再類推(generalize)到你沒寫過的新樣式</b>。所以範例要挑「能代表一類判斷」的,而不是堆一堆雷同案例。</p>
+  <div class="key"><b>重點:</b>few-shot 目標是 generalize judgment,不是 match pre-specified cases。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;few-shot 能降低抽取任務的幻覺(hallucination)</h2>
+  <p>在 Scenario 6 抽取場景,模型最愛幻覺的地方是:遇到非正式量詞(「一打」「半箱」)、或文件結構長得不一樣時,就自己編一個值。放幾個「這種非正式寫法應該抽成什麼」的範例,模型就不會亂猜,幻覺明顯下降。</p>
+  <div class="key"><b>重點:</b>varied document structures / informal measurements 的範例 → 降低 extraction 幻覺。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;為模糊案例寫 2~4 個範例,並寫出「為何選這個而非另一個」的理由</h2>
+  <p>數量抓 2~4 個就好(太多反而稀釋、增加 token)。關鍵是每個範例要附上<b>推理</b>:不只給答案,還要說明在幾個看似合理的選項中,為什麼挑了這個。下面用 Scenario 6 的「一張看不出類型的文件,該用哪個抽取工具」示範。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 6:文件類型不明,示範如何選對 extract_* 工具</span>
+few_shot_examples = <span class="tok-str">"""
+範例 1
+輸入文件:「Invoice #A-200 ... Total Due: $1,240」
+判斷:含 Invoice 編號與 Total Due → 屬發票。
+選用工具:extract_invoice(而非 extract_receipt,因為有正式發票編號與付款條件)
+理由:receipt 通常無編號與付款條件;這裡兩者都有,故為 invoice。
+
+範例 2
+輸入文件:「Abstract ... Methods ... References [1] Smith 2024」
+判斷:含 Abstract/Methods/References → 屬研究論文。
+選用工具:extract_paper_metadata(而非 extract_invoice)
+理由:無金額與編號,卻有章節與引用結構,明顯是論文。
+"""</span>
+
+prompt = few_shot_examples + <span class="tok-str">f"\n\n現在請判斷並抽取以下文件:\n{document}"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>2~4 個範例 + 附「為何選 A 不選 B」的 reasoning。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;用範例示範「指定輸出格式」(location / issue / severity / suggested_fix)</h2>
+  <p>要輸出一致的結構,最穩的做法是<b>直接示範一筆完整格式</b>。這在 Scenario 5(CI code review)很典型:你要 PR 回饋固定包含「位置、問題、嚴重度、建議修法」四欄,就給它看一個範例長怎樣。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 5:示範 PR review 回饋的固定輸出格式</span>
+format_example = <span class="tok-str">"""
+範例輸入(diff 片段):
++ password = request.get("pwd")
++ db.query("SELECT * FROM users WHERE pwd = " + password)
+
+範例輸出(嚴格四欄):
+{
+  "location": "auth.py:42",
+  "issue": "SQL 字串拼接導致 SQL injection",
+  "severity": "high",
+  "suggested_fix": "改用參數化查詢 db.query(sql, [password])"
+}
+"""</span>
+
+review_prompt = format_example + <span class="tok-str">f"\n請依相同四欄格式 review 以下 diff:\n{diff}"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>示範一筆「目標格式」的完整範例 → 輸出欄位一致。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;用範例區分「可接受的 code pattern」與「真正的問題」,降 false positive</h2>
+  <p>承接 Task 4.1。CI review 最惱人的是把正常寫法誤報成問題(false positive),磨掉開發者信任。解法:給一組<b>對照範例</b>——這種寫法是 OK 的(別報)、那種才是真 bug(要報)。讓模型學會分界,同時還能類推到沒見過的相似寫法。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 5:對照範例,教模型分辨「可接受」vs「真問題」</span>
+contrast_examples = <span class="tok-str">"""
+✅ 可接受(不要報):
+  for i in range(len(items)):  # 專案慣用風格,非錯誤
+  → 不回報。屬團隊既有 local pattern。
+
+❌ 真問題(要報):
+  result = data["key"]  # 未檢查 key 是否存在,KeyError 風險
+  → 回報。severity: medium,建議用 data.get("key")。
+"""</span>
+
+prompt = contrast_examples + <span class="tok-str">f"\n依上述分界 review:\n{diff}"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>acceptable pattern vs genuine issue 的對照範例 → 降 false positive 又能 generalize。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;用範例示範「不同文件結構」的正確處理</h2>
+  <p>回到 Scenario 6。同樣是「引用來源」,有的文件用 inline citation(內文括號),有的集中放 bibliography;有的把 methodology 獨立成章,有的散在內文。給模型看<b>不同結構各該怎麼抽</b>的範例,它才不會只認得一種版型。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 6:示範不同文件結構下,citations 怎麼抽</span>
+structure_examples = <span class="tok-str">"""
+結構 A(inline 引用):
+  「...如 (Smith, 2024) 指出...」
+  → citations: [{"author": "Smith", "year": 2024}]
+
+結構 B(末尾參考書目):
+  「References\n[1] Lee, J. (2023). ...」
+  → citations: [{"author": "Lee", "year": 2023}]
+
+結構 C(methodology 嵌在內文,非獨立章節):
+  → 仍要抽出 methodology 欄位,從內文段落擷取。
+"""</span>
+
+extract_prompt = structure_examples + <span class="tok-str">f"\n抽取以下文件:\n{document}"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>inline vs bibliography、獨立 vs 嵌入章節,各給範例,模型才能跨結構正確抽。</div>
+
+  <h2><span class="num">技能 5</span> &nbsp;用範例修正「必填欄位被抽成空值/null」</h2>
+  <p>常見故障:某種版型的文件一進來,本來該有值的必填欄位卻一律抽成 null。多半是模型沒在那種版型裡認出該欄位。對症下藥:<b>針對那種版型補一個範例</b>,示範該欄位其實藏在哪、該抽成什麼。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 6:某版型 total 一直抽成 null → 補範例修正</span>
+fix_null_example = <span class="tok-str">"""
+這種版型沒有「Total」字樣,但底部「應付:NT$3,500」就是總額。
+輸入:「... 應付:NT$3,500」
+正確輸出:{"total_amount": 3500, "currency": "TWD"}
+(不要因為沒看到 'Total' 字樣就輸出 null)
+"""</span>
+
+prompt = fix_null_example + <span class="tok-str">f"\n抽取(total_amount 為必填):\n{document}"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>對「會抽成 null」的那種格式,專門補範例 → 補回必填欄位。</div>
+
+  <div class="summary">
+    <h2>整個 Task 4.2 的記憶骨架</h2>
+    <p>當<span class="num">詳細指令</span>仍輸出不一致,改用 <span class="num">few-shot</span>:示範勝過描述。寫 <span class="num">2~4 個</span>範例,模糊案例要附「為何選 A 不選 B」的理由;示範<span class="num">目標格式</span>(location/issue/severity/fix)、用<span class="num">對照範例</span>分辨可接受 vs 真問題以降 false positive;在 <span class="num">Scenario 6 抽取</span>裡,對不同文件結構、會抽成 null 的版型各補範例。核心精神:讓模型學會<span class="num">判斷並類推到新樣式</span>,而非死背已列舉的案例。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

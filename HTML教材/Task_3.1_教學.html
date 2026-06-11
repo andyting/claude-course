@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 3.1 — 設定 CLAUDE.md 的階層、scope 與模組化組織</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 3</div>
+    <h1>Task Statement 3.1<br>設定 CLAUDE.md 的階層、scope 與模組化組織</h1>
+    <p>Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>The CLAUDE.md configuration hierarchy: user-level (<code>~/.claude/CLAUDE.md</code>), project-level (<code>.claude/CLAUDE.md</code> or root <code>CLAUDE.md</code>), and directory-level (subdirectory CLAUDE.md files)</li>
+      <li>That user-level settings apply only to that user—instructions in <code>~/.claude/CLAUDE.md</code> are not shared with teammates via version control</li>
+      <li>The <code>@import</code> syntax for referencing external files to keep CLAUDE.md modular (e.g., importing specific standards files relevant to each package)</li>
+      <li><code>.claude/rules/</code> directory for organizing topic-specific rule files as an alternative to a monolithic CLAUDE.md</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Diagnosing configuration hierarchy issues (e.g., a new team member not receiving instructions because they're in user-level rather than project-level configuration)</li>
+      <li>Using <code>@import</code> to selectively include relevant standards files in each package's CLAUDE.md based on maintainer domain knowledge</li>
+      <li>Splitting large CLAUDE.md files into focused topic-specific files in <code>.claude/rules/</code> (e.g., <code>testing.md</code>, <code>api-conventions.md</code>, <code>deployment.md</code>)</li>
+      <li>Using the <code>/memory</code> command to verify which memory files are loaded and diagnose inconsistent behavior across sessions</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 2</span><br>
+    <span class="scen-name">Scenario 2 — Code Generation with Claude Code</span>
+    <p>團隊用 Claude Code 做產生程式、重構、除錯與文件,並整合自訂 slash command 與 <code>CLAUDE.md</code>。本 Task 要把這些「給 Claude 的常駐指示」放對位置:全隊共用的規範進專案層、個人偏好進使用者層,並用 <code>@import</code> 與 <code>.claude/rules/</code> 把龐大規範拆成模組,還會教你用 <code>/memory</code> 抓「新同事為何沒套到規範」這類 bug。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>CLAUDE.md 是「給 Claude 的常駐說明書」,放錯層級,規範就傳不到該傳的人。</b> 全隊要共享的規範放專案層(進版控)、只屬於你的偏好放使用者層(不分享);說明書太長就用 <code>@import</code> 和 <code>.claude/rules/</code> 拆成模組。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;CLAUDE.md 的三層階層:使用者層、專案層、目錄層</h2>
+  <p>Claude Code 會從三個層級讀 CLAUDE.md,範圍由大到小:<br>
+  <b>使用者層</b> <code>~/.claude/CLAUDE.md</code>——你所有專案都生效的個人偏好。<br>
+  <b>專案層</b> <code>.claude/CLAUDE.md</code> 或 repo 根目錄的 <code>CLAUDE.md</code>——這個專案全隊共用。<br>
+  <b>目錄層</b> 子資料夾裡的 <code>CLAUDE.md</code>——只在那個子目錄(例如某個 package)內生效。<br>
+  三層會疊加,愈靠近你正在改的檔,規範愈具體。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 2:一個用 Claude Code 開發的 monorepo,三層 CLAUDE.md</span>
+~/.claude/CLAUDE.md              <span class="tok-com"># 使用者層:我個人偏好(所有專案)</span>
+my-monorepo/CLAUDE.md            <span class="tok-com"># 專案層:全隊共用規範(進版控)</span>
+my-monorepo/packages/api/CLAUDE.md      <span class="tok-com"># 目錄層:只管 api 這個 package</span>
+my-monorepo/packages/web/CLAUDE.md      <span class="tok-com"># 目錄層:只管 web 這個 package</span>
+<span class="tok-com"># 改 api 底下的檔時 → 使用者層 + 專案層 + api 目錄層 疊加生效</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>三層 = 使用者(<code>~/.claude</code>)、專案(repo 根 / <code>.claude</code>)、目錄(子資料夾)。範圍由大到小、疊加生效。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;使用者層設定只對你生效,不會經版控分享給隊友</h2>
+  <p>關鍵差別:寫在 <code>~/.claude/CLAUDE.md</code> 的東西<b>只在你自己的機器上生效</b>。它不在專案 repo 裡,所以不會被 commit、不會經版控傳給隊友。隊友 clone 專案,拿到的只有<b>專案層</b>的 CLAUDE.md,完全看不到你使用者層寫了什麼。這正是下面那個「新同事沒套到規範」bug 的根源。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># ~/.claude/CLAUDE.md(使用者層)— 只屬於你,不分享</span>
+<span class="tok-com"># 例:你個人喜歡 Claude 回中文、commit 訊息用某格式</span>
+- 回覆一律用繁體中文
+- 我偏好 commit message 加上 emoji 前綴
+
+<span class="tok-bad"># ❌ 把「全隊都要遵守」的規範藏在這裡 → 隊友永遠收不到</span>
+<span class="tok-good"># ✅ 團隊共用規範要放專案層(見知識 1),才會經版控分享</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>使用者層 = 私人、不進版控、不分享;團隊規範必須放專案層。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;@import 語法:引用外部檔案,讓 CLAUDE.md 保持模組化</h2>
+  <p>當規範越長越雜,別把所有東西塞進一個巨大的 CLAUDE.md。用 <code>@import</code> 把外部標準檔<b>引用進來</b>——每個 package 的 CLAUDE.md 只 import 它真正相關的標準。這樣維護者可以依自己 package 的領域知識,挑要引哪些規範,而不是被迫吞下全部。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># packages/api/CLAUDE.md — 只引 api 相關的標準</span>
+<span class="tok-com"># 這個 package 是後端服務,維護者知道該套哪些規範</span>
+@import ../../standards/typescript.md
+@import ../../standards/rest-api-design.md
+@import ../../standards/database-migrations.md
+
+<span class="tok-com"># packages/web/CLAUDE.md — 只引前端相關的</span>
+@import ../../standards/typescript.md
+@import ../../standards/react-components.md
+@import ../../standards/accessibility.md
+<span class="tok-com"># → 共用的 typescript.md 一處維護,各 package 各取所需</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b><code>@import</code> = 把外部標準檔引進來,讓每個 package 各取所需、避免單檔肥大。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;.claude/rules/ 目錄:把規範拆成主題檔,取代單一巨檔</h2>
+  <p>另一種模組化做法:不用一個塞爆的 CLAUDE.md,而是建 <code>.claude/rules/</code> 目錄,把規範按<b>主題</b>拆成多個檔——<code>testing.md</code>、<code>api-conventions.md</code>、<code>deployment.md</code> 各管一塊。好處是好找、好維護、改一塊不會動到別塊,review 也清楚。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 2:把龐大的 CLAUDE.md 拆進 .claude/rules/</span>
+.claude/
+└── rules/
+    ├── testing.md           <span class="tok-com"># 測試規範</span>
+    ├── api-conventions.md    <span class="tok-com"># API 命名與設計約定</span>
+    └── deployment.md         <span class="tok-com"># 部署流程</span>
+<span class="tok-com"># 每個主題一個檔 → 比一個 2000 行的 CLAUDE.md 好維護太多</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b><code>.claude/rules/</code> = 按主題拆檔(testing / api-conventions / deployment),取代單一巨檔。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;診斷階層問題:新同事沒收到規範,因為規範被放在使用者層</h2>
+  <p>最經典的考題場景:某條重要規範「在你機器上有效,新同事卻完全沒套到」。直覺反應是「設定壞了」,但真正原因常是——這條規範被寫在<b>使用者層</b> <code>~/.claude/CLAUDE.md</code>,只對你生效,沒進版控,新同事 clone 專案根本拿不到。修法:把它<b>搬到專案層</b>,commit 進 repo,規範才會跟著程式碼一起傳給每個人。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 病因:團隊規範誤放使用者層 → 只有你有,新同事沒有</span>
+~/.claude/CLAUDE.md:
+    - 所有 API 回應一律用 snake_case
+
+<span class="tok-good"># ✅ 修法:搬到專案層並進版控 → 全隊(含新同事)都收到</span>
+<span class="tok-com"># my-monorepo/CLAUDE.md(或 .claude/CLAUDE.md)</span>
+    - 所有 API 回應一律用 snake_case
+<span class="tok-com"># $ git add CLAUDE.md && git commit -m "share API casing rule"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>「只有我有、別人沒有」的規範 → 八成被放在使用者層,搬到專案層並 commit。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;用 @import 依維護者領域知識,選擇性引入各 package 的標準</h2>
+  <p>技能版的知識 3。每個 package 的維護者最清楚自己這塊該套哪些規範,就用 <code>@import</code> 只引那些。共用標準(如 <code>security.md</code>)集中一處維護,各 package 按需引入,不重複、不錯漏。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># packages/payments/CLAUDE.md — 金流 package,維護者知道要更嚴</span>
+@import ../../standards/security.md          <span class="tok-com"># 金流必引安全規範</span>
+@import ../../standards/pci-compliance.md     <span class="tok-com"># 這塊特有</span>
+@import ../../standards/typescript.md
+
+<span class="tok-com"># packages/docs/CLAUDE.md — 文件 package,不需金流那套</span>
+@import ../../standards/markdown-style.md
+<span class="tok-com"># → 各取所需:payments 引安全規範,docs 不必背這份</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 3</span> &nbsp;把大 CLAUDE.md 拆成 .claude/rules/ 下的主題檔</h2>
+  <p>技能版的知識 4。當單一 CLAUDE.md 長到難維護,動手拆:依主題切成 <code>testing.md</code>、<code>api-conventions.md</code>、<code>deployment.md</code> 放進 <code>.claude/rules/</code>。每塊聚焦單一主題,要找測試規範就開 <code>testing.md</code>,清楚明確。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 拆前:一個 1800 行的巨型 CLAUDE.md,什麼都塞</span>
+CLAUDE.md   <span class="tok-com"># 測試、API、部署、風格…全混在一起,難找難改</span>
+
+<span class="tok-good"># ✅ 拆後:按主題進 .claude/rules/</span>
+.claude/rules/testing.md          <span class="tok-com"># 「怎麼寫測試」一律看這份</span>
+.claude/rules/api-conventions.md  <span class="tok-com"># API 約定</span>
+.claude/rules/deployment.md       <span class="tok-com"># 部署規範</span>
+<span class="tok-com"># 改部署流程 → 只動 deployment.md,不影響其他主題</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>巨檔難維護 → 按主題拆進 <code>.claude/rules/</code>,單檔聚焦、改動隔離。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;用 /memory 指令確認「載入了哪些 memory 檔」,診斷跨 session 行為不一致</h2>
+  <p>有時 Claude Code 在不同 session「行為飄忽」——同一個專案,這次套到某規範、下次又沒套。要查為什麼,用 <code>/memory</code> 指令:它會列出<b>目前實際載入了哪些 memory / CLAUDE.md 檔</b>。對照清單就能看出是不是某層的檔沒被讀到、或某個 <code>@import</code> 路徑壞了,把「規範沒生效」這種隱形 bug 攤在眼前。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 2:Claude Code 行為跨 session 不一致,先查載入了什麼</span>
+&gt; /memory
+<span class="tok-com"># 輸出範例:列出目前生效的記憶檔</span>
+<span class="tok-good"># ✅ Loaded:</span>
+<span class="tok-com">#   ~/.claude/CLAUDE.md            (使用者層)</span>
+<span class="tok-com">#   ./CLAUDE.md                    (專案層)</span>
+<span class="tok-com">#   .claude/rules/testing.md       (@import 進來的)</span>
+<span class="tok-bad"># ❌ 若預期的 api-conventions.md 沒出現在清單 → 就是它沒被載入</span>
+<span class="tok-com">#    (路徑錯了、或 @import 沒寫對) → 行為不一致的真兇</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>行為跨 session 飄忽 → 用 <code>/memory</code> 看「實際載入了哪些檔」,對照預期找出沒讀到的那份。</div>
+
+  <div class="summary">
+    <h2>整個 Task 3.1 的記憶骨架</h2>
+    <p>CLAUDE.md 是給 Claude 的常駐說明書,分<span class="num">三層</span>:使用者層(<code>~/.claude</code>,私人不分享)、專案層(repo 根 / <code>.claude</code>,進版控全隊共用)、目錄層(子資料夾,只管那塊)。最常考的 bug:團隊規範誤放<span class="num">使用者層</span> → 新同事收不到,修法是搬到<span class="num">專案層並 commit</span>。說明書太長就模組化——用 <span class="num">@import</span> 讓各 package 各取所需,或用 <span class="num">.claude/rules/</span> 按主題(testing / api-conventions / deployment)拆檔。行為跨 session 不一致時,用 <span class="num">/memory</span> 查實際載入了哪些檔,揪出沒讀到的那份。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

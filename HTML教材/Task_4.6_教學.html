@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 4.6 — 設計多實例與多輪審查架構</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 4</div>
+    <h1>Task Statement 4.6<br>設計多實例與多輪審查架構</h1>
+    <p>Design multi-instance and multi-pass review architectures</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 4.6 — Design multi-instance and multi-pass review architectures</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Self-review limitations: a model retains reasoning context from generation, making it less likely to question its own decisions in the same session</li>
+      <li>Independent review instances (without prior reasoning context) are more effective at catching subtle issues than self-review instructions or extended thinking</li>
+      <li>Multi-pass review: splitting large reviews into per-file local analysis passes plus cross-file integration passes to avoid attention dilution and contradictory findings</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Using a second independent Claude instance to review generated code without the generator's reasoning context</li>
+      <li>Splitting large multi-file reviews into focused per-file passes for local issues plus separate integration passes for cross-file data flow analysis</li>
+      <li>Running verification passes where the model self-reports confidence alongside each finding to enable calibrated review routing</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 5</span><br>
+    <span class="scen-name">Scenario 5 — Claude Code for Continuous Integration</span>
+    <p>把 Claude Code 接進 CI/CD 做自動 code review。本 Task 教你:別讓「產 code 的那個實例」自己審自己——要用<b>第二個獨立實例</b>(不帶生成時的推理脈絡)來審,才抓得到細微 bug;大型多檔審查要拆成「逐檔 local pass + 跨檔 integration pass」;再讓審查實例對每個 finding <b>自報信心</b>以便分流。範例都用 PR review / generator vs reviewer 實例的 CI 場景。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>「自己審自己」會放水——因為生成時的推理脈絡讓它捨不得質疑自己的決定。換上一個沒看過推理過程的獨立實例來審,才抓得到細微問題。</b>
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;自我審查的天生限制:同一 session 不容易質疑自己</h2>
+  <p>核心觀念。當同一個模型實例在<b>同一個 session</b> 裡先寫了 code、再被要求審查,它<b>還留著生成時的推理脈絡</b>——它已經「說服過自己」這段邏輯是對的,於是<b>較不會去質疑自己的決定</b>。這就是為什麼「請你再檢查一下自己的程式」效果有限。</p>
+  <div class="key"><b>考點重點:</b>self-review 會保留 generation 的 reasoning context → 不易質疑自己。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;獨立實例 > 自我審查指令或 extended thinking</h2>
+  <p>關鍵比較。要抓<b>細微問題(subtle issues)</b>,「換一個<b>沒有先前推理脈絡</b>的獨立實例」來審,比「叫同一實例自我審查」或「開 extended thinking 多想一下」<b>更有效</b>。因為獨立實例是用全新視角讀這段 code,不會被生成時的思路牽著走。</p>
+  <div class="key"><b>重點:</b>抓細微 bug 的效果:獨立 review 實例 &gt; self-review 指令 &gt; extended thinking。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;多輪審查:逐檔 local pass + 跨檔 integration pass</h2>
+  <p>大型審查不能「一次把全部檔案塞進去一起看」——注意力會被稀釋(attention dilution),還可能給出<b>互相矛盾</b>的結論。正確拆法:先做<b>逐檔的 local pass</b>(每個檔各自看區域性問題),再做<b>跨檔的 integration pass</b>(專看檔案之間的資料流、介面、相依)。分工避免分心與矛盾。</p>
+  <div class="key"><b>重點:</b>大審查拆成 per-file local pass + cross-file integration pass,避免 attention dilution 與矛盾結論。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;用「第二個獨立 Claude 實例」審查生成的 code(不帶 generator 脈絡)</h2>
+  <p>核心實作。generator 實例負責產 code;審查時<b>另開一個全新實例</b>,只給它「待審的 code + 審查任務」,<b>不要</b>把 generator 的對話脈絡或推理過程帶過去。這樣 reviewer 是用乾淨視角看,抓得到 generator 自己看不到的問題。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">import</span> anthropic
+client = anthropic.<span class="tok-fn">Anthropic</span>()
+
+<span class="tok-com"># Scenario 5:CI 裡 generator 產 code,reviewer 是「全新實例」</span>
+<span class="tok-kw">def</span> <span class="tok-fn">generate_code</span>(spec):
+    <span class="tok-kw">return</span> client.messages.<span class="tok-fn">create</span>(
+        model=<span class="tok-str">"claude-sonnet-4-6"</span>, max_tokens=<span class="tok-num">2048</span>,
+        messages=[{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: spec}],
+    )
+
+<span class="tok-kw">def</span> <span class="tok-fn">independent_review</span>(code):
+    <span class="tok-com"># ✅ 只給 code,不帶 generator 的推理脈絡</span>
+    <span class="tok-kw">return</span> client.messages.<span class="tok-fn">create</span>(
+        model=<span class="tok-str">"claude-sonnet-4-6"</span>, max_tokens=<span class="tok-num">2048</span>,
+        messages=[{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>,
+                   <span class="tok-str">"content"</span>: <span class="tok-str">f"審查這段 PR 程式碼,找出 bug:\n{code}"</span>}],
+    )
+
+code = <span class="tok-fn">generate_code</span>(spec)
+review = <span class="tok-fn">independent_review</span>(code.content[<span class="tok-num">0</span>].text)  <span class="tok-com"># 乾淨視角</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>reviewer 另開新實例,只給 code、不帶 generator 脈絡 = 真正獨立的第二意見。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;大型多檔審查:拆成逐檔 local pass + 獨立的跨檔 integration pass</h2>
+  <p>把知識 3 變成流程。對一個改了很多檔的 PR:先<b>逐檔</b>各跑一次審查(專看該檔自身的 local 問題),再<b>另跑一次</b> integration pass(把各檔的介面/資料流一起看,專抓<b>跨檔</b>問題)。兩種 pass 任務不同、互不干擾。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 5:PR 改了多個檔 → 先逐檔、再跨檔</span>
+<span class="tok-kw">def</span> <span class="tok-fn">review_pr</span>(changed_files):
+    local_findings = []
+    <span class="tok-com"># 1) 逐檔 local pass:每檔只看自身問題</span>
+    <span class="tok-kw">for</span> path, src <span class="tok-kw">in</span> changed_files.<span class="tok-fn">items</span>():
+        local_findings += <span class="tok-fn">review_one_file</span>(path, src)
+
+    <span class="tok-com"># 2) integration pass:專看跨檔資料流 / 介面相依</span>
+    integration = <span class="tok-fn">review_cross_file</span>(
+        prompt=<span class="tok-str">"只分析這些檔之間的資料流與介面一致性,"</span>
+               <span class="tok-str">"忽略單檔內部問題。"</span>,
+        files=changed_files,
+    )
+    <span class="tok-kw">return</span> local_findings, integration</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>local pass 抓單檔問題、integration pass 抓跨檔資料流;分開跑避免分心與矛盾。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;驗證 pass 讓模型「自報信心」,做校準分流</h2>
+  <p>讓審查可被分流。要求 reviewer 在<b>每個 finding 旁邊附上信心值</b>(高/中/低或 0–1)。然後依信心<b>校準路由</b>:高信心的問題自動標記/擋 merge,低信心的<b>送人工複核</b>,避免高 false positive 直接吵到開發者。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># Scenario 5:每個 PR finding 自報信心,依信心分流</span>
+review_prompt = <span class="tok-str">"""審查這段程式碼。每一個問題都要附上:
+- issue: 問題描述
+- confidence: 0~1 的信心值
+只回 JSON 陣列。"""</span>
+
+resp = client.messages.<span class="tok-fn">create</span>(
+    model=<span class="tok-str">"claude-sonnet-4-6"</span>, max_tokens=<span class="tok-num">2048</span>,
+    messages=[{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>,
+               <span class="tok-str">"content"</span>: review_prompt + code}],
+)
+
+<span class="tok-kw">for</span> f <span class="tok-kw">in</span> <span class="tok-fn">parse_findings</span>(resp):
+    <span class="tok-kw">if</span> f[<span class="tok-str">"confidence"</span>] &gt;= <span class="tok-num">0.8</span>:
+        <span class="tok-fn">block_merge</span>(f)         <span class="tok-com"># ✅ 高信心 → 擋 merge</span>
+    <span class="tok-kw">else</span>:
+        <span class="tok-fn">route_to_human</span>(f)      <span class="tok-com"># 低信心 → 人工複核,降 false positive</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>每個 finding 帶 confidence → 高信心自動處理、低信心送人工,校準路由降誤報。</div>
+
+  <div class="summary">
+    <h2>整個 Task 4.6 的記憶骨架</h2>
+    <p>核心一句:<span class="num">自己審自己會放水</span>,因為生成時的推理脈絡讓模型不願質疑自己。所以要用<span class="num">第二個獨立實例</span>(不帶 generator 脈絡)來審,抓細微 bug 的效果勝過 <span class="num">self-review 指令</span>或 <span class="num">extended thinking</span>。大型審查拆成<span class="num">逐檔 local pass</span>(單檔問題)+ <span class="num">跨檔 integration pass</span>(資料流/介面),避免注意力稀釋與矛盾結論。最後讓每個 finding <span class="num">自報 confidence</span>,高信心自動擋 merge、低信心送人工,做<span class="num">校準分流</span>降低 false positive。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

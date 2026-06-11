@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 3.4 — 判斷何時用 plan mode、何時直接執行</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--blue); text-transform: uppercase; margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 12px 16px; margin: 16px 0; font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg); color: #e2e8f0; border-radius: 10px;
+    padding: 18px 20px; overflow-x: auto; font-size: 14px; line-height: 1.6;
+    margin: 0; font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,0.12); color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+    padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900); color: #f1f5f9; border-radius: 12px;
+    padding: 28px 30px; margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12; color: #e2e8f0; border-left: 4px solid var(--blue);
+    border-radius: 10px; padding: 16px 22px; margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 3</div>
+    <h1>Task Statement 3.4<br>判斷何時用 plan mode、何時直接執行</h1>
+    <p>Determine when to use plan mode vs direct execution</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 3.4 — Determine when to use plan mode vs direct execution</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Plan mode is designed for complex tasks involving large-scale changes, multiple valid approaches, architectural decisions, and multi-file modifications</li>
+      <li>Direct execution is appropriate for simple, well-scoped changes (e.g., adding a single validation check to one function)</li>
+      <li>Plan mode enables safe codebase exploration and design before committing to changes, preventing costly rework</li>
+      <li>The Explore subagent for isolating verbose discovery output and returning summaries to preserve main conversation context</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Selecting plan mode for tasks with architectural implications (e.g., microservice restructuring, library migrations affecting 45+ files, choosing between integration approaches with different infrastructure requirements)</li>
+      <li>Selecting direct execution for well-understood changes with clear scope (e.g., a single-file bug fix with a clear stack trace, adding a date validation conditional)</li>
+      <li>Using the Explore subagent for verbose discovery phases to prevent context window exhaustion during multi-phase tasks</li>
+      <li>Combining plan mode for investigation with direct execution for implementation (e.g., planning a library migration, then executing the planned approach)</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 2</span><br>
+    <span class="scen-name">Scenario 2 — Code Generation with Claude Code</span>
+    <p>團隊用 Claude Code 做產生程式、重構、除錯。每接到一個任務,你都得先判斷:這是「先規劃再下手」的大工程(plan mode),還是「範圍清楚、直接改」的小事(direct execution)?本 Task 教你這個分流判斷,以及用 Explore subagent 探索而不爆 context。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>任務複雜、牽連多檔、有架構抉擇 → 先 plan mode 規劃;範圍小又清楚 → 直接執行。</b>核心是一道分流判斷,再加一個工具(Explore subagent)幫你在探索階段不爆 context。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;plan mode 適合:大規模、多種解法、架構決策、多檔修改</h2>
+  <p>plan mode 是為<b>複雜任務</b>設計的。判斷特徵:改動規模大、有<b>多個都說得通的做法</b>(需要先選)、牽涉<b>架構決策</b>、要動<b>很多個檔案</b>。這類任務一旦貿然下手,做錯方向就要大幅重來。</p>
+  <p>Scenario 2 的例子:把一個 monolith 拆成 microservice、或把某個 library 換掉(影響 45+ 個檔)——這些都該先 plan。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># ✅ 該用 plan mode 的徵兆(任一成立就考慮)</span>
+<span class="tok-com">#   - 大規模改動(large-scale changes)</span>
+<span class="tok-com">#   - 有多個都可行的做法,要先比較取捨</span>
+<span class="tok-com">#   - 涉及架構決策(architectural decisions)</span>
+<span class="tok-com">#   - 要修改多個檔案(multi-file)</span>
+
+<span class="tok-good"># 例:library migration 影響 45+ 檔 → 先 plan mode</span>
+claude --permission-mode plan
+<span class="tok-com"># 先讓 Claude 探索、出方案,你確認後才動手</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>大規模 / 多解法 / 架構抉擇 / 多檔 → plan mode。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;direct execution 適合:簡單、範圍清楚的小改動</h2>
+  <p>反過來,如果任務<b>簡單、範圍很清楚</b>,規劃只是徒增延遲,直接做就好。官方例子:在某個 function 加<b>一個驗證檢查</b>。沒有方向之爭,沒有架構問題,單檔搞定。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 該直接執行的徵兆</span>
+<span class="tok-com">#   - 改動簡單、scope 清楚</span>
+<span class="tok-com">#   - 單檔、無架構含意</span>
+
+<span class="tok-com"># 例:在 validate_date() 加一個日期條件檢查</span>
+<span class="tok-kw">def</span> <span class="tok-fn">validate_date</span>(d):
+    <span class="tok-kw">if</span> d &gt; <span class="tok-fn">today</span>():           <span class="tok-com"># 新增的一行驗證,範圍明確</span>
+        <span class="tok-kw">raise</span> <span class="tok-fn">ValueError</span>(<span class="tok-str">"date cannot be in the future"</span>)
+    <span class="tok-kw">return</span> d
+<span class="tok-com"># → 不需 plan,直接改</span></code></pre>
+  </div>
+  <div class="key"><b>一句話記住:</b>單檔、scope 清楚、無架構含意 → 直接執行,別過度規劃。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;plan mode 讓你先安全探索與設計,避免昂貴的重做</h2>
+  <p>plan mode 的價值在於:<b>在真的動手改之前,先安全地探索 codebase、把設計想清楚</b>。它不會直接改檔,而是先產出計畫讓你檢視。這樣若方向錯了,你在「計畫」階段就能攔下,而不是等程式碼改了一半才發現要全部重來——那種重做(rework)成本很高。</p>
+  <div class="key"><b>重點:</b>plan mode = 先想清楚再動手 → 把錯誤擋在計畫階段,省下昂貴 rework。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;Explore subagent:隔離吵雜的探索輸出,只回摘要保住主 context</h2>
+  <p>複雜任務的「探索/發現」階段(discovery)常常很吵——翻一堆檔、grep 一堆結果。如果這些全進主對話,主 context window 很快被洗爆。<b>Explore subagent</b> 的作用:把這段 verbose 的探索放到子代理裡跑,主對話只收到<b>精煉的摘要</b>。</p>
+  <p>這跟 Task 3.2 的 <code>context: fork</code>、Task 1.3 的 subagent 觀念一脈相承——都是「把雜訊隔離、只帶結論回來」。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 探索輸出全進主對話 → 翻 80 個檔的原文洗爆 context</span>
+<span class="tok-com"># 主對話:讀 file1... file2... ... file80...(雜訊滿載)</span>
+
+<span class="tok-good"># ✅ 用 Explore subagent:雜訊留子代理,主對話只收摘要</span>
+<span class="tok-com"># Explore subagent → 回傳:「auth 流程集中在 3 個模組,</span>
+<span class="tok-com"># 進入點是 login.py,session 由 redis 管理」</span>
+<span class="tok-com"># → 主 context 乾淨,還有空間繼續做後續階段</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>Explore subagent = 隔離 verbose discovery、只回摘要 → 保住主 context。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;為有架構含意的任務選 plan mode</h2>
+  <p>知識 1 的實戰落點。官方點名的情境:microservice 重構、library migration 影響 45+ 檔、在「不同基礎設施需求的整合方案」之間做選擇——這些都先 plan。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 架構含意大 → plan mode 先出方案再確認</span>
+<span class="tok-com"># 任務:把 payments 從 monolith 拆成獨立 service</span>
+claude --permission-mode plan \
+  -p <span class="tok-str">"規劃把 payments 模組拆成獨立 microservice:
+列出受影響檔案、API 邊界、資料遷移步驟、回滾策略。"</span>
+<span class="tok-com"># 先看計畫,確認方向對了才執行</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;為範圍清楚的小改動選 direct execution</h2>
+  <p>知識 2 的落點。官方例子:有明確 stack trace 的單檔 bug fix、加一個日期驗證條件——直接做。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 單檔、scope 明確 → 直接執行,不開 plan</span>
+<span class="tok-com"># 任務:stack trace 指到 cart.py:42 的 KeyError,單檔修</span>
+claude -p <span class="tok-str">"修正 cart.py:42 的 KeyError:
+缺 key 時回傳預設值 0,並補一個測試。"</span>
+<span class="tok-com"># 範圍清楚、無架構含意 → 規劃只是浪費時間</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>有清楚 stack trace 的單檔修、加一個條件 → direct execution。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;在 verbose 探索階段用 Explore subagent 防 context 爆掉</h2>
+  <p>知識 4 的實作。多階段任務最怕在「發現階段」就把 context 用光,後面的實作階段沒空間。把探索丟給 Explore subagent。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 多階段任務:探索 legacy 認證系統 → 之後要重構</span>
+<span class="tok-good"># ✅ 探索階段交給 Explore subagent</span>
+<span class="tok-com">#   Explore:掃 auth 相關檔,回傳精煉摘要</span>
+<span class="tok-com">#   主對話只拿摘要 → context 不被 discovery 吃光</span>
+<span class="tok-com">#   → 後續重構階段仍有充足 context 可用</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 4</span> &nbsp;組合:plan mode 調查 + direct execution 實作</h2>
+  <p>兩者不是二選一,可以接力。官方例子:先用 plan mode 把 library migration 規劃好,確認方案後,<b>再用 direct execution 照計畫執行</b>。前段用規劃降風險,後段用直接執行求效率。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 階段一:plan mode 調查 + 設計</span>
+claude --permission-mode plan \
+  -p <span class="tok-str">"規劃從 requests 遷移到 httpx,列出受影響檔與步驟。"</span>
+
+<span class="tok-com"># 階段二:確認計畫後,direct execution 照表施工</span>
+claude -p <span class="tok-str">"依先前計畫,把第 1~3 步的檔案改成 httpx 寫法。"</span>
+<span class="tok-good"># ✅ 先規劃降風險,再直接執行求效率</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>investigation 用 plan mode,implementation 用 direct execution,接力使用。</div>
+
+  <div class="summary">
+    <h2>整個 Task 3.4 的記憶骨架</h2>
+    <p>在 Scenario 2 接到任務先分流:<span class="num">大規模 / 多種解法 / 架構決策 / 多檔修改</span> → 用 <span class="num">plan mode</span> 先安全探索與設計,把錯誤擋在計畫階段、省下昂貴 rework;<span class="num">簡單、範圍清楚的單檔小改</span>(有 stack trace 的 bug fix、加一個驗證)→ <span class="num">direct execution</span>,別過度規劃。探索階段吵雜時用 <span class="num">Explore subagent</span> 隔離輸出、只回摘要,保住主 context。兩者可接力:<span class="num">plan mode 調查 → direct execution 實作</span>。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

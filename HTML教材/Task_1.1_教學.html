@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 1.1 — 設計與實作自主任務執行的 agentic loop</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 1</div>
+    <h1>Task Statement 1.1<br>設計與實作自主任務執行的 agentic loop</h1>
+    <p>Design and implement agentic loops for autonomous task execution</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 1.1 — Design and implement agentic loops for autonomous task execution</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>The agentic loop lifecycle: sending requests to Claude, inspecting <code>stop_reason</code> ("tool_use" vs "end_turn"), executing requested tools, and returning results for the next iteration</li>
+      <li>How tool results are appended to conversation history so the model can reason about the next action</li>
+      <li>The distinction between model-driven decision-making (Claude reasons about which tool to call next based on context) and pre-configured decision trees or tool sequences</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Implementing agentic loop control flow that continues when <code>stop_reason</code> is "tool_use" and terminates when <code>stop_reason</code> is "end_turn"</li>
+      <li>Adding tool results to conversation context between iterations so the model can incorporate new information into its reasoning</li>
+      <li>Avoiding anti-patterns such as parsing natural language signals to determine loop termination, setting arbitrary iteration caps as the primary stopping mechanism, or checking for assistant text content as a completion indicator</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 1</span><br>
+    <span class="scen-name">Scenario 1 — Customer Support Resolution Agent</span>
+    <p>你在用 Claude Agent SDK 打造客服解決 agent,透過 get_customer / lookup_order / process_refund / escalate_to_human 等 MCP 工具處理退貨與帳務爭議。本 Task 的 agentic loop 就是這個 agent 的核心控制流程。</p>
+  </div>
+
+
+  <div class="lead">
+    一句話抓住主軸:<b>agentic loop 就是「問 Claude → 看它要不要用工具 → 幫它跑工具 → 把結果餵回去 → 再問」這個圈圈,而停與不停,只看一個訊號:<code>stop_reason</code>。</b> 這個 Task 的所有考點,都繞著「怎麼正確控制這個迴圈的開始、繼續、與結束」轉。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;agentic loop 的生命週期:送請求 → 看 stop_reason → 執行工具 → 回傳結果</h2>
+  <p>agentic loop 是一個重複的圈。每一輪:你把目前的對話送給 Claude,Claude 回應後你檢查它的 <code>stop_reason</code>。如果是 <code>"tool_use"</code>,代表「它想用工具」——你就去執行它要求的工具,把結果加回對話,再進下一輪。如果是 <code>"end_turn"</code>,代表「它講完了、不需要工具了」——迴圈結束。</p>
+  <p>把它想成你跟助理共事:你交代任務,助理說「我需要查一下資料庫」(tool_use),你幫它查、把結果給它,它再繼續想;直到它說「好了,這是最終答案」(end_turn)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># agentic loop 的骨架</span>
+messages = [{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: <span class="tok-str">"幫我查訂單 1234 的狀態並處理退款"</span>}]
+
+<span class="tok-kw">while</span> <span class="tok-num">True</span>:
+    response = client.messages.<span class="tok-fn">create</span>(model=MODEL, messages=messages, tools=TOOLS)
+
+    <span class="tok-kw">if</span> response.stop_reason == <span class="tok-str">"end_turn"</span>:   <span class="tok-good"># ✅ Claude 說完了 → 結束</span>
+        <span class="tok-kw">break</span>
+
+    <span class="tok-kw">if</span> response.stop_reason == <span class="tok-str">"tool_use"</span>:   <span class="tok-com"># Claude 要用工具</span>
+        messages.<span class="tok-fn">append</span>({<span class="tok-str">"role"</span>: <span class="tok-str">"assistant"</span>, <span class="tok-str">"content"</span>: response.content})
+        tool_results = <span class="tok-fn">execute_tools</span>(response.content)   <span class="tok-com"># 幫它跑工具</span>
+        messages.<span class="tok-fn">append</span>({<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: tool_results})  <span class="tok-com"># 結果餵回去</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>迴圈的方向盤是 <code>stop_reason</code>;<code>"tool_use"</code> 繼續、<code>"end_turn"</code> 結束。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;工具結果會被附加到對話歷史,讓模型能據此推理下一步</h2>
+  <p>每跑完一個工具,你要把結果<b>加回 messages(對話歷史)</b>。下一輪 Claude 看到的是「包含這次工具結果」的完整對話,它才能根據新資訊決定接下來要做什麼。如果你跑了工具卻沒把結果加回去,Claude 下一輪等於什麼都沒看到——它會一直重複要求同一個工具,或亂猜。</p>
+  <p>關鍵:工具結果用 <code>role: "user"</code> 的訊息加回去,且每個結果要對應到當初的 <code>tool_use_id</code>,Claude 才知道「這是我剛剛要的那個工具的回覆」。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">execute_tools</span>(content_blocks):
+    results = []
+    <span class="tok-kw">for</span> block <span class="tok-kw">in</span> content_blocks:
+        <span class="tok-kw">if</span> block.type == <span class="tok-str">"tool_use"</span>:
+            output = <span class="tok-fn">run_tool</span>(block.name, block.input)
+            results.<span class="tok-fn">append</span>({
+                <span class="tok-str">"type"</span>: <span class="tok-str">"tool_result"</span>,
+                <span class="tok-str">"tool_use_id"</span>: block.id,     <span class="tok-com"># ↑ 對應回原本的呼叫</span>
+                <span class="tok-str">"content"</span>: output,
+            })
+    <span class="tok-kw">return</span> results
+<span class="tok-com"># 回傳後,呼叫端會把它 append 進 messages,進入下一輪推理</span></code></pre>
+  </div>
+  <div class="key"><b>一句話記住:</b>工具結果不回填進對話 = Claude 等於沒看到 = 迴圈空轉。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;模型驅動的決策 vs. 預先寫死的決策樹</h2>
+  <p>agentic loop 的精神是<b>讓 Claude 自己根據 context 決定下一步用哪個工具</b>(model-driven)。你提供工具清單,但「先做什麼、再做什麼、要不要做」由 Claude 推理。這跟傳統「寫死的 if-else 決策樹 / 固定工具順序」相反——後者每種情況你都得事先想到並寫程式。</p>
+  <p>差別:寫死的流程遇到沒設想過的情況就卡住;model-driven 能依現場彈性應變。代價是它較難預測,所以才需要 <code>stop_reason</code> 這種明確的控制訊號來收尾。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 寫死的決策樹:每種情況都要自己 if-else,難以擴充</span>
+<span class="tok-kw">def</span> <span class="tok-fn">handle</span>(req):
+    <span class="tok-kw">if</span> <span class="tok-str">"退款"</span> <span class="tok-kw">in</span> req:
+        cust = <span class="tok-fn">get_customer</span>()
+        order = <span class="tok-fn">lookup_order</span>()
+        <span class="tok-kw">return</span> <span class="tok-fn">process_refund</span>(order)   <span class="tok-com"># 順序與分支全靠人手排</span>
+    <span class="tok-kw">elif</span> <span class="tok-str">"查詢"</span> <span class="tok-kw">in</span> req:
+        ...
+
+<span class="tok-good"># ✅ model-driven:給工具,讓 Claude 自己決定先後與是否需要</span>
+TOOLS = [get_customer, lookup_order, process_refund, escalate_to_human]
+<span class="tok-com"># 由 agentic loop 中的 Claude 依 context 推理該呼叫哪個、何時停</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>agentic = 讓模型推理決策;不是把流程寫死成決策樹。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;用 stop_reason 控制迴圈:"tool_use" 繼續、"end_turn" 結束</h2>
+  <p>這是知識 1 的實作核心。控制流程<b>只該</b>看 <code>stop_reason</code>:等於 <code>"tool_use"</code> 就繼續跑工具進下一輪;等於 <code>"end_turn"</code> 就跳出迴圈。不要用別的東西當主要判斷依據。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 正確:迴圈的繼續/終止,只看 stop_reason</span>
+<span class="tok-kw">def</span> <span class="tok-fn">agent_loop</span>(user_msg):
+    messages = [{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: user_msg}]
+    <span class="tok-kw">while</span> <span class="tok-num">True</span>:
+        resp = client.messages.<span class="tok-fn">create</span>(model=MODEL, messages=messages, tools=TOOLS)
+        messages.<span class="tok-fn">append</span>({<span class="tok-str">"role"</span>: <span class="tok-str">"assistant"</span>, <span class="tok-str">"content"</span>: resp.content})
+
+        <span class="tok-kw">if</span> resp.stop_reason == <span class="tok-str">"end_turn"</span>:
+            <span class="tok-kw">return</span> resp          <span class="tok-com"># 結束:回傳最終回應</span>
+
+        <span class="tok-kw">if</span> resp.stop_reason == <span class="tok-str">"tool_use"</span>:
+            results = <span class="tok-fn">execute_tools</span>(resp.content)
+            messages.<span class="tok-fn">append</span>({<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: results})
+            <span class="tok-com"># 不 break,迴圈自然進下一輪</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;每輪之間把工具結果加進 context,讓模型納入新資訊</h2>
+  <p>這是知識 2 的實作版。重點在於「<b>每一輪之間</b>」都要把工具結果回填,Claude 才能把新拿到的資訊納入推理。漏了任何一輪的回填,後續推理就建立在缺漏的資訊上。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 多步驟範例:查客戶 → 查訂單 → 處理退款,逐步把結果回填</span>
+messages = [{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: <span class="tok-str">"訂單 1234 要退款"</span>}]
+
+<span class="tok-kw">while</span> <span class="tok-num">True</span>:
+    resp = client.messages.<span class="tok-fn">create</span>(model=MODEL, messages=messages, tools=TOOLS)
+    messages.<span class="tok-fn">append</span>({<span class="tok-str">"role"</span>: <span class="tok-str">"assistant"</span>, <span class="tok-str">"content"</span>: resp.content})
+    <span class="tok-kw">if</span> resp.stop_reason != <span class="tok-str">"tool_use"</span>:
+        <span class="tok-kw">break</span>
+    <span class="tok-com"># ↓ 把這一輪的工具結果加回去,下一輪 Claude 才看得到</span>
+    messages.<span class="tok-fn">append</span>({<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: <span class="tok-fn">execute_tools</span>(resp.content)})
+<span class="tok-com"># 每輪累積:客戶資料 → 訂單資料 → 退款結果,全在 context 裡</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>工具結果要逐輪累積進 context,推理才連貫。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;避開反模式:別用自然語言、別把次數上限當主要停止機制</h2>
+  <p>這條最常考。三個一定要避開的錯誤停止方式:</p>
+  <p><b>反模式一:解析自然語言判斷該不該停。</b>例如偵測 Claude 有沒有講「完成了」「done」這種字。模型措辭千變萬化,靠關鍵字判斷一定會誤判。<br>
+  <b>反模式二:把固定 iteration 上限當作主要的停止機制。</b>「最多跑 5 圈就停」可以當<b>安全保險絲</b>,但不能當主要邏輯——任務還沒完就被硬切掉,或上限設太大空轉。<br>
+  <b>反模式三:看 assistant 有沒有文字內容來判斷是否完成。</b>Claude 在要求工具時也可能附帶文字說明,有文字不代表它做完了。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 反模式一:靠關鍵字判斷結束 → 措辭一變就誤判</span>
+<span class="tok-kw">if</span> <span class="tok-str">"完成"</span> <span class="tok-kw">in</span> resp.text <span class="tok-kw">or</span> <span class="tok-str">"done"</span> <span class="tok-kw">in</span> resp.text:
+    <span class="tok-kw">break</span>
+
+<span class="tok-bad"># ❌ 反模式二:把次數上限當主要停止邏輯</span>
+<span class="tok-kw">for</span> i <span class="tok-kw">in</span> <span class="tok-fn">range</span>(<span class="tok-num">5</span>):       <span class="tok-com"># 沒做完就被切掉,或空轉到 5</span>
+    ...
+
+<span class="tok-bad"># ❌ 反模式三:有文字就當作做完了</span>
+<span class="tok-kw">if</span> resp.text:
+    <span class="tok-kw">break</span>          <span class="tok-com"># Claude 要用工具時也常附帶文字說明</span>
+
+<span class="tok-good"># ✅ 正解:停止只看 stop_reason;次數上限只當安全保險絲</span>
+MAX = <span class="tok-num">25</span>   <span class="tok-com"># 防失控用,不是主要邏輯</span>
+<span class="tok-kw">for</span> _ <span class="tok-kw">in</span> <span class="tok-fn">range</span>(MAX):
+    resp = client.messages.<span class="tok-fn">create</span>(...)
+    <span class="tok-kw">if</span> resp.stop_reason == <span class="tok-str">"end_turn"</span>:
+        <span class="tok-kw">break</span>      <span class="tok-com"># 真正的停止依據</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>停止只信 <code>stop_reason</code>;關鍵字、文字內容、固定次數都不是可靠的終止依據(次數上限只當保險絲)。</div>
+
+  <div class="summary">
+    <h2>整個 Task 1.1 的記憶骨架</h2>
+    <p>agentic loop 是一個圈:<span class="num">送請求 → 看 stop_reason → 跑工具 → 回填結果 → 再送</span>。方向盤只有一個——<span class="num">stop_reason</span>:<code>"tool_use"</code> 繼續、<code>"end_turn"</code> 結束。每輪都要把工具結果<span class="num">回填進對話歷史</span>,Claude 才能據此推理。決策由<span class="num">模型驅動</span>(不是寫死的決策樹)。要避開三大反模式:<span class="num">靠關鍵字、靠文字內容、把次數上限當主停止機制</span>——次數上限只能當安全保險絲。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

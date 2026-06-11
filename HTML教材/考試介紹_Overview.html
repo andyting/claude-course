@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Certified Architect – Foundations 考試介紹</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* Hero */
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 60px 0 50px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 18px;
+  }
+  header.hero h1 { margin: 0 0 12px; font-size: 32px; font-weight: 700; line-height: 1.3; }
+  header.hero p { margin: 0; max-width: 660px; font-size: 16px; opacity: 0.85; }
+
+  /* 速覽卡 */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 28px 0 8px;
+  }
+  .fact {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .fact .num { font-size: 26px; font-weight: 700; color: var(--blue-dark); line-height: 1.1; }
+  .fact .lbl { font-size: 12.5px; color: var(--gray-500); margin-top: 6px; }
+
+  h2 {
+    font-size: 23px;
+    margin: 52px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .sub { font-size: 14px; color: var(--gray-500); font-weight: 400; }
+  .intro { color: var(--gray-700); font-size: 15.5px; margin: 14px 0 24px; }
+
+  /* Domain 權重條 */
+  .domain {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 14px 0;
+  }
+  .domain .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .domain .name { font-size: 16.5px; font-weight: 700; }
+  .domain .name .d { color: var(--blue); }
+  .domain .pct { font-size: 15px; font-weight: 700; color: var(--blue-dark); white-space: nowrap; }
+  .bar { height: 8px; background: var(--gray-100); border-radius: 999px; margin: 12px 0 10px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue-dark)); border-radius: 999px; }
+  .domain .desc { font-size: 14px; color: var(--gray-700); margin: 0; }
+
+  /* Scenario 卡 */
+  .scen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .scen {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 18px 20px;
+    border-top: 3px solid var(--blue);
+  }
+  .scen .sn { font-size: 12.5px; letter-spacing: .5px; color: var(--blue); font-weight: 700; }
+  .scen .st { font-size: 16px; font-weight: 700; margin: 4px 0 8px; }
+  .scen .sd { font-size: 13.5px; color: var(--gray-700); margin: 0 0 10px; line-height: 1.6; }
+  .scen .sd code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .scen .dom { font-size: 12px; color: var(--gray-500); border-top: 1px solid var(--gray-100); padding-top: 8px; }
+
+  /* 注意事項 */
+  .tips { background: #eff6ff; border-left: 4px solid var(--blue); border-radius: 8px; padding: 8px 26px; margin: 18px 0; }
+  .tips li { margin: 12px 0; font-size: 15px; color: var(--gray-700); }
+  .tips li b { color: var(--gray-900); }
+
+  .callout { background: #fff7ed; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 16px 22px; margin: 22px 0; font-size: 15px; color: #7c2d12; }
+  .callout b { color: #7c2d12; }
+
+  footer { color: var(--gray-500); font-size: 13px; text-align: center; margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--gray-200); }
+
+  /* 證書 */
+  .cert-wrap { display: flex; justify-content: center; margin: 22px 0 8px; }
+  .cert-img {
+    width: 560px; max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--gray-200);
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  }
+  .cert-note { text-align: center; font-size: 12.5px; color: var(--gray-500); margin: 0 0 8px; }
+
+  @media (max-width: 720px) {
+    .facts { grid-template-columns: repeat(2, 1fr); }
+    .scen-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">CLAUDE CERTIFIED ARCHITECT · FOUNDATIONS</span>
+    <h1>認證考試總覽</h1>
+    <p>這份認證驗證「用 Claude 打造正式環境應用」時，能否對架構與取捨做出正確判斷。考試橫跨 Claude Code、Claude Agent SDK、Claude API 與 MCP 四大核心技術，題目全部取材自真實客戶情境。</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 速覽 -->
+  <div class="facts">
+    <div class="fact"><div class="num">5</div><div class="lbl">Domain 領域</div></div>
+    <div class="fact"><div class="num">6</div><div class="lbl">情境（考時抽 4）</div></div>
+    <div class="fact"><div class="num">720</div><div class="lbl">通過分數（滿分 1000）</div></div>
+    <div class="fact"><div class="num">單選</div><div class="lbl">題型，4 選 1</div></div>
+  </div>
+  <p class="intro">適合對象：用 Claude 設計並實作正式環境應用的 <b>solution architect</b>，通常具備 6 個月以上、實際操作 Claude API／Agent SDK／Claude Code／MCP 的經驗，了解大型語言模型在正式環境的能力與限制。</p>
+
+  <!-- Scenario -->
+  <h2>考試情境 <span class="sub">Scenarios — 題目的真實情境框架</span></h2>
+  <p class="intro">考試是「情境包著知識點」在問。共有 6 個情境，正式考試會<b>隨機抽出其中 4 個</b>，每一題都掛在某個情境下（例如：「客服 agent 在 12% 情況跳過 <code>get_customer</code>，該如何修正？」）。先熟悉這 6 個情境，答題時的語感會更貼近真實考題。</p>
+
+  <div class="scen-grid">
+    <div class="scen">
+      <div class="sn">SCENARIO 1</div>
+      <div class="st">客服解決 Agent</div>
+      <div class="sd">用 Agent SDK 打造客服 agent，處理退貨、帳務爭議、帳號問題；透過 MCP 工具（<code>get_customer</code>、<code>lookup_order</code>、<code>process_refund</code>、<code>escalate_to_human</code>）接後端。目標 80%+ 首次解決率，並懂得何時轉真人。</div>
+      <div class="dom">主要領域：1 Agentic · 2 Tool/MCP · 5 Context</div>
+    </div>
+    <div class="scen">
+      <div class="sn">SCENARIO 2</div>
+      <div class="st">用 Claude Code 寫程式</div>
+      <div class="sd">團隊以 Claude Code 做產碼、重構、除錯、文件。整合自訂 slash command 與 <code>CLAUDE.md</code>，並判斷何時用 plan mode、何時直接執行。</div>
+      <div class="dom">主要領域：3 Claude Code · 5 Context</div>
+    </div>
+    <div class="scen">
+      <div class="sn">SCENARIO 3</div>
+      <div class="st">多代理研究系統</div>
+      <div class="sd">coordinator 把任務拆給多個 subagent（web 搜尋、文件分析、綜合、產報告），最後輸出有引用來源的完整報告。</div>
+      <div class="dom">主要領域：1 Agentic · 2 Tool/MCP · 5 Context</div>
+    </div>
+    <div class="scen">
+      <div class="sn">SCENARIO 4</div>
+      <div class="st">開發者生產力工具</div>
+      <div class="sd">用 Agent SDK 幫工程師探索陌生 codebase、理解 legacy、產 boilerplate、自動化重複工作。使用內建工具（Read、Write、Bash、Grep、Glob）並整合 MCP server。</div>
+      <div class="dom">主要領域：2 Tool/MCP · 3 Claude Code · 1 Agentic</div>
+    </div>
+    <div class="scen">
+      <div class="sn">SCENARIO 5</div>
+      <div class="st">Claude Code 接 CI/CD</div>
+      <div class="sd">把 Claude Code 接進 CI/CD：自動 code review、產測試、PR 回饋。重點在設計能給出可行動回饋、又能降低 false positive 的 prompt。</div>
+      <div class="dom">主要領域：3 Claude Code · 4 Prompt/結構化輸出</div>
+    </div>
+    <div class="scen">
+      <div class="sn">SCENARIO 6</div>
+      <div class="st">結構化資料抽取</div>
+      <div class="sd">用 Claude 從非結構化文件抽資訊，以 JSON schema 驗證並維持高準確度，妥善處理 edge case 並接下游系統。</div>
+      <div class="dom">主要領域：4 Prompt/結構化輸出 · 5 Context</div>
+    </div>
+  </div>
+
+  <!-- Domain -->
+  <h2>五大領域與權重 <span class="sub">Domains &amp; Weightings</span></h2>
+  <p class="intro">百分比為「計分內容」的佔比，反映各領域題目的密度。Domain 1 最重，建議優先準備。</p>
+
+  <div class="domain">
+    <div class="head">
+      <div class="name"><span class="d">Domain 1</span> ｜ Agentic 架構與編排</div>
+      <div class="pct">27%</div>
+    </div>
+    <div class="bar"><span style="width:100%"></span></div>
+    <p class="desc">agentic loop 生命週期（<code>tool_use</code> vs <code>end_turn</code>）、coordinator–subagent 多代理編排、subagent 呼叫與 context 傳遞、強制執行與 handoff、Agent SDK hooks、任務拆解、session 狀態與 fork。</p>
+  </div>
+
+  <div class="domain">
+    <div class="head">
+      <div class="name"><span class="d">Domain 2</span> ｜ 工具設計與 MCP 整合</div>
+      <div class="pct">18%</div>
+    </div>
+    <div class="bar"><span style="width:66.7%"></span></div>
+    <p class="desc">用清楚的描述與邊界設計工具介面、MCP 工具的結構化錯誤回應（<code>isError</code>、可重試與否）、工具在各 agent 間的分配與 <code>tool_choice</code>、把 MCP server 接進 Claude Code、善用內建工具（Read/Write/Edit/Bash/Grep/Glob）。</p>
+  </div>
+
+  <div class="domain">
+    <div class="head">
+      <div class="name"><span class="d">Domain 3</span> ｜ Claude Code 設定與工作流</div>
+      <div class="pct">20%</div>
+    </div>
+    <div class="bar"><span style="width:74%"></span></div>
+    <p class="desc"><code>CLAUDE.md</code> 階層與模組化、自訂 slash command、plan mode vs 直接執行、Agent Skills、整合外部工具與團隊工作流配置。</p>
+  </div>
+
+  <div class="domain">
+    <div class="head">
+      <div class="name"><span class="d">Domain 4</span> ｜ Prompt 工程與結構化輸出</div>
+      <div class="pct">20%</div>
+    </div>
+    <div class="bar"><span style="width:74%"></span></div>
+    <p class="desc">JSON schema 與 <code>tool_use</code> 強制結構化輸出、few-shot 範例降低 false positive、驗證／重試／回饋迴圈、批次處理策略（Message Batches API）、多實例與多回合審查架構。</p>
+  </div>
+
+  <div class="domain">
+    <div class="head">
+      <div class="name"><span class="d">Domain 5</span> ｜ Context 管理與可靠性</div>
+      <div class="pct">15%</div>
+    </div>
+    <div class="bar"><span style="width:55.5%"></span></div>
+    <p class="desc">長對話中保留關鍵資訊（避免 progressive summarization 流失、處理「lost in the middle」）、escalation 與模糊情況的處理、多代理系統的錯誤傳遞、確定性保證 vs 機率性合規。</p>
+  </div>
+
+  <!-- 注意事項 -->
+  <h2>考試注意事項 <span class="sub">Exam Format &amp; Tips</span></h2>
+  <ul class="tips">
+    <li><b>題型：</b>全部為單選題，每題 1 個正確答案、3 個誘答選項（distractor）。誘答選項常是「知識不完整的人會選的答案」，要看懂為什麼錯。</li>
+    <li><b>選「最佳」而非「可行」：</b>多個選項往往都「能動」，要選<b>最有效、最對症下藥</b>的那一個——常見模式是「先做低成本、直接命中根因的修正」。</li>
+    <li><b>計分：</b>scaled score 100–1000，<b>通過門檻 720</b>，pass/fail；採等化計分以對齊不同題本難度。</li>
+    <li><b>不答 = 答錯，且猜題不扣分：</b>每題都要作答，沒把握也選一個。</li>
+    <li><b>重視判斷力而非死背：</b>題目考的是正式環境的<b>架構與取捨判斷</b>，不只是概念記憶；需搭配實作經驗。</li>
+    <li><b>抓重點反覆出現的原則：</b>確定性保證（hooks／程式化前置條件）勝過機率性的 prompt 指示、工具描述是工具選擇的關鍵、scoped 工具優於塞一堆工具、結構化錯誤優於 generic「失敗」。</li>
+  </ul>
+
+  <div class="callout">
+    <b>常見陷阱題型範例：</b>當「業務邏輯要求確定性」（例如退款前必須先驗證身分），正解通常是<b>程式化強制（hook／prerequisite gate）</b>，而非「加強 system prompt」或「加 few-shot」——因為後者靠機率性遵循，在有金錢後果時不夠可靠。
+  </div>
+
+  <!-- 證書 -->
+  <h2>認證證書範例 <span class="sub">Certificate Sample</span></h2>
+  <p class="intro">通過考試後會核發如下的數位證書，標示認證等級、有效期間與可線上驗證的證書編號（持證人姓名已模糊處理）。</p>
+
+  <div class="cert-wrap">
+    <img class="cert-img" src="cert_blurred.png" alt="Claude Certified Architect – Foundations 證書（持證人姓名已模糊）">
+  </div>
+  <p class="cert-note">※ 持證人姓名已模糊處理。</p>
+
+  <footer>
+    內容整理自 Claude Certified Architect – Foundations Certification Exam Guide（Anthropic, PBC）。本頁為內部學習參考用。
+  </footer>
+
+</div>
+</body>
+</html>

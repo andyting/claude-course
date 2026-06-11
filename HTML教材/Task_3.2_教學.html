@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 3.2 — 建立與設定自訂 slash command 與 skill</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--blue); text-transform: uppercase; margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 12px 16px; margin: 16px 0; font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg); color: #e2e8f0; border-radius: 10px;
+    padding: 18px 20px; overflow-x: auto; font-size: 14px; line-height: 1.6;
+    margin: 0; font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,0.12); color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+    padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900); color: #f1f5f9; border-radius: 12px;
+    padding: 28px 30px; margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12; color: #e2e8f0; border-left: 4px solid var(--blue);
+    border-radius: 10px; padding: 16px 22px; margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 3</div>
+    <h1>Task Statement 3.2<br>建立與設定自訂 slash command 與 skill</h1>
+    <p>Create and configure custom slash commands and skills</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 3.2 — Create and configure custom slash commands and skills</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Project-scoped commands in <code>.claude/commands/</code> (shared via version control) vs user-scoped commands in <code>~/.claude/commands/</code> (personal)</li>
+      <li>Skills in <code>.claude/skills/</code> with <code>SKILL.md</code> files that support frontmatter configuration including <code>context: fork</code>, <code>allowed-tools</code>, and <code>argument-hint</code></li>
+      <li>The <code>context: fork</code> frontmatter option for running skills in an isolated sub-agent context, preventing skill outputs from polluting the main conversation</li>
+      <li>Personal skill customization: creating personal variants in <code>~/.claude/skills/</code> with different names to avoid affecting teammates</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Creating project-scoped slash commands in <code>.claude/commands/</code> for team-wide availability via version control</li>
+      <li>Using <code>context: fork</code> to isolate skills that produce verbose output (e.g., codebase analysis) or exploratory context (e.g., brainstorming alternatives) from the main session</li>
+      <li>Configuring <code>allowed-tools</code> in skill frontmatter to restrict tool access during skill execution (e.g., limiting to file write operations to prevent destructive actions)</li>
+      <li>Using <code>argument-hint</code> frontmatter to prompt developers for required parameters when they invoke the skill without arguments</li>
+      <li>Choosing between skills (on-demand invocation for task-specific workflows) and <code>CLAUDE.md</code> (always-loaded universal standards)</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 2</span><br>
+    <span class="scen-name">Scenario 2 — Code Generation with Claude Code</span>
+    <p>團隊用 Claude Code 做產生程式、重構、除錯、文件,需要把它整進開發流程:自訂 slash command、<code>CLAUDE.md</code> 設定、判斷 plan mode 或直接執行。本 Task 教你怎麼幫團隊建可共享的 slash command 與 skill,並用 frontmatter 控制它們的行為。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>slash command 與 skill 是你「打包工作流程」的兩種容器——差別在「放哪裡(誰看得到)」與「frontmatter 怎麼設(行為)」。</b>考點全繞著 scope(project vs user)與三個 frontmatter 欄位(context: fork、allowed-tools、argument-hint)轉。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;Project-scoped vs user-scoped:command 放哪裡決定誰看得到</h2>
+  <p>同樣是 slash command,放的位置決定它的「能見範圍」:</p>
+  <p><b>Project-scoped</b>(<code>.claude/commands/</code>):放在專案目錄裡,會跟著 git 一起進版控,<b>整個團隊都能用</b>。適合團隊共用的工作流程,例如 <code>/review-pr</code>。<br>
+  <b>User-scoped</b>(<code>~/.claude/commands/</code>):放在你個人家目錄,<b>只有你自己看得到</b>,不會影響別人。適合個人習慣的小工具。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 團隊共享 → 進版控,大家都能用 /generate-tests</span>
+<span class="tok-com"># 檔案位置:&lt;repo&gt;/.claude/commands/generate-tests.md</span>
+
+<span class="tok-com"># 只有自己用 → 不進版控,不影響隊友</span>
+<span class="tok-com"># 檔案位置:~/.claude/commands/my-scratch.md</span>
+
+<span class="tok-com"># 兩者皆以 /&lt;檔名&gt; 觸發,例如 /generate-tests</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b><code>.claude/commands/</code> = 專案共享(進版控);<code>~/.claude/commands/</code> = 個人。位置 = 能見範圍。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;Skill 與 SKILL.md frontmatter 三大欄位</h2>
+  <p>Skill 放在 <code>.claude/skills/</code>,每個 skill 有一份 <code>SKILL.md</code>。檔案開頭的 <b>frontmatter</b>(用 <code>---</code> 包起來的設定區)支援三個關鍵欄位:</p>
+  <p><b>context: fork</b> — 讓 skill 在獨立子代理 context 跑,輸出不污染主對話。<br>
+  <b>allowed-tools</b> — 限制 skill 執行時能用哪些工具。<br>
+  <b>argument-hint</b> — 當使用者不帶參數就呼叫時,提示他要填什麼。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># .claude/skills/analyze-codebase/SKILL.md</span>
+<span class="tok-com"># frontmatter:用 --- 包住的設定</span>
+---
+name: analyze-codebase
+description: 分析整個 codebase 並回傳摘要
+context: fork              <span class="tok-com"># 在隔離 context 跑,輸出不灌進主對話</span>
+allowed-tools: [Read, Grep, Glob]   <span class="tok-com"># 只准讀,不准寫</span>
+argument-hint: "&lt;要分析的目錄路徑&gt;"   <span class="tok-com"># 沒帶參數時提示</span>
+---
+
+<span class="tok-com"># 以下為 skill 的指示內容...</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>三欄位各管一件事——fork 管「context 隔離」、allowed-tools 管「工具權限」、argument-hint 管「參數提示」。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;context: fork — 把吵雜輸出隔離在子代理</h2>
+  <p>有些 skill 會吐出一大堆內容(例如分析整個 codebase),如果直接灌進主對話,會把寶貴的 context window 塞爆、把重點淹沒。<code>context: fork</code> 的作用是讓這個 skill <b>在一個隔離的子代理 context 裡執行</b>,跑完只把<b>精煉後的結果</b>帶回主對話,中間那堆雜訊留在子代理裡。</p>
+  <p>用團隊情境想:工程師下 <code>/analyze-codebase</code> 想搞懂一個 legacy 模組,分析過程翻了上百個檔案——你不會想把這上百檔的原文都塞回主對話。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 沒 fork:verbose 分析輸出全進主對話,context 被洗版</span>
+---
+name: brainstorm-refactors
+description: 腦力激盪多種重構方案
+---
+
+<span class="tok-good"># ✅ 有 fork:探索/腦暴的雜訊留在子代理,只帶結論回來</span>
+---
+name: brainstorm-refactors
+description: 腦力激盪多種重構方案
+context: fork
+---</code></pre>
+  </div>
+  <div class="key"><b>一句話記住:</b>verbose 或 exploratory 的 skill → 加 <code>context: fork</code>,別污染主對話。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;個人化 skill:用不同名字放 ~/.claude/skills/,不影響隊友</h2>
+  <p>團隊共用的 skill 你不該亂改——一改大家都受影響。要客製成自己順手的版本,做法是在<b>個人目錄 <code>~/.claude/skills/</code></b> 建一個<b>不同名字</b>的變體。這樣你用你的,隊友用團隊原版,互不干擾。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 團隊版(進版控,別人也在用):</span>
+<span class="tok-com">#   &lt;repo&gt;/.claude/skills/generate-tests/SKILL.md</span>
+
+<span class="tok-com"># ✅ 你的個人變體:換個名字放自己家目錄</span>
+<span class="tok-com">#   ~/.claude/skills/generate-tests-mine/SKILL.md</span>
+<span class="tok-com"># 改名 → 不覆蓋團隊版 → 隊友完全不受影響</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>個人客製 = 放 <code>~/.claude/skills/</code> + <b>取不同名字</b>,避免影響團隊。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;建 project-scoped slash command 給全隊用</h2>
+  <p>知識 1 的實作。把 command 的 <code>.md</code> 放進 <code>.claude/commands/</code> 並 commit,隊友 pull 之後就能直接打那個 slash command。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 1) 在專案建立 command 檔</span>
+<span class="tok-com">#   &lt;repo&gt;/.claude/commands/review-pr.md</span>
+<span class="tok-com">#   內容:對 PR 做 code review 的指示</span>
+
+<span class="tok-com"># 2) 進版控</span>
+git add .claude/commands/review-pr.md
+git commit -m <span class="tok-str">"add /review-pr command"</span>
+
+<span class="tok-com"># 3) 隊友 pull 後即可 /review-pr,全隊一致</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;用 context: fork 隔離 verbose / 探索型 skill</h2>
+  <p>知識 3 的實作落點:把「會吐很多字」(codebase 分析)或「探索性質」(腦暴替代方案)的 skill,在 frontmatter 加 <code>context: fork</code>。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># .claude/skills/codebase-analysis/SKILL.md</span>
+---
+name: codebase-analysis
+description: 全庫掃描並回傳架構摘要
+context: fork          <span class="tok-good"># ✅ verbose → 隔離,只回摘要</span>
+allowed-tools: [Read, Grep, Glob]
+---
+請掃描整個 codebase,回傳:模組關係、進入點、可疑技術債。
+只回精煉摘要,不要貼大量原始碼。</code></pre>
+  </div>
+
+  <h2><span class="num">技能 3</span> &nbsp;用 allowed-tools 限制 skill 能用的工具</h2>
+  <p>最小權限原則。在 frontmatter 用 <code>allowed-tools</code> 把工具縮到最小,避免 skill 做出破壞性動作。例如只給寫檔、不給執行 Bash 刪檔。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 沒限制:skill 什麼都能做,含破壞性指令</span>
+---
+name: scaffold-module
+description: 產生新模組樣板
+---
+
+<span class="tok-good"># ✅ 只准寫檔,擋掉危險操作</span>
+---
+name: scaffold-module
+description: 產生新模組樣板
+allowed-tools: [Write]   <span class="tok-com"># 僅檔案寫入,不給 Bash 等破壞性工具</span>
+---</code></pre>
+  </div>
+  <div class="key"><b>重點:</b><code>allowed-tools</code> 收緊權限 → 防止 skill 執行破壞性動作。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;用 argument-hint 提示必填參數</h2>
+  <p>當使用者不帶參數就呼叫 skill,<code>argument-hint</code> 會提示他該填什麼,避免 skill 在缺資訊下亂跑。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># .claude/skills/generate-tests/SKILL.md</span>
+---
+name: generate-tests
+description: 為指定檔案產生單元測試
+argument-hint: "&lt;目標檔案路徑,例如 src/auth.py&gt;"
+---
+<span class="tok-com"># 開發者打 /generate-tests 卻沒給檔案時,</span>
+<span class="tok-com"># 系統用 argument-hint 提示他補上路徑</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 5</span> &nbsp;Skill vs CLAUDE.md:何時用哪個</h2>
+  <p>兩者都是「給 Claude 的設定」,但觸發方式不同:</p>
+  <p><b>Skill</b> = <b>按需呼叫</b>,針對特定任務的工作流程(你叫它才跑)。<br>
+  <b>CLAUDE.md</b> = <b>永遠載入</b>的普世規範(每次都自動生效,例如全專案的命名規則、coding style)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 用 CLAUDE.md:每次都該套用的全域規範</span>
+<span class="tok-com"># CLAUDE.md:本專案一律用 TypeScript strict、commit 訊息用祈使句</span>
+
+<span class="tok-good"># ✅ 用 Skill:只在做某件事時才需要的流程</span>
+<span class="tok-com"># /generate-tests:只有要寫測試時才呼叫</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>普世且常駐 → CLAUDE.md;特定任務、按需才跑 → skill。</div>
+
+  <div class="summary">
+    <h2>整個 Task 3.2 的記憶骨架</h2>
+    <p>在 Scenario 2 的團隊裡:command/skill 放 <span class="num">.claude/</span>(進版控、全隊共享)還是 <span class="num">~/.claude/</span>(個人、改名避免影響隊友),決定誰看得到。Skill 的 <span class="num">SKILL.md frontmatter</span> 管三件事——<span class="num">context: fork</span>(隔離 verbose/探索輸出)、<span class="num">allowed-tools</span>(收緊工具權限防破壞)、<span class="num">argument-hint</span>(提示必填參數)。最後一刀:<span class="num">永遠載入的普世規範用 CLAUDE.md,按需任務流程用 skill</span>。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

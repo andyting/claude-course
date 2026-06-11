@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Certified Architect – Foundations 教材總覽</title>
+<style>
+  :root{
+    --bg:#f6f5f2; --card:#ffffff; --ink:#1a1a1a; --muted:#6b6b6b;
+    --line:#e6e3dd; --accent:#d97757; --accent-soft:#fbeee8;
+    --d1:#d97757; --d2:#c4823d; --d3:#5b8a72; --d4:#4a7a9b; --d5:#7a6aa8;
+    --shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+
+  header{
+    background:linear-gradient(135deg,#2b2622 0%,#3a332c 100%);
+    color:#fff; padding:56px 0 56px; text-align:center;
+  }
+  header .badge{
+    display:inline-block;font-size:13px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:14px;
+  }
+  header h1{font-size:32px;font-weight:700;margin-bottom:10px;letter-spacing:-.01em}
+  header p{color:#c9c2b8;font-size:15px;max-width:600px;margin:0 auto}
+  header .stats{margin-top:24px;font-size:14px;color:#a39c91}
+  header .stats b{color:#fff;font-weight:600}
+
+  main.wrap{padding-top:38px;padding-bottom:64px}
+
+  .overview-card{
+    display:flex;align-items:center;gap:18px;
+    background:var(--accent-soft);border:1px solid var(--accent);
+    border-radius:14px;padding:20px 24px;margin-bottom:40px;
+    text-decoration:none;color:var(--ink);transition:transform .15s,box-shadow .15s;
+  }
+  .overview-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .overview-card .ico{font-size:28px}
+  .overview-card .t{font-weight:700;font-size:17px}
+  .overview-card .s{font-size:13px;color:var(--muted)}
+  .overview-card .arrow{margin-left:auto;color:var(--accent);font-size:20px}
+
+  .domain{margin-bottom:42px}
+  .domain-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .domain-num{
+    width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+    color:#fff;font-weight:700;font-size:15px;flex-shrink:0;
+  }
+  .domain-title{font-size:19px;font-weight:700}
+  .domain-sub{font-size:13px;color:var(--muted);margin-left:auto}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:18px 18px 16px;text-decoration:none;color:var(--ink);
+    transition:transform .15s,box-shadow .15s,border-color .15s;
+    display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--bar)}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--bar)}
+  .card .tag{font-size:12px;font-weight:700;color:var(--bar);letter-spacing:.03em}
+  .card .name{font-size:14px;line-height:1.5;color:#2a2a2a}
+  .card .go{font-size:12px;color:var(--muted);margin-top:2px}
+
+  footer{text-align:center;padding:28px 0 48px;color:var(--muted);font-size:13px}
+  footer a{color:var(--accent);text-decoration:none}
+
+  @media(max-width:600px){
+    header h1{font-size:25px}
+    .grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="badge">Anthropic Certification</div>
+    <h1>Claude Certified Architect — Foundations</h1>
+    <p>認證考綱中文教材總覽 · 點選任一 Task 即可進入該章節的互動式教學</p>
+    <div class="stats"><b>5</b> 大領域 ·　<b>30</b> 個 Task Statement ·　<b>1</b> 份考試介紹</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <a class="overview-card" href="HTML教材/考試介紹_Overview.html">
+    <span class="ico">📋</span>
+    <span>
+      <div class="t">認證考試總覽</div>
+      <div class="s">先讀這裡 — 考試範圍、評分配比與準備方向</div>
+    </span>
+    <span class="arrow">→</span>
+  </a>
+
+  <!-- Domain 1 -->
+  <section class="domain">
+    <div class="domain-head">
+      <div class="domain-num" style="background:var(--d1)">1</div>
+      <div class="domain-title">Agentic 系統設計</div>
+      <div class="domain-sub">7 個 Task</div>
+    </div>
+    <div class="grid" style="--bar:var(--d1)">
+      <a class="card" href="HTML教材/Task_1.1_教學.html"><div class="tag">Task 1.1</div><div class="name">設計與實作自主任務執行的 agentic loop</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_1.2_教學.html"><div class="tag">Task 1.2</div><div class="name">以 coordinator-subagent 模式編排多代理系統</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_1.3_教學.html"><div class="tag">Task 1.3</div><div class="name">設定 subagent 的呼叫、context 傳遞與 spawning</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_1.4_教學.html"><div class="tag">Task 1.4</div><div class="name">實作具強制與交接模式的多步驟工作流</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_1.5_教學.html"><div class="tag">Task 1.5</div><div class="name">用 Agent SDK hooks 攔截工具呼叫與正規化資料</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_1.6_教學.html"><div class="tag">Task 1.6</div><div class="name">為複雜工作流設計任務拆解策略</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_1.7_教學.html"><div class="tag">Task 1.7</div><div class="name">管理 session 狀態、resumption 與 forking</div><div class="go">開始學習 →</div></a>
+    </div>
+  </section>
+
+  <!-- Domain 2 -->
+  <section class="domain">
+    <div class="domain-head">
+      <div class="domain-num" style="background:var(--d2)">2</div>
+      <div class="domain-title">工具與 MCP 整合</div>
+      <div class="domain-sub">5 個 Task</div>
+    </div>
+    <div class="grid" style="--bar:var(--d2)">
+      <a class="card" href="HTML教材/Task_2.1_教學.html"><div class="tag">Task 2.1</div><div class="name">設計清楚描述與邊界的工具介面</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_2.2_教學.html"><div class="tag">Task 2.2</div><div class="name">為 MCP 工具實作結構化錯誤回應</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_2.3_教學.html"><div class="tag">Task 2.3</div><div class="name">在各 agent 間妥善分配工具並設定 tool choice</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_2.4_教學.html"><div class="tag">Task 2.4</div><div class="name">把 MCP server 整合進 Claude Code 與 agent 工作流</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_2.5_教學.html"><div class="tag">Task 2.5</div><div class="name">有效選用內建工具（Read / Write / Edit / Bash / Grep / Glob）</div><div class="go">開始學習 →</div></a>
+    </div>
+  </section>
+
+  <!-- Domain 3 -->
+  <section class="domain">
+    <div class="domain-head">
+      <div class="domain-num" style="background:var(--d3)">3</div>
+      <div class="domain-title">設定與工作流管理</div>
+      <div class="domain-sub">6 個 Task</div>
+    </div>
+    <div class="grid" style="--bar:var(--d3)">
+      <a class="card" href="HTML教材/Task_3.1_教學.html"><div class="tag">Task 3.1</div><div class="name">設定 CLAUDE.md 的階層、scope 與模組化組織</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_3.2_教學.html"><div class="tag">Task 3.2</div><div class="name">建立與設定自訂 slash command 與 skill</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_3.3_教學.html"><div class="tag">Task 3.3</div><div class="name">套用 path-specific 規則做條件式慣例載入</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_3.4_教學.html"><div class="tag">Task 3.4</div><div class="name">判斷何時用 plan mode、何時直接執行</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_3.5_教學.html"><div class="tag">Task 3.5</div><div class="name">用迭代精煉技巧逐步改善產出</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_3.6_教學.html"><div class="tag">Task 3.6</div><div class="name">把 Claude Code 整合進 CI/CD 流水線</div><div class="go">開始學習 →</div></a>
+    </div>
+  </section>
+
+  <!-- Domain 4 -->
+  <section class="domain">
+    <div class="domain-head">
+      <div class="domain-num" style="background:var(--d4)">4</div>
+      <div class="domain-title">精準度與輸出品質</div>
+      <div class="domain-sub">6 個 Task</div>
+    </div>
+    <div class="grid" style="--bar:var(--d4)">
+      <a class="card" href="HTML教材/Task_4.1_教學.html"><div class="tag">Task 4.1</div><div class="name">用明確標準提升精準度、降低 false positive</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_4.2_教學.html"><div class="tag">Task 4.2</div><div class="name">用 few-shot prompting 提升輸出一致性與品質</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_4.3_教學.html"><div class="tag">Task 4.3</div><div class="name">用 tool use 與 JSON schema 強制結構化輸出</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_4.4_教學.html"><div class="tag">Task 4.4</div><div class="name">為抽取品質實作驗證、重試與回饋迴圈</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_4.5_教學.html"><div class="tag">Task 4.5</div><div class="name">設計高效的批次處理策略</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_4.6_教學.html"><div class="tag">Task 4.6</div><div class="name">設計多實例與多輪審查架構</div><div class="go">開始學習 →</div></a>
+    </div>
+  </section>
+
+  <!-- Domain 5 -->
+  <section class="domain">
+    <div class="domain-head">
+      <div class="domain-num" style="background:var(--d5)">5</div>
+      <div class="domain-title">Context 與協作管理</div>
+      <div class="domain-sub">6 個 Task</div>
+    </div>
+    <div class="grid" style="--bar:var(--d5)">
+      <a class="card" href="HTML教材/Task_5.1_教學.html"><div class="tag">Task 5.1</div><div class="name">管理對話 context，在長互動中保住關鍵資訊</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_5.2_教學.html"><div class="tag">Task 5.2</div><div class="name">設計有效的升級與歧義處理模式</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_5.3_教學.html"><div class="tag">Task 5.3</div><div class="name">在多代理系統中實作錯誤傳播策略</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_5.4_教學.html"><div class="tag">Task 5.4</div><div class="name">在大型程式庫探索中有效管理 context</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_5.5_教學.html"><div class="tag">Task 5.5</div><div class="name">設計人工複核流程與信心校準</div><div class="go">開始學習 →</div></a>
+      <a class="card" href="HTML教材/Task_5.6_教學.html"><div class="tag">Task 5.6</div><div class="name">在多來源綜合中保留資訊溯源並處理不確定性</div><div class="go">開始學習 →</div></a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  Claude Certified Architect – Foundations 中文教材 ·
+  以本資料夾相對路徑連結，本地與線上皆可直接使用
+</footer>
+</body>
+</html>

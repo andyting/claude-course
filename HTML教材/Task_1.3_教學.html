@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 1.3 — 設定 subagent 的呼叫、context 傳遞與 spawning</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  /* 官方考綱原文區 */
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  /* token 樣式 */
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 1</div>
+    <h1>Task Statement 1.3<br>設定 subagent 的呼叫、context 傳遞與 spawning</h1>
+    <p>Configure subagent invocation, context passing, and spawning</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 1.3 — Configure subagent invocation, context passing, and spawning</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>The <code>Task</code> tool as the mechanism for spawning subagents, and the requirement that <code>allowedTools</code> must include <code>"Task"</code> for a coordinator to invoke subagents</li>
+      <li>That subagent context must be explicitly provided in the prompt—subagents do not automatically inherit parent context or share memory between invocations</li>
+      <li>The <code>AgentDefinition</code> configuration including descriptions, system prompts, and tool restrictions for each subagent type</li>
+      <li>Fork-based session management for exploring divergent approaches from a shared analysis baseline</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Including complete findings from prior agents directly in the subagent's prompt (e.g., passing web search results and document analysis outputs to the synthesis subagent)</li>
+      <li>Using structured data formats to separate content from metadata (source URLs, document names, page numbers) when passing context between agents to preserve attribution</li>
+      <li>Spawning parallel subagents by emitting multiple <code>Task</code> tool calls in a single coordinator response rather than across separate turns</li>
+      <li>Designing coordinator prompts that specify research goals and quality criteria rather than step-by-step procedural instructions, to enable subagent adaptability</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 3</span><br>
+    <span class="scen-name">Scenario 3 — Multi-Agent Research System</span>
+    <p>延續多代理研究系統:coordinator 用 Task 工具 spawn 出 web 搜尋、文件分析、綜合等 subagent,並把前一個 agent 的完整 findings 寫進下一個的 prompt。本 Task 的 subagent 呼叫、context 傳遞與 spawning,就是這個系統的運作機制。</p>
+  </div>
+
+
+  <div class="lead">
+    一句話抓住主軸:<b>Coordinator(協調者)要叫出 subagent(子代理)幫忙時,有幾件事系統不會幫你自動做——你必須親手做。</b> 這個 Task 的所有考點,都繞著「哪些事不會自動發生」轉。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;Task 工具是 spawn subagent 的機制,且 allowedTools 必須含 "Task"</h2>
+  <p>subagent 不是用特別的 API 生出來的,而是 coordinator <b>呼叫一個叫 <code>Task</code> 的工具</b>把它叫出來。關鍵卡關點:如果你沒有在 coordinator 的 <code>allowedTools</code> 裡放 <code>"Task"</code>,coordinator 就<b>沒有權限</b>呼叫 subagent——它連叫人幫忙的能力都沒有。</p>
+  <p>這跟現實很像:你想找助理,但公司沒給你「召喚助理」這個權限,你再聰明也叫不動人。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># coordinator 的設定</span>
+coordinator_config = {
+    <span class="tok-str">"system_prompt"</span>: <span class="tok-str">"你是研究協調者,負責拆解問題並派發給子代理。"</span>,
+    <span class="tok-com"># ↓ 沒有 "Task",coordinator 就無法 spawn 任何 subagent</span>
+    <span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"Task"</span>, <span class="tok-str">"Read"</span>, <span class="tok-str">"WebSearch"</span>],
+}
+
+<span class="tok-com"># 反例:少了 "Task" → 想呼叫 subagent 時會失敗</span>
+broken_config = {
+    <span class="tok-str">"system_prompt"</span>: <span class="tok-str">"..."</span>,
+    <span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"Read"</span>, <span class="tok-str">"WebSearch"</span>],   <span class="tok-bad"># ❌ 無法 spawn subagent</span>
+}</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>spawn 的機制 = Task 工具;前提 = allowedTools 要有 "Task"。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;subagent 的 context 必須在 prompt 裡明白給</h2>
+  <p>這是整個 Task 1.3 最重要、最常考的一條。</p>
+  <p>subagent 被叫出來時,<b>腦袋是空的</b>。它看不到 coordinator 之前的對話、看不到別的 subagent 找到的資料、兩次呼叫之間也不會記得彼此。你想讓它知道什麼,就得寫進它的 prompt 裡。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 錯誤:以為 subagent 會自己知道前面查到的東西</span>
+<span class="tok-kw">def</span> <span class="tok-fn">spawn_synthesis_agent_wrong</span>():
+    <span class="tok-kw">return</span> <span class="tok-fn">Task</span>(
+        agent=<span class="tok-str">"synthesis"</span>,
+        prompt=<span class="tok-str">"請根據前面的搜尋結果做總結。"</span>  <span class="tok-com"># 「前面的」是什麼?它根本看不到</span>
+    )
+
+<span class="tok-good"># ✅ 正確:把需要的資料整包塞進 prompt</span>
+<span class="tok-kw">def</span> <span class="tok-fn">spawn_synthesis_agent_right</span>(search_results, doc_analysis):
+    prompt = <span class="tok-str">f"""請綜合以下資料寫出總結。
+
+[網路搜尋結果]
+{search_results}
+
+[文件分析結果]
+{doc_analysis}
+"""</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">Task</span>(agent=<span class="tok-str">"synthesis"</span>, prompt=prompt)</code></pre>
+  </div>
+  <div class="key"><b>一句話記住:</b>subagent 是「失憶的」,context 要用手餵。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;AgentDefinition:每種 subagent 的 description、system prompt、工具限制</h2>
+  <p>每一種 subagent 你都先「定義」好它是誰、能做什麼。三個欄位:</p>
+  <p><b>description</b>:這個 agent 做什麼的(coordinator 靠它判斷該不該派任務給它)。<br>
+  <b>system prompt</b>:它的角色與行為規範。<br>
+  <b>工具限制</b>:它只准用哪些工具(最小權限原則——搜尋 agent 不該有寫檔權限)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>agent_definitions = {
+    <span class="tok-str">"search"</span>: {
+        <span class="tok-str">"description"</span>: <span class="tok-str">"負責網路搜尋,蒐集外部資料來源"</span>,
+        <span class="tok-str">"system_prompt"</span>: <span class="tok-str">"你是搜尋專員,只負責找資料,不做判斷。"</span>,
+        <span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"WebSearch"</span>],          <span class="tok-com"># 只給搜尋,不給寫檔</span>
+    },
+    <span class="tok-str">"analysis"</span>: {
+        <span class="tok-str">"description"</span>: <span class="tok-str">"分析文件內容,萃取重點與引用出處"</span>,
+        <span class="tok-str">"system_prompt"</span>: <span class="tok-str">"你是分析師,負責閱讀並萃取關鍵資訊。"</span>,
+        <span class="tok-str">"allowedTools"</span>: [<span class="tok-str">"Read"</span>, <span class="tok-str">"Grep"</span>],
+    },
+    <span class="tok-str">"synthesis"</span>: {
+        <span class="tok-str">"description"</span>: <span class="tok-str">"綜合各方資料,產出最終結論"</span>,
+        <span class="tok-str">"system_prompt"</span>: <span class="tok-str">"你是綜合撰寫者,整合資料寫成完整答案。"</span>,
+        <span class="tok-str">"allowedTools"</span>: [],                     <span class="tok-com"># 不需要工具,純推理</span>
+    },
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>不同 subagent 用不同 AgentDefinition,並按需要限制工具。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;Fork-based session:從同一基線分岔,探索不同方向</h2>
+  <p>有時你想「從同一個起點,試兩三條不同的路」。Fork 就是把目前的 session 狀態<b>複製分岔</b>,各自獨立往下走,互不干擾。共用前面的基線,但後面各走各的。</p>
+  <p>例如:程式碼已經分析到一半(基線),你想分別試「重構方案 A」「重構方案 B」——fork 出兩條,各自探索,最後比較。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 已建立共同基線(例如已完成程式碼分析)</span>
+baseline = session.<span class="tok-fn">analyze</span>(<span class="tok-str">"review_codebase"</span>)
+
+<span class="tok-com"># 從同一基線分岔成兩條獨立 session</span>
+branch_a = baseline.<span class="tok-fn">fork</span>(name=<span class="tok-str">"approach_A"</span>)   <span class="tok-com"># 探索方案 A</span>
+branch_b = baseline.<span class="tok-fn">fork</span>(name=<span class="tok-str">"approach_B"</span>)   <span class="tok-com"># 探索方案 B</span>
+
+branch_a.<span class="tok-fn">run</span>(<span class="tok-str">"用策略模式重構"</span>)
+branch_b.<span class="tok-fn">run</span>(<span class="tok-str">"用工廠模式重構"</span>)
+<span class="tok-com"># 兩條互不影響,最後比較結果</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>fork = 共用基線、獨立分岔,用來比較不同方向。(與 Task 1.7 的 fork_session 呼應。)</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;把前面 agent 的完整 findings 直接寫進 subagent 的 prompt</h2>
+  <p>這是知識 2 的實作版。把搜尋結果、文件分析結果<b>整包</b>交給 synthesis subagent。注意是「完整」findings,不是摘要——你截斷了,它就少看到那些資訊。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">run_pipeline</span>(query):
+    search_out = <span class="tok-fn">Task</span>(agent=<span class="tok-str">"search"</span>, prompt=<span class="tok-str">f"搜尋:{query}"</span>).result
+    doc_out    = <span class="tok-fn">Task</span>(agent=<span class="tok-str">"analysis"</span>, prompt=<span class="tok-str">f"分析相關文件:{query}"</span>).result
+
+    <span class="tok-com"># 把兩邊的完整產出都塞進 synthesis 的 prompt</span>
+    synthesis_prompt = <span class="tok-str">f"""根據以下資料,回答:{query}
+
+=== 搜尋結果 ===
+{search_out}
+
+=== 文件分析 ===
+{doc_out}
+"""</span>
+    <span class="tok-kw">return</span> <span class="tok-fn">Task</span>(agent=<span class="tok-str">"synthesis"</span>, prompt=synthesis_prompt).result</code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;用結構化格式分開「內容」與「metadata」,保住出處</h2>
+  <p>傳 context 時,別把來源網址、文件名、頁碼跟內文混成一坨純文字。用結構化格式(像 dict / JSON),內容歸內容、出處歸出處。這樣 synthesis agent 才能在最後正確標註「這句話出自哪裡」。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 內容和出處混成一團,synthesis 無法可靠標來源</span>
+bad = <span class="tok-str">"AI 市場成長很快(來源:某報告 第12頁 https://...)"</span>
+
+<span class="tok-good"># ✅ 結構化:content 與 metadata 分離</span>
+finding = {
+    <span class="tok-str">"content"</span>: <span class="tok-str">"AI 市場 2025 年成長 35%。"</span>,
+    <span class="tok-str">"metadata"</span>: {
+        <span class="tok-str">"source_url"</span>: <span class="tok-str">"https://example.com/report"</span>,
+        <span class="tok-str">"document_name"</span>: <span class="tok-str">"2025 AI 市場報告"</span>,
+        <span class="tok-str">"page"</span>: <span class="tok-num">12</span>,
+    },
+}
+
+<span class="tok-com"># 傳給下一個 agent 時,出處完整保留,可被正確引用</span>
+findings = [finding, ...]
+synthesis_prompt = <span class="tok-str">f"資料如下(含出處):\n{json.dumps(findings, ensure_ascii=False, indent=2)}"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>content 與 metadata 分開 → 保住 attribution(可追溯出處)。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;平行 spawn:在「同一個 coordinator response」裡發出多個 Task</h2>
+  <p>這條的細節很重要,常考。要平行跑多個 subagent,做法是<b>在同一次 coordinator 的回應裡,一口氣發出多個 Task 工具呼叫</b>——而不是分成好幾輪(turn),一輪叫一個。同一回應發多個 = 平行;分好幾輪 = 變成序列(慢)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 平行:同一個 response 裡同時發出多個 Task → 並行執行</span>
+<span class="tok-kw">def</span> <span class="tok-fn">coordinator_response_parallel</span>(subtopics):
+    <span class="tok-kw">return</span> [
+        <span class="tok-fn">Task</span>(agent=<span class="tok-str">"search"</span>, prompt=<span class="tok-str">f"研究子題:{t}"</span>)
+        <span class="tok-kw">for</span> t <span class="tok-kw">in</span> subtopics
+    ]   <span class="tok-com"># 多個 Task 一次回傳 → 同時跑</span>
+
+<span class="tok-bad"># ❌ 序列:一輪只發一個,等它回來再發下一個 → 慢</span>
+<span class="tok-kw">def</span> <span class="tok-fn">coordinator_sequential</span>(subtopics):
+    results = []
+    <span class="tok-kw">for</span> t <span class="tok-kw">in</span> subtopics:
+        results.<span class="tok-fn">append</span>(<span class="tok-fn">Task</span>(agent=<span class="tok-str">"search"</span>, prompt=<span class="tok-str">f"研究:{t}"</span>).result)  <span class="tok-com"># 等待</span>
+    <span class="tok-kw">return</span> results</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>平行 = 一個 response 內發多個 Task;分多輪 = 退化成序列。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;coordinator prompt 給「目標與品質標準」,而非「逐步指令」</h2>
+  <p>最後一條是設計哲學。寫給 subagent 的 coordinator prompt,應該說「我要達成什麼、好的標準長怎樣」,而<b>不是</b>手把手規定「第一步做 X、第二步做 Y」。給目標,subagent 才能依現場狀況自己調整(adaptability);給死步驟,它就只會照本宣科,遇到意外就卡住。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 逐步指令:綁死流程,subagent 無法應變</span>
+procedural = <span class="tok-str">"""
+1. 搜尋關鍵字「電動車」
+2. 取前 5 筆
+3. 每筆抓第一段
+4. 串起來回傳
+"""</span>
+
+<span class="tok-good"># ✅ 目標 + 品質標準:讓 subagent 自行決定怎麼達成</span>
+goal_based = <span class="tok-str">"""
+研究目標:電動車市場 2025 的主要趨勢。
+品質標準:
+- 至少涵蓋 3 個獨立來源
+- 需含市場規模與成長率數據
+- 標明每項數據的出處
+做法由你判斷,以達成上述標準為準。
+"""</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>給目標與標準(可適應)> 給逐步指令(僵化)。</div>
+
+  <div class="summary">
+    <h2>整個 Task 1.3 的記憶骨架</h2>
+    <p>Coordinator 用 <span class="num">Task 工具</span>(allowedTools 要有 "Task")叫出 subagent;subagent 是<span class="num">失憶的</span>,所有 context 都要手動寫進 prompt(完整 findings、結構化保住出處);要平行就在<span class="num">同一 response</span> 發多個 Task;prompt 給<span class="num">目標而非死步驟</span>;需要比較不同方向時用 <span class="num">fork</span> 從共同基線分岔。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+# 舊備份，不公開
+_archive/
+
+# 製作用的 skill bundle 與壓縮檔，不公開
+cca-cowork-bundle/
+cca-cowork-bundle.zip
+
+# 官方考試指南 PDF（版權），不公開
+*.pdf
+
+# 網路截圖
+*.webp
+
+# 內部進度與規範檔，不需公開給同事
+html_progress.json
+HTML生成規範.md
+NAMING_CONVENTION.md
+
+# 系統雜檔
+.DS_Store

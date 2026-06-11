@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 1.7 — 管理 session 狀態、resumption 與 forking</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 1</div>
+    <h1>Task Statement 1.7<br>管理 session 狀態、resumption 與 forking</h1>
+    <p>Manage session state, resumption, and forking</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 1.7 — Manage session state, resumption, and forking</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Named session resumption using <code>--resume &lt;session-name&gt;</code> to continue a specific prior conversation</li>
+      <li><code>fork_session</code> for creating independent branches from a shared analysis baseline to explore divergent approaches</li>
+      <li>The importance of informing the agent about changes to previously analyzed files when resuming sessions after code modifications</li>
+      <li>Why starting a new session with a structured summary is more reliable than resuming with stale tool results</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Using <code>--resume</code> with session names to continue named investigation sessions across work sessions</li>
+      <li>Using <code>fork_session</code> to create parallel exploration branches (e.g., comparing two testing strategies or refactoring approaches from a shared codebase analysis)</li>
+      <li>Choosing between session resumption (when prior context is mostly valid) and starting fresh with injected summaries (when prior tool results are stale)</li>
+      <li>Informing a resumed session about specific file changes for targeted re-analysis rather than requiring full re-exploration</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 2</span><br>
+    <span class="scen-name">Scenario 2 — Code Generation with Claude Code</span>
+    <p>你在用 Claude Code 加速開發。本 Task 的 session resumption 與 fork,讓你能跨工作階段續用同一脈絡,或從共同基線分岔出多條重構方案分別嘗試。</p>
+  </div>
+
+
+  <div class="lead">
+    一句話抓住主軸:<b>session 可以「續(resume)」、可以「分岔(fork)」;但續用前要先問——舊的 context 還新鮮嗎?</b> 新鮮就 resume,過期(stale)就帶著一份結構化摘要<b>重開新局</b>。這個取捨是整個 Task 1.7 的核心。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;具名 session resumption:用 <code>--resume &lt;session-name&gt;</code> 續特定對話</h2>
+  <p>你可以給 session 取名字,之後用 <code>--resume &lt;session-name&gt;</code> 精準接回<b>那一個</b>之前的對話,而不是大海撈針。重點在「<b>具名(named)</b>」——靠名字鎖定要續哪一段歷史。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 具名 resume:用 session 名字接回特定那段對話</span>
+$ claude <span class="tok-str">--resume</span> auth-refactor-investigation
+
+<span class="tok-com"># 對比:沒名字就只能從一堆 session 裡慢慢找</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b><code>--resume &lt;session-name&gt;</code> = 用名字續特定的舊對話。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;<code>fork_session</code>:從共享基線分岔出獨立分支</h2>
+  <p><code>fork_session</code> 把一個已建立的分析基線<b>複製分岔</b>,各分支獨立往下走、互不干擾。用途是「從同一起點探索不同方向」(divergent approaches)——例如同一份程式碼分析基線,一條試方案 A、一條試方案 B。(與 Task 1.3 的 fork-based session 呼應。)</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 已有共享分析基線</span>
+baseline = session.<span class="tok-fn">analyze</span>(<span class="tok-str">"codebase"</span>)
+
+<span class="tok-com"># fork 出兩條獨立分支,各探索不同方向</span>
+branch_a = <span class="tok-fn">fork_session</span>(baseline, name=<span class="tok-str">"strategy_A"</span>)
+branch_b = <span class="tok-fn">fork_session</span>(baseline, name=<span class="tok-str">"strategy_B"</span>)
+<span class="tok-com"># 共用基線、各走各的,互不影響</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b><code>fork_session</code> = 共享基線 + 獨立分支,探索 divergent approaches。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;resume 改過的程式碼後,要主動告知 agent「哪些檔變了」</h2>
+  <p>常見陷阱:你上次分析完後<b>改了程式碼</b>,隔天 resume 舊 session——但 agent 腦中記得的還是<b>舊版</b>的檔案內容。如果不告訴它「這些檔已經變了」,它會拿過期認知繼續做,結論就錯。resume 後務必主動通報變更。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># resume 後,主動告知期間改了哪些檔(否則 agent 用舊版認知)</span>
+$ claude <span class="tok-str">--resume</span> auth-refactor-investigation
+
+&gt; <span class="tok-str">"注意:自上次以來 auth.py 與 session.py 已修改,</span>
+<span class="tok-str">  請以最新版本重新檢視這兩個檔。"</span>   <span class="tok-good"># ✅ 主動通報變更</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>改過碼再 resume → 一定要告知 agent 哪些檔變了。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;為什麼「帶摘要重開」比「續用過期結果」更可靠</h2>
+  <p>這是 Task 1.7 最深的一條觀念。當舊 session 裡的<b>工具結果已經過期(stale)</b>——例如那些檔案、那些查詢結果都變了——硬 resume 反而危險:agent 會被一堆過時資料污染。更可靠的做法是<b>開一個新 session,只注入一份乾淨的結構化摘要</b>,把「目前真正有效的結論」帶過去,而不是拖著一整袋過期的 tool results。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 硬 resume:把一整袋過期 tool results 也帶進來,污染判斷</span>
+$ claude <span class="tok-str">--resume</span> old-session-with-stale-results
+
+<span class="tok-good"># ✅ 重開新局 + 注入結構化摘要:只帶「現在仍有效」的結論</span>
+$ claude   <span class="tok-com"># 全新 session</span>
+&gt; <span class="tok-str">"背景摘要:已確認登入流程瓶頸在 token 驗證;</span>
+<span class="tok-str">  目前有效結論為 A、B、C。請從此基礎繼續。"</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>結果過期時,帶「結構化摘要」重開 &gt; 拖著 stale results 硬 resume。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;用 <code>--resume</code> + session 名稱跨工作階段續調查</h2>
+  <p>知識 1 的實作。一個長期調查可能跨好幾天、好幾次坐下來做。給它一個固定名字,每次用 <code>--resume &lt;name&gt;</code> 接回同一條調查線,context 自然延續,不必每次重講背景。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 跨多次工作階段,續同一條具名調查</span>
+$ claude <span class="tok-str">--resume</span> perf-bottleneck-hunt   <span class="tok-com"># 週一</span>
+<span class="tok-com"># ...隔天...</span>
+$ claude <span class="tok-str">--resume</span> perf-bottleneck-hunt   <span class="tok-com"># 週二,接回同一條線</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>具名 + <code>--resume</code> = 跨日續同一條調查,不重講背景。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;用 <code>fork_session</code> 開平行探索分支</h2>
+  <p>知識 2 的實作。從一份共享的 codebase 分析基線,fork 出多條平行分支,各自試不同策略——例如「比較兩種測試策略」或「兩種重構方法」。最後把各分支結果擺在一起比較,而起點完全一致,比較才公平。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 從同一基線分岔,平行比較兩種重構方法</span>
+baseline = <span class="tok-fn">analyze_codebase</span>()
+
+refactor_a = <span class="tok-fn">fork_session</span>(baseline, name=<span class="tok-str">"refactor_strategy_pattern"</span>)
+refactor_b = <span class="tok-fn">fork_session</span>(baseline, name=<span class="tok-str">"refactor_factory_pattern"</span>)
+
+<span class="tok-com"># 起點一致 → 兩種方法的比較才公平</span>
+<span class="tok-fn">compare</span>(refactor_a.<span class="tok-fn">run</span>(), refactor_b.<span class="tok-fn">run</span>())</code></pre>
+  </div>
+  <div class="key"><b>重點:</b><code>fork_session</code> 從共享基線開平行分支,公平比較不同策略。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;判斷:resume 還是「重開 + 注入摘要」?</h2>
+  <p>這是整個 Task 1.7 最該練熟的決策。判準很單純:<b>舊 context 大致還有效 → resume</b>;<b>舊 tool results 已過期(stale)→ 重開新 session 並注入摘要</b>。不要因為「續用比較省事」就忽略資料已經過期的事實。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">choose_continuation</span>(prior):
+    <span class="tok-kw">if</span> prior.<span class="tok-fn">context_mostly_valid</span>():    <span class="tok-com"># 舊 context 大致還準</span>
+        <span class="tok-kw">return</span> <span class="tok-fn">resume</span>(prior.name)        <span class="tok-good"># ✅ 直接 resume</span>
+    <span class="tok-kw">else</span>:                              <span class="tok-com"># tool results 已 stale</span>
+        summary = <span class="tok-fn">build_structured_summary</span>(prior)
+        <span class="tok-kw">return</span> <span class="tok-fn">start_fresh</span>(inject=summary)  <span class="tok-good"># ✅ 重開 + 注入摘要</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>context 大致有效 → resume;結果 stale → 重開新局 + 注入摘要。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;告知「具體哪些檔變了」做針對性重分析,而非整包重跑</h2>
+  <p>知識 3 的精緻版。resume 後若有檔案改動,不要叫 agent 把整個 codebase 從頭再 explore 一遍(浪費)。而是<b>明確點名哪幾個檔變了</b>,讓它只針對那幾個做<b>targeted re-analysis</b>。範圍縮小,又快又準。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 籠統:叫 agent 整個 codebase 重新 explore 一遍(浪費)</span>
+&gt; <span class="tok-str">"有些東西改了,請重新分析整個專案。"</span>
+
+<span class="tok-good"># ✅ 精準:點名變更檔,只做針對性重分析</span>
+&gt; <span class="tok-str">"僅 payment.py 與 invoice.py 已修改,</span>
+<span class="tok-str">  請只重新檢視這兩個檔及其直接相依,其餘維持原分析。"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>點名變更檔做 targeted re-analysis &gt; 要求整包重新探索。</div>
+
+  <div class="summary">
+    <h2>整個 Task 1.7 的記憶骨架</h2>
+    <p>Session 可<span class="num">具名 resume</span>(<code>--resume &lt;name&gt;</code> 續特定對話)、可 <span class="num">fork_session</span>(從共享基線開獨立分支比較不同方向)。改過碼再 resume,務必<span class="num">告知哪些檔變了</span>並做<span class="num">針對性重分析</span>。最核心的取捨:舊 context 大致有效就 resume;<span class="num">tool results 過期(stale)</span>時,<span class="num">帶結構化摘要重開新 session</span> 比硬續更可靠。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

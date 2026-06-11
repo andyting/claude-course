@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 3.5 — 用迭代精煉技巧逐步改善產出</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--blue); text-transform: uppercase; margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 12px 16px; margin: 16px 0; font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg); color: #e2e8f0; border-radius: 10px;
+    padding: 18px 20px; overflow-x: auto; font-size: 14px; line-height: 1.6;
+    margin: 0; font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,0.12); color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+    padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900); color: #f1f5f9; border-radius: 12px;
+    padding: 28px 30px; margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12; color: #e2e8f0; border-left: 4px solid var(--blue);
+    border-radius: 10px; padding: 16px 22px; margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 3</div>
+    <h1>Task Statement 3.5<br>用迭代精煉技巧逐步改善產出</h1>
+    <p>Apply iterative refinement techniques for progressive improvement</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 3.5 — Apply iterative refinement techniques for progressive improvement</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Concrete input/output examples as the most effective way to communicate expected transformations when prose descriptions are interpreted inconsistently</li>
+      <li>Test-driven iteration: writing test suites first, then iterating by sharing test failures to guide progressive improvement</li>
+      <li>The interview pattern: having Claude ask questions to surface considerations the developer may not have anticipated before implementing</li>
+      <li>When to provide all issues in a single message (interacting problems) versus fixing them sequentially (independent problems)</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Providing 2-3 concrete input/output examples to clarify transformation requirements when natural language descriptions produce inconsistent results</li>
+      <li>Writing test suites covering expected behavior, edge cases, and performance requirements before implementation, then iterating by sharing test failures</li>
+      <li>Using the interview pattern to surface design considerations (e.g., cache invalidation strategies, failure modes) before implementing solutions in unfamiliar domains</li>
+      <li>Providing specific test cases with example input and expected output to fix edge case handling (e.g., null values in migration scripts)</li>
+      <li>Addressing multiple interacting issues in a single detailed message when fixes interact, versus sequential iteration for independent issues</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 2</span><br>
+    <span class="scen-name">Scenario 2 — Code Generation with Claude Code</span>
+    <p>團隊用 Claude Code 寫程式、重構、除錯、寫文件。當你下的指令太模糊、產出不穩定時,你不會一次次重貼長篇 prose,而是用幾個迭代技巧:給具體 input/output 範例、先寫測試再餵失敗、讓 Claude 先訪談你。本 Task 教這幾招逐步逼近正確結果。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>不要靠「再講清楚一點」的散文,要靠範例、測試、與提問來逼近正確。</b>四個技巧:具體 I/O 範例、test-driven 迭代、interview pattern、以及「互相牽動的問題一次講、獨立的問題分次修」。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;具體 input/output 範例,是溝通「期望轉換」最有效的方式</h2>
+  <p>當你用<b>散文(prose)</b>描述「我要把這個轉成那個」,Claude 常會<b>各次解讀不一致</b>——因為自然語言本身有歧義。最有效的解法不是把描述寫得更長,而是<b>直接給 2~3 組具體的 input → output 範例</b>,讓期望的轉換「演」給它看。</p>
+  <p>Scenario 2 的例子:你要 Claude 寫一個把雜亂日期字串正規化的函式,光說「正規化日期」會做出五花八門的結果。給範例就一目了然。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 散文描述:解讀不一致</span>
+<span class="tok-com"># claude -p "寫一個函式把日期字串正規化成標準格式"</span>
+<span class="tok-com"># → "標準格式" 到底是哪種?每次產出可能都不一樣</span>
+
+<span class="tok-good"># ✅ 給具體 input/output 範例</span>
+claude -p <span class="tok-str">"寫 normalize_date(s),依下列範例對應:
+  '2026/6/9'   -> '2026-06-09'
+  'Jun 9 2026' -> '2026-06-09'
+  '9-6-2026'   -> '2026-06-09'
+"</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>prose 解讀不一致時,改用具體 input/output 範例溝通期望轉換。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;test-driven 迭代:先寫測試,再用「失敗」引導逐步改善</h2>
+  <p>另一個強力技巧:<b>先把測試套件寫出來</b>(描述期望行為),讓 Claude 實作;若沒過,就<b>把測試失敗的訊息餵回去</b>當下一輪的引導。失敗訊息是極精準的回饋——它告訴 Claude 「哪個 case 錯、錯成什麼」,比你再用散文解釋有效得多。一輪輪 share failures,產出逐步收斂。</p>
+  <div class="key"><b>重點:</b>test suite 先行 → 跑失敗 → 把 failure 餵回 → 收斂。失敗訊息是最精準的迭代回饋。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;interview pattern:讓 Claude 先發問,挖出你沒想到的考量</h2>
+  <p>進入<b>陌生領域</b>時,你常常不知道自己漏了什麼。interview pattern 是:在開始實作前,<b>先請 Claude 對你提問</b>,把你沒預期到的設計考量(例如 cache 失效策略、各種 failure mode)逼出來。先問清楚再寫,勝過寫完才發現缺角。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ interview pattern:先問再做</span>
+claude -p <span class="tok-str">"在動手實作這個快取層之前,先問我 5~8 個問題,
+釐清:cache 失效策略、過期時間、併發寫入、
+失敗時要 fail-open 還是 fail-closed。
+等我回答完,再開始寫。"</span>
+<span class="tok-com"># → Claude 反問 → 你補齊考量 → 才實作,少踩坑</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>陌生領域先讓 Claude 提問(cache 失效、failure mode...),把隱藏考量攤開再實作。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;何時「一次講完」vs「分次修」:看問題彼此是否牽動</h2>
+  <p>修多個問題時要分流:若幾個問題<b>互相牽動</b>(改 A 會影響 B 的修法),要<b>在同一則詳細訊息裡一次講完</b>,讓 Claude 通盤考量、一起解;若幾個問題<b>彼此獨立</b>,則<b>逐一分次修</b>,每次聚焦一個、回饋更乾淨。誤把牽動的問題拆開修,常會出現「修了 A 又弄壞 B」的來回。</p>
+  <div class="key"><b>考點重點:</b>interacting(互相牽動)→ 一則訊息一起講;independent(獨立)→ 分次依序修。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;產出不穩時,給 2~3 組具體 input/output 範例</h2>
+  <p>知識 1 的落點。當自然語言描述產生不一致結果,別再加形容詞,直接補範例。2~3 組通常就足以把轉換規則釘死。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 任務:把使用者輸入的金額字串轉成分(cents)整數</span>
+<span class="tok-good"># ✅ 用 2~3 組範例釘死規則</span>
+claude -p <span class="tok-str">"實作 to_cents(s),依範例:
+  '$12.50' -> 1250
+  '12'     -> 1200
+  '0.99'   -> 99
+這些範例就是規格,不一致時以範例為準。"</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;先寫涵蓋行為/邊界/效能的測試,再餵失敗迭代</h2>
+  <p>知識 2 的實作。測試要涵蓋三類:<b>預期行為、邊界 case、效能要求</b>。先寫好讓 Claude 實作,跑出失敗就把 failure 貼回。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># 步驟一:先寫測試(行為 + 邊界 + 效能)</span>
+<span class="tok-kw">def</span> <span class="tok-fn">test_parse</span>():
+    <span class="tok-kw">assert</span> <span class="tok-fn">parse</span>(<span class="tok-str">"a,b,c"</span>) == [<span class="tok-str">"a"</span>,<span class="tok-str">"b"</span>,<span class="tok-str">"c"</span>]   <span class="tok-com"># 行為</span>
+    <span class="tok-kw">assert</span> <span class="tok-fn">parse</span>(<span class="tok-str">""</span>) == []                  <span class="tok-com"># 邊界:空字串</span>
+    <span class="tok-kw">assert</span> <span class="tok-fn">parse</span>(<span class="tok-str">"a,,c"</span>) == [<span class="tok-str">"a"</span>,<span class="tok-str">""</span>,<span class="tok-str">"c"</span>]  <span class="tok-com"># 邊界:空欄</span>
+
+<span class="tok-good"># 步驟二:跑失敗 → 把 failure 餵回 Claude</span>
+claude -p <span class="tok-str">"test_parse 的第 3 個 assert 失敗,
+got ['a','c'],expected ['a','','c']。修正 parse 保留空欄。"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>測試先行,涵蓋行為/邊界/效能;迭代靠 share failures,不靠重講。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;用 interview pattern 在陌生領域先攤開設計考量</h2>
+  <p>知識 3 的落點。官方點名範例:cache invalidation 策略、各種 failure mode——這類「你不問就不會浮現」的決策,讓 Claude 先訪談你。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 陌生領域:先 interview,再實作</span>
+claude -p <span class="tok-str">"我要做訊息重試佇列,但這領域我不熟。
+動手前,先針對 cache 失效、重試上限、
+冪等性、訊息順序保證 這幾點問我問題,
+逐一釐清後再寫程式。"</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 4</span> &nbsp;用具體測試案例修邊界(如 migration script 的 null 值)</h2>
+  <p>知識 1 與 2 的合體用法:修 edge case 時,給<b>具體的 input 與 expected output</b>。官方範例就是 migration script 遇到 <code>null</code> 值的處理。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># edge case:migration script 遇到欄位為 null</span>
+<span class="tok-good"># ✅ 給具體 input/expected 修邊界</span>
+claude -p <span class="tok-str">"migrate() 在 email 欄為 null 時崩潰。
+修正:input  {id:7, email:null}
+      expect {id:7, email:'', migrated:true}
+其他非 null 行為不變,並補一個 null 的測試。"</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 5</span> &nbsp;判斷:互相牽動的問題一則訊息講完,獨立的問題分次修</h2>
+  <p>知識 4 的實戰。下面兩種錯誤示範與正解,直接對照。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 牽動的問題卻拆開修:改了重試又破壞了去重</span>
+<span class="tok-com"># 訊息1:加重試  訊息2:加去重 → 兩者衝突,來回返工</span>
+
+<span class="tok-good"># ✅ interacting:一則訊息一起講,讓它通盤設計</span>
+claude -p <span class="tok-str">"重試與去重會互相影響:重試不可重複送已處理訊息。
+請在同一套設計裡一起解決:重試上限、去重鍵、
+兩者如何協調。"</span>
+
+<span class="tok-good"># ✅ independent:彼此無關 → 分次各修各的</span>
+<span class="tok-com"># 例:修 typo + 加 log 等級設定 → 分兩次,回饋更乾淨</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>會互相影響 → 同一則詳細訊息一起解;互不相干 → 分次依序修。</div>
+
+  <div class="summary">
+    <h2>整個 Task 3.5 的記憶骨架</h2>
+    <p>在 Scenario 2 改善 Claude Code 產出,不靠「再講清楚的散文」,而靠四招逐步精煉:① 產出不一致時給 <span class="num">2~3 組具體 input/output 範例</span>,讓轉換規則被範例釘死;② <span class="num">test-driven 迭代</span>——先寫涵蓋行為/邊界/效能的測試,再把 <span class="num">test failure 餵回</span>引導收斂;③ 陌生領域先用 <span class="num">interview pattern</span> 讓 Claude 提問,攤開 cache 失效、failure mode 等隱藏考量;④ 修多個問題看牽動關係:<span class="num">互相牽動 → 一則訊息一起講,獨立 → 分次依序修</span>。修 edge case(如 migration 的 null)同樣用具體 input/expected 來釘。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

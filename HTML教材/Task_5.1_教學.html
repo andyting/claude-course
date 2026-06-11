@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 5.1 — 管理對話 context，在長互動中保住關鍵資訊</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 5</div>
+    <h1>Task Statement 5.1<br>管理對話 context，在長互動中保住關鍵資訊</h1>
+    <p>Manage conversation context to preserve critical information across long interactions</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 5.1 — Manage conversation context to preserve critical information across long interactions</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Progressive summarization risks: condensing numerical values, percentages, dates, and customer-stated expectations into vague summaries</li>
+      <li>The "lost in the middle" effect: models reliably process information at the beginning and end of long inputs but may omit findings from middle sections</li>
+      <li>How tool results accumulate in context and consume tokens disproportionately to their relevance (e.g., 40+ fields per order lookup when only 5 are relevant)</li>
+      <li>The importance of passing complete conversation history in subsequent API requests to maintain conversational coherence</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Extracting transactional facts (amounts, dates, order numbers, statuses) into a persistent "case facts" block included in each prompt, outside summarized history</li>
+      <li>Extracting and persisting structured issue data (order IDs, amounts, statuses) into a separate context layer for multi-issue sessions</li>
+      <li>Trimming verbose tool outputs to only relevant fields before they accumulate in context (e.g., keeping only return-relevant fields from order lookups)</li>
+      <li>Placing key findings summaries at the beginning of aggregated inputs and organizing detailed results with explicit section headers to mitigate position effects</li>
+      <li>Requiring subagents to include metadata (dates, source locations, methodological context) in structured outputs to support accurate downstream synthesis</li>
+      <li>Modifying upstream agents to return structured data (key facts, citations, relevance scores) instead of verbose content and reasoning chains when downstream agents have limited context budgets</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 1</span><br>
+    <span class="scen-name">Scenario 1 — Customer Support Resolution Agent（客服解決 agent）</span>
+    <p>客服 agent 處理退貨/帳務爭議,常常一通對話來回數十輪。客戶一開始講的退款金額、訂單編號、期望日期,若被「漸進式摘要」壓成模糊一句話,後面就會跟丟。本 Task 教的就是:把 <code>lookup_order</code> 這類工具回傳的一大包欄位裁乾淨,並把交易事實釘成不會被摘要吃掉的「case facts」。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>長對話裡,「數字與事實」最容易在摘要與位置效應中流失。把它們抽出來、釘在每個 prompt 的固定位置,並把臃腫的工具輸出裁掉,才能在第 30 輪還記得客戶第 1 輪講的退款金額。</b>
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;漸進式摘要的風險:數字、百分比、日期、客戶期望被壓成模糊摘要</h2>
+  <p>對話一長,常見做法是把舊歷史「摘要」成短文字以省 token。問題是:摘要會把<b>精確的數值</b>磨成模糊的形容詞。客戶說「我要退 <b>$129.99</b>,訂單 <b>A-77214</b>,希望<b>本週五</b>前到帳」,被摘成「客戶想退一筆款項」——金額、訂單、日期全沒了,後面 agent 只能瞎猜或重問。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 漸進式摘要把可量化事實磨掉了</span>
+summary = <span class="tok-str">"客戶對某筆訂單不滿,想要退款,態度有點急。"</span>
+<span class="tok-com"># 金額?訂單號?期望日期?全部不見 → 下一輪只能重問,體驗變差</span>
+
+<span class="tok-good"># ✅ 摘要可以做,但數字/日期/期望必須另外抽出來保留(見技能 1)</span>
+case_facts = {
+    <span class="tok-str">"refund_amount"</span>: <span class="tok-str">"129.99"</span>,
+    <span class="tok-str">"order_id"</span>: <span class="tok-str">"A-77214"</span>,
+    <span class="tok-str">"customer_expectation"</span>: <span class="tok-str">"本週五前到帳"</span>,
+}</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>摘要可省 token,但<b>絕不能</b>把數字、百分比、日期、客戶明講的期望摘進去——這些要原值保留。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;「迷失在中間」(lost in the middle):模型對頭尾可靠、中段容易漏</h2>
+  <p>把一大堆內容塞進一個長 prompt 時,模型對<b>開頭</b>和<b>結尾</b>的資訊處理得很穩,但<b>中段</b>的內容常被忽略。所以關鍵事實(case facts、最重要的工具結果)應該放在開頭或結尾,而不是埋在中間第 17 段。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 把最關鍵的退款事實埋在長對話的正中央</span>
+prompt = long_history_part1 + <span class="tok-str">"\n關鍵:退款 $129.99\n"</span> + long_history_part2
+<span class="tok-com"># 中段的「退款 $129.99」很可能被模型略過</span>
+
+<span class="tok-good"># ✅ 關鍵事實放最前面,細節歷史放後面</span>
+prompt = <span class="tok-str">f"""[CASE FACTS]
+退款金額: $129.99 | 訂單: A-77214 | 期望: 週五前
+
+[對話歷史]
+{full_history}
+"""</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>關鍵摘要放<b>開頭</b>、細節用明確 section header 組織,以對抗位置效應。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;工具結果會累積、且佔 token 與其相關性不成比例</h2>
+  <p>每次呼叫 <code>lookup_order</code> 可能回傳 <b>40+ 個欄位</b>(運費試算、行銷標籤、倉庫代碼…),但對「處理退貨」真正有用的可能只有 5 個。這些臃腫輸出會一輪一輪累積在 context 裡,把 token 預算吃光,還稀釋了真正重要的資訊。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># lookup_order 原始回傳:40+ 欄位</span>
+raw = <span class="tok-fn">lookup_order</span>(<span class="tok-str">"A-77214"</span>)
+<span class="tok-com"># raw 含:shipping_carrier、warehouse_zone、promo_tags、</span>
+<span class="tok-com">#         loyalty_points、gift_wrap、... 大多與退貨無關</span>
+
+<span class="tok-good"># ✅ 只留退貨相關欄位再進 context(見技能 3)</span>
+relevant = {k: raw[k] <span class="tok-kw">for</span> k <span class="tok-kw">in</span>
+    [<span class="tok-str">"order_id"</span>, <span class="tok-str">"amount"</span>, <span class="tok-str">"status"</span>, <span class="tok-str">"purchase_date"</span>, <span class="tok-str">"return_window"</span>]}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>工具輸出進 context 前先裁;不裁,token 會被無關欄位耗光。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;後續 API 請求要帶「完整對話歷史」以維持連貫</h2>
+  <p>Claude API 是<b>無狀態</b>的——它不會自己記得上一輪。每次發請求,你都要把完整對話歷史(messages 陣列)帶上,模型才能保持連貫。注意這跟知識 3 不衝突:「帶完整歷史」指的是訊息序列要完整,但<b>每則訊息內</b>的臃腫工具輸出仍應先裁乾淨。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 每次請求帶上完整 messages,維持連貫</span>
+messages.<span class="tok-fn">append</span>({<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: user_msg})
+resp = client.messages.<span class="tok-fn">create</span>(model=<span class="tok-str">"claude-..."</span>, messages=messages)
+
+<span class="tok-bad"># ❌ 只送最後一句 → agent 忘了前面在處理哪筆退貨</span>
+resp = client.messages.<span class="tok-fn">create</span>(model=<span class="tok-str">"claude-..."</span>,
+    messages=[{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</span>, <span class="tok-str">"content"</span>: user_msg}])</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>訊息序列要完整(API 無狀態);但訊息內的工具輸出要先瘦身。兩者並行不悖。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;把交易事實抽成持久的 "case facts" 區塊,放在摘要歷史之外</h2>
+  <p>金額、日期、訂單號、狀態這類交易事實,抽出來做成一個獨立的 <b>case facts 區塊</b>,每個 prompt 都原樣帶上。它<b>不參與摘要</b>——歷史可以被壓縮,但 case facts 永遠是原值。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">build_case_facts</span>(order):
+    <span class="tok-kw">return</span> {
+        <span class="tok-str">"order_id"</span>: order[<span class="tok-str">"order_id"</span>],
+        <span class="tok-str">"amount"</span>: order[<span class="tok-str">"amount"</span>],
+        <span class="tok-str">"purchase_date"</span>: order[<span class="tok-str">"purchase_date"</span>],
+        <span class="tok-str">"status"</span>: order[<span class="tok-str">"status"</span>],
+    }
+
+<span class="tok-kw">def</span> <span class="tok-fn">build_prompt</span>(case_facts, summarized_history, user_msg):
+    <span class="tok-com"># case facts 在摘要歷史之外,永遠原值帶上</span>
+    <span class="tok-kw">return</span> <span class="tok-str">f"""[CASE FACTS — 不可摘要]
+{case_facts}
+
+[對話摘要]
+{summarized_history}
+
+[客戶最新訊息]
+{user_msg}
+"""</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>case facts = 交易事實的單一可信來源,獨立於可被摘要的歷史。</div>
+
+  <h2><span class="num">技能 2</span> &nbsp;多議題對話:把結構化 issue 資料抽到獨立的 context 層</h2>
+  <p>同一通對話,客戶可能同時抱怨「兩筆訂單」。若混在一起,agent 很容易把 A 訂單的金額套到 B 訂單。做法:每個 issue 各自結構化(order ID / 金額 / 狀態),存到一個獨立的 context 層,彼此不混。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 多議題:每個 issue 各一筆結構化資料</span>
+issues = [
+    {<span class="tok-str">"order_id"</span>: <span class="tok-str">"A-77214"</span>, <span class="tok-str">"amount"</span>: <span class="tok-str">"129.99"</span>, <span class="tok-str">"status"</span>: <span class="tok-str">"退款處理中"</span>},
+    {<span class="tok-str">"order_id"</span>: <span class="tok-str">"A-80552"</span>, <span class="tok-str">"amount"</span>: <span class="tok-str">"45.00"</span>,  <span class="tok-str">"status"</span>: <span class="tok-str">"等待客戶確認"</span>},
+]
+<span class="tok-com"># agent 處理每個 issue 時,鎖定對應那一筆,不會張冠李戴</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>多議題 → 每個 issue 獨立結構化 → 金額/狀態不會互相污染。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;在工具輸出累積進 context 前,先裁成只剩相關欄位</h2>
+  <p>這是知識 3 的實作。<code>lookup_order</code> 回 40+ 欄位,但對退貨只需要少數幾個。在它進 context <b>之前</b>就裁掉,而不是讓整包原始 JSON 一輪一輪堆積。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code>RETURN_FIELDS = [<span class="tok-str">"order_id"</span>, <span class="tok-str">"amount"</span>, <span class="tok-str">"status"</span>,
+                 <span class="tok-str">"purchase_date"</span>, <span class="tok-str">"return_window"</span>]
+
+<span class="tok-kw">def</span> <span class="tok-fn">trim_order</span>(raw_order):
+    <span class="tok-com"># 只保留退貨相關欄位,丟掉其餘 35+ 個無關欄位</span>
+    <span class="tok-kw">return</span> {k: raw_order[k] <span class="tok-kw">for</span> k <span class="tok-kw">in</span> RETURN_FIELDS <span class="tok-kw">if</span> k <span class="tok-kw">in</span> raw_order}
+
+raw = <span class="tok-fn">lookup_order</span>(<span class="tok-str">"A-77214"</span>)
+context.<span class="tok-fn">add_tool_result</span>(<span class="tok-fn">trim_order</span>(raw))   <span class="tok-good"># ✅ 進 context 前已瘦身</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>裁在「進 context 之前」,避免無關欄位一輪輪累積。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;關鍵摘要放開頭、用明確 section header 組織細節,以抗位置效應</h2>
+  <p>這是知識 2 的實作。把多筆來源彙總成一個輸入時,<b>關鍵發現的摘要放最前面</b>,後面的細節用清楚的標題分段(=== 訂單 A-77214 ===),別讓重要結論埋在中段。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">assemble_input</span>(key_findings, detail_blocks):
+    out = <span class="tok-str">"[關鍵發現]\n"</span> + key_findings + <span class="tok-str">"\n\n"</span>   <span class="tok-good"># ✅ 摘要在最前</span>
+    <span class="tok-kw">for</span> title, body <span class="tok-kw">in</span> detail_blocks:
+        out += <span class="tok-str">f"=== {title} ===\n{body}\n\n"</span>          <span class="tok-com"># 明確 header 分段</span>
+    <span class="tok-kw">return</span> out</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>摘要置頂 + 明確 section header = 對抗「lost in the middle」。</div>
+
+  <h2><span class="num">技能 5</span> &nbsp;要求 subagent 在結構化輸出中帶上 metadata,以支援下游正確綜合</h2>
+  <p>當客服系統背後也用多 agent(例如一個 agent 查保固政策、一個查訂單),要求每個 subagent 的輸出都帶上 <b>metadata</b>(日期、來源出處、方法論脈絡)。下游做綜合時才能正確判讀,而不是把不同時間點的資料當成矛盾。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ subagent 輸出帶 metadata</span>
+policy_finding = {
+    <span class="tok-str">"content"</span>: <span class="tok-str">"30 天內可全額退款"</span>,
+    <span class="tok-str">"metadata"</span>: {
+        <span class="tok-str">"source"</span>: <span class="tok-str">"return_policy_v3"</span>,
+        <span class="tok-str">"effective_date"</span>: <span class="tok-str">"2026-01-01"</span>,   <span class="tok-com"># 下游可判讀時效</span>
+    },
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>結構化輸出 + metadata(日期/來源)→ 下游綜合不誤判。</div>
+
+  <h2><span class="num">技能 6</span> &nbsp;讓上游 agent 回「結構化資料」而非冗長內容,以省下游 context 預算</h2>
+  <p>當下游 agent 的 context 預算很緊時,改造上游:讓它回<b>結構化的 key facts / 引用 / 相關性分數</b>,而不是把整段推理鏈與冗長內文倒給下游。下游只需要「事實 + 出處 + 重要度」,不需要上游的思考過程。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 上游回一大段推理 + 原文,吃光下游 context</span>
+upstream_out = <span class="tok-str">"我先看了訂單,然後想到退款政策,再考慮... (數千字)"</span>
+
+<span class="tok-good"># ✅ 上游回結構化精華:key facts + citation + relevance</span>
+upstream_out = {
+    <span class="tok-str">"key_facts"</span>: [<span class="tok-str">"訂單 A-77214 在退貨期內"</span>, <span class="tok-str">"金額 $129.99"</span>],
+    <span class="tok-str">"citations"</span>: [<span class="tok-str">"return_policy_v3 §2"</span>],
+    <span class="tok-str">"relevance"</span>: <span class="tok-num">0.95</span>,
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>下游 context 緊 → 上游改回「結構化精華」,不傳冗長推理鏈。</div>
+
+  <div class="summary">
+    <h2>整個 Task 5.1 的記憶骨架</h2>
+    <p>客服長對話最怕<span class="num">數字與事實流失</span>:漸進摘要會把金額/日期/期望磨糊,中段資訊會<span class="num">迷失在中間</span>,而 <code>lookup_order</code> 的 <span class="num">40+ 欄位</span>會把 token 吃光。對策三件套:把交易事實抽成<span class="num">case facts</span> 釘在 prompt 開頭(不參與摘要)、工具輸出<span class="num">進 context 前先裁</span>成相關欄位、彙總時<span class="num">摘要置頂 + 明確 header</span>。多議題各自結構化、上下游用<span class="num">結構化 + metadata</span> 傳遞;同時記得 API 無狀態,訊息序列要帶完整。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

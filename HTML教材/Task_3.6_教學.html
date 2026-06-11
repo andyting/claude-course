@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 3.6 — 把 Claude Code 整合進 CI/CD 流水線</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: 30px; font-weight: 700; line-height: 1.35; }
+  header.hero p { margin: 0; max-width: 620px; font-size: 16px; opacity: 0.85; }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 { margin: 0 0 4px; border: none; font-size: 20px; }
+  .source .src-sub { color: var(--gray-500); font-size: 14px; margin: 0 0 18px; }
+  .source h4 { color: var(--blue-dark); font-size: 15px; margin: 20px 0 8px; letter-spacing: .5px; }
+  .source ul { margin: 0; padding-left: 20px; }
+  .source li { margin: 8px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  .source code { background: var(--gray-100); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 { font-size: 22px; margin: 48px 0 6px; padding-bottom: 10px; border-bottom: 2px solid var(--gray-200); }
+  h2 .num { color: var(--blue); font-weight: 700; }
+  .section-kicker {
+    font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--blue); text-transform: uppercase; margin: 44px 0 0;
+  }
+  h3 { font-size: 18px; margin: 30px 0 8px; color: var(--gray-900); }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 12px 16px; margin: 16px 0; font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock { position: relative; margin: 18px 0; }
+  .codeblock pre {
+    background: var(--code-bg); color: #e2e8f0; border-radius: 10px;
+    padding: 18px 20px; overflow-x: auto; font-size: 14px; line-height: 1.6;
+    margin: 0; font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,0.12); color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+    padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900); color: #f1f5f9; border-radius: 12px;
+    padding: 28px 30px; margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12; color: #e2e8f0; border-left: 4px solid var(--blue);
+    border-radius: 10px; padding: 16px 22px; margin: 24px 0 8px;
+  }
+  .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 3</div>
+    <h1>Task Statement 3.6<br>把 Claude Code 整合進 CI/CD 流水線</h1>
+    <p>Integrate Claude Code into CI/CD pipelines</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 3.6 — Integrate Claude Code into CI/CD pipelines</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>The <code>-p</code> (or <code>--print</code>) flag for running Claude Code in non-interactive mode in automated pipelines</li>
+      <li><code>--output-format json</code> and <code>--json-schema</code> CLI flags for enforcing structured output in CI contexts</li>
+      <li>CLAUDE.md as the mechanism for providing project context (testing standards, fixture conventions, review criteria) to CI-invoked Claude Code</li>
+      <li>Session context isolation: why the same Claude session that generated code is less effective at reviewing its own changes compared to an independent review instance</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Running Claude Code in CI with the <code>-p</code> flag to prevent interactive input hangs</li>
+      <li>Using <code>--output-format json</code> with <code>--json-schema</code> to produce machine-parseable structured findings for automated posting as inline PR comments</li>
+      <li>Including prior review findings in context when re-running reviews after new commits, instructing Claude to report only new or still-unaddressed issues to avoid duplicate comments</li>
+      <li>Providing existing test files in context so test generation avoids suggesting duplicate scenarios already covered by the test suite</li>
+      <li>Documenting testing standards, valuable test criteria, and available fixtures in CLAUDE.md to improve test generation quality and reduce low-value test output</li>
+    </ul>
+  </section>
+
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 5</span><br>
+    <span class="scen-name">Scenario 5 — Claude Code for Continuous Integration</span>
+    <p>把 Claude Code 接進 CI/CD:每次 PR 自動跑 code review、產測試、給回饋。在無人值守的 pipeline 裡,必須用 <code>-p</code> 跑非互動模式、用 <code>--json-schema</code> 把結果變成機器可解析的 JSON 直接貼成 inline PR comment,並用 <code>CLAUDE.md</code> 餵專案規範。本 Task 全程貼這個情境。</p>
+  </div>
+
+  <div class="lead">
+    一句話抓住主軸:<b>CI 裡的 Claude Code 必須「非互動、輸出結構化、有專案脈絡、且 review 要獨立」。</b>四件事:<code>-p</code> 防卡住、<code>--json-schema</code> 出機器可讀結果、<code>CLAUDE.md</code> 餵脈絡、review 用獨立 instance 而非寫程式的同一個 session。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;<code>-p</code> / <code>--print</code>:在自動化 pipeline 裡跑非互動模式</h2>
+  <p>互動模式的 Claude Code 會等你輸入;但 CI 沒有人坐在前面。<b><code>-p</code>(或 <code>--print</code>)</b>讓它跑<b>非互動模式</b>:讀 prompt、做完事、印出結果就結束,不會停下來等輸入而把整條 pipeline 卡死(hang)。這是把 Claude Code 接進 CI 的第一個前提。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ CI 裡用互動模式 → 等不到輸入,job 卡死逾時</span>
+<span class="tok-com"># claude        # 進入互動 REPL,在 CI 永遠 hang</span>
+
+<span class="tok-good"># ✅ 用 -p 跑非互動,做完即結束</span>
+claude -p <span class="tok-str">"review 本次 PR 的 diff,找出 bug 與安全問題。"</span>
+<span class="tok-com"># 適合放進 GitHub Actions / GitLab CI 的 step</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b><code>-p</code> / <code>--print</code> = 非互動模式,防止 CI job 等輸入而 hang。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;<code>--output-format json</code> + <code>--json-schema</code>:在 CI 強制結構化輸出</h2>
+  <p>CI 需要把 Claude 的發現<b>程式化處理</b>(例如貼成 PR comment),所以輸出不能是自由散文。<b><code>--output-format json</code></b> 讓它輸出 JSON;<b><code>--json-schema</code></b> 再用一個 schema 把欄位、型別、嚴重度等級鎖死,確保每次都長一樣、可被腳本 parse。</p>
+  <div class="key"><b>重點:</b><code>--output-format json</code> 出 JSON;<code>--json-schema</code> 把結構鎖死 → 機器可解析。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;<code>CLAUDE.md</code>:把專案脈絡餵給 CI 觸發的 Claude Code</h2>
+  <p>CI 裡的 Claude 沒有你腦中的專案常識。<b><code>CLAUDE.md</code></b> 就是把這些脈絡寫下來的機制:測試標準(testing standards)、fixture 慣例、review 準則(review criteria)。CI 觸發 Claude Code 時會讀到它,產測試、做 review 才會貼合團隊規範,而不是亂槍打鳥。</p>
+  <div class="key"><b>重點:</b>用 <code>CLAUDE.md</code> 寫下 testing standards / fixture 慣例 / review criteria,餵給 CI 的 Claude。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;session context 隔離:寫程式的 session 不適合 review 自己的改動</h2>
+  <p>關鍵觀念:<b>同一個產生程式碼的 Claude session,review 自己的改動時會比較弱</b>。因為它已經帶著「當初為何這樣寫」的偏見,容易為自己的決定辯護、看不到盲點。正解是用<b>獨立的 review instance</b>——乾淨脈絡、沒有立場,才能客觀挑錯。這就像人也不該 review 自己剛寫完的 code。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 同一 session 寫完又自評 → 帶偏見,漏看盲點</span>
+<span class="tok-com"># claude -p "寫這個功能" ... 接著同一 session "順便 review"</span>
+
+<span class="tok-good"># ✅ review 用獨立 instance,乾淨脈絡客觀挑錯</span>
+claude -p <span class="tok-str">"你是獨立 reviewer,沒寫過這段 code。
+review 以下 diff,只看正確性與安全。"</span> &lt; pr.diff</code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>review 用獨立 instance,別讓寫程式的同一 session 評自己的改動。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;在 CI 用 <code>-p</code> 跑,避免互動輸入把 job 卡死</h2>
+  <p>知識 1 的落點。把 review/測試產生包進一個 CI step,一律加 <code>-p</code>。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># .github/workflows/review.yml(片段)</span>
+<span class="tok-com"># - name: Claude PR review</span>
+<span class="tok-com">#   run: |</span>
+<span class="tok-good"># ✅ -p 非互動,從 stdin 餵 diff,不會 hang</span>
+git diff origin/main...HEAD | \
+  claude -p <span class="tok-str">"review 這份 diff,找 bug 與安全問題。"</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;用 JSON + schema 產機器可讀發現,自動貼成 inline PR comment</h2>
+  <p>知識 2 的實作核心。定一個 schema(每筆 finding 有 file、line、severity、message),用 <code>--json-schema</code> 強制輸出,再讓腳本逐筆貼成 inline comment。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># review_schema.json:鎖死每筆 finding 的結構</span>
+{
+  <span class="tok-str">"findings"</span>: [{
+    <span class="tok-str">"file"</span>: <span class="tok-str">"str"</span>, <span class="tok-str">"line"</span>: <span class="tok-str">"int"</span>,
+    <span class="tok-str">"severity"</span>: <span class="tok-str">"critical|high|medium|low"</span>,
+    <span class="tok-str">"message"</span>: <span class="tok-str">"str"</span>
+  }]
+}
+
+<span class="tok-good"># ✅ 強制結構化輸出 → 腳本逐筆貼 inline PR comment</span>
+git diff origin/main...HEAD | claude -p \
+  <span class="tok-str">"review 此 diff,回報 findings。"</span> \
+  --output-format json --json-schema review_schema.json \
+  | <span class="tok-fn">post_inline_comments</span>.py</code></pre>
+  </div>
+  <div class="key"><b>重點:</b><code>--output-format json</code> + <code>--json-schema</code> → 穩定 JSON → 腳本自動貼 inline comment。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;重跑 review 時帶入先前 findings,只回報「新的或仍未處理」的問題</h2>
+  <p>知識 4 衍生的實戰痛點:新 commit 進來重跑 review,若不帶上一輪結果,會把<b>已經貼過的問題重複貼一次</b>,洗版又煩人。做法:把上輪 findings 放進 context,並明確指示「只回報<b>新出現</b>或<b>仍未處理</b>的」。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 帶上輪 findings,避免重複留言</span>
+git diff origin/main...HEAD | claude -p \
+  <span class="tok-str">"這是新 commit 後的 diff。下面是上一輪 review 的
+findings(JSON)。只回報『新出現』或『仍未修正』的問題,
+已解決的不要再提,也不要重貼舊留言。"</span> \
+  --json-schema review_schema.json \
+  --append-context prev_findings.json</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>重跑 review 帶入 prior findings,指示只報 new / still-unaddressed,避免 duplicate comment。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;產測試時帶入既有測試檔,避免建議重複的測試情境</h2>
+  <p>讓 Claude 在 CI 產測試時,先<b>把現有測試檔放進 context</b>。否則它會建議一堆<b>已經被覆蓋過</b>的情境,徒增 noise。帶進去後,它能補的是真正缺的 case。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 帶既有測試 → 只補沒覆蓋到的情境</span>
+claude -p <span class="tok-str">"為 cart.py 新增測試。
+下方是現有 test_cart.py,別重複已覆蓋的情境,
+只補尚未測到的 edge case。"</span> \
+  --append-context tests/test_cart.py</code></pre>
+  </div>
+
+  <h2><span class="num">技能 5</span> &nbsp;在 <code>CLAUDE.md</code> 寫測試標準、有價值的測試準則與可用 fixture</h2>
+  <p>知識 3 的落點。把<b>測試標準、什麼算「有價值的測試」、有哪些 fixture 可用</b>寫進 <code>CLAUDE.md</code>,CI 產測試時品質更高、low-value 的測試更少。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-com"># CLAUDE.md(測試章節範例)</span>
+<span class="tok-com">## Testing standards</span>
+<span class="tok-com"># - 用 pytest;每個 public function 至少一個 happy path + 一個 edge</span>
+<span class="tok-com"># - 有價值的測試:覆蓋邊界與錯誤路徑,不為 getter/setter 寫測試</span>
+<span class="tok-com"># - 可用 fixtures:db_session、sample_order、mock_payment</span>
+<span class="tok-good"># → CI 觸發的 Claude Code 讀到後,產出貼合規範、少廢測試</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>testing standards + valuable test criteria + fixtures 寫進 <code>CLAUDE.md</code> → 測試品質升、低價值輸出降。</div>
+
+  <div class="summary">
+    <h2>整個 Task 3.6 的記憶骨架</h2>
+    <p>在 Scenario 5 把 Claude Code 接進 CI/CD,記四件事:① 用 <span class="num">-p / --print</span> 跑非互動模式,別讓 job 等輸入而 hang;② 用 <span class="num">--output-format json + --json-schema</span> 產機器可解析的 findings,腳本自動貼成 <span class="num">inline PR comment</span>;③ 用 <span class="num">CLAUDE.md</span> 寫下 testing standards / fixture 慣例 / review criteria,把專案脈絡餵給 CI 的 Claude;④ review 要<span class="num">獨立 instance</span>,因為寫程式的同一 session 評自己的改動會帶偏見。兩個實戰細節:重跑 review 帶 <span class="num">prior findings</span> 只報 new/unaddressed 避免重複留言;產測試帶<span class="num">既有測試檔</span>避免重複情境。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

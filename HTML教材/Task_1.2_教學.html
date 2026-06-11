@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Statement 1.2 — 以 coordinator-subagent 模式編排多代理系統</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --gray-900: #1a1d23;
+    --gray-700: #374151;
+    --gray-500: #6b7280;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50: #f9fafb;
+    --bg: #ffffff;
+    --code-bg: #1e293b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--gray-900);
+    background: var(--gray-50);
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  header.hero {
+    background: #0b0d12;
+    color: #fff;
+    padding: 56px 0 48px;
+    text-align: left;
+    border-bottom: 3px solid var(--blue);
+  }
+  header.hero .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  header.hero .tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  header.hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  header.hero p {
+    margin: 0;
+    max-width: 620px;
+    font-size: 16px;
+    opacity: 0.85;
+  }
+  .source {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 26px 30px;
+    margin: 32px 0 8px;
+  }
+  .source h2 {
+    margin: 0 0 4px;
+    border: none;
+    font-size: 20px;
+  }
+  .source .src-sub {
+    color: var(--gray-500);
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
+  .source h4 {
+    color: var(--blue-dark);
+    font-size: 15px;
+    margin: 20px 0 8px;
+    letter-spacing: .5px;
+  }
+  .source ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .source li {
+    margin: 8px 0;
+    font-size: 14.5px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+  .source code {
+    background: var(--gray-100);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .lead {
+    background: #eff6ff;
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 32px 0;
+    font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  h2 .num {
+    color: var(--blue);
+    font-weight: 700;
+  }
+  .section-kicker {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 44px 0 0;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 30px 0 8px;
+    color: var(--gray-900);
+  }
+  h3 .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 2px 9px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  p { margin: 10px 0; }
+  .key {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  .key b { color: #b45309; }
+  .codeblock {
+    position: relative;
+    margin: 18px 0;
+  }
+  .codeblock pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .copy-btn.done { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .tok-kw  { color: #c084fc; }
+  .tok-str { color: #86efac; }
+  .tok-com { color: #64748b; font-style: italic; }
+  .tok-fn  { color: #60a5fa; }
+  .tok-num { color: #fbbf24; }
+  .tok-good { color: #4ade80; }
+  .tok-bad  { color: #f87171; }
+  .summary {
+    background: var(--gray-900);
+    color: #f1f5f9;
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin: 48px 0 0;
+  }
+  .summary h2 { color: #fff; border-color: rgba(255,255,255,0.2); }
+  .summary .num { color: #93c5fd; }
+  .scenario {
+    background: #0b0d12;
+    color: #e2e8f0;
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0 8px;
+  }
+  .scenario .scen-tag {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .scenario .scen-name { font-weight: 700; color: #fff; }
+  .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  footer {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="tag">CLAUDE CERTIFIED ARCHITECT · DOMAIN 1</div>
+    <h1>Task Statement 1.2<br>以 coordinator-subagent 模式編排多代理系統</h1>
+    <p>Orchestrate multi-agent systems with coordinator-subagent patterns</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="source">
+    <h2>官方考綱原文</h2>
+    <p class="src-sub">Task Statement 1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns</p>
+
+    <h4>Knowledge of:</h4>
+    <ul>
+      <li>Hub-and-spoke architecture where a coordinator agent manages all inter-subagent communication, error handling, and information routing</li>
+      <li>How subagents operate with isolated context—they do not inherit the coordinator's conversation history automatically</li>
+      <li>The role of the coordinator in task decomposition, delegation, result aggregation, and deciding which subagents to invoke based on query complexity</li>
+      <li>Risks of overly narrow task decomposition by the coordinator, leading to incomplete coverage of broad research topics</li>
+    </ul>
+
+    <h4>Skills in:</h4>
+    <ul>
+      <li>Designing coordinator agents that analyze query requirements and dynamically select which subagents to invoke rather than always routing through the full pipeline</li>
+      <li>Partitioning research scope across subagents to minimize duplication (e.g., assigning distinct subtopics or source types to each agent)</li>
+      <li>Implementing iterative refinement loops where the coordinator evaluates synthesis output for gaps, re-delegates to search and analysis subagents with targeted queries, and re-invokes synthesis until coverage is sufficient</li>
+      <li>Routing all subagent communication through the coordinator for observability, consistent error handling, and controlled information flow</li>
+    </ul>
+  </section>
+  <div class="scenario">
+    <span class="scen-tag">本題情境 · SCENARIO 3</span><br>
+    <span class="scen-name">Scenario 3 — Multi-Agent Research System</span>
+    <p>你在用 Claude Agent SDK 打造多代理研究系統:coordinator 把任務拆給 web 搜尋、文件分析、綜合、產報告等 subagent。本 Task 的 coordinator-subagent 編排正是這個系統的骨架。</p>
+  </div>
+
+
+  <div class="lead">
+    一句話抓住主軸:<b>一個 coordinator(協調者)當中樞,所有 subagent 都掛在它身上像輪輻——subagent 之間不直接對話,一切溝通、錯誤處理、資訊路由都要經過 coordinator。</b> 這個 Task 的考點,圍繞「中樞怎麼拆任務、怎麼選人、怎麼匯整、怎麼補洞」。
+  </div>
+
+  <p class="section-kicker">Knowledge of · 知識點</p>
+
+  <h2><span class="num">知識 1</span> &nbsp;Hub-and-spoke:coordinator 掌管所有跨 subagent 的溝通、錯誤處理與路由</h2>
+  <p>架構長得像腳踏車輪:中間的軸心(hub)是 coordinator,周圍的輪輻(spoke)是各個 subagent。重點是 <b>subagent 彼此不直接講話</b>——A 要把結果給 B,不是 A 傳給 B,而是 A → coordinator → B。所有的溝通、錯誤處理、資訊路由,全部集中在 coordinator 這個軸心。</p>
+  <p>好處:單一進出點 → 容易觀察(observability)、錯誤統一處理、資訊流可控。壞處若違反:讓 subagent 互相直連,系統會變成一團亂線,沒人說得清資料怎麼流的。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ Hub-and-spoke:所有溝通經過 coordinator</span>
+<span class="tok-kw">class</span> <span class="tok-fn">Coordinator</span>:
+    <span class="tok-kw">def</span> <span class="tok-fn">handle</span>(self, query):
+        search = self.<span class="tok-fn">call_subagent</span>(<span class="tok-str">"search"</span>, query)     <span class="tok-com"># A 的結果回到中樞</span>
+        analysis = self.<span class="tok-fn">call_subagent</span>(<span class="tok-str">"analysis"</span>, search)  <span class="tok-com"># 中樞再轉給 B</span>
+        <span class="tok-kw">return</span> self.<span class="tok-fn">call_subagent</span>(<span class="tok-str">"synthesis"</span>, analysis)
+
+    <span class="tok-kw">def</span> <span class="tok-fn">call_subagent</span>(self, name, payload):
+        <span class="tok-kw">try</span>:
+            <span class="tok-kw">return</span> <span class="tok-fn">Task</span>(agent=name, prompt=payload).result
+        <span class="tok-kw">except</span> Exception <span class="tok-kw">as</span> e:
+            <span class="tok-kw">return</span> self.<span class="tok-fn">handle_error</span>(name, e)   <span class="tok-com"># 錯誤也統一在中樞處理</span>
+
+<span class="tok-bad"># ❌ 反例:讓 subagent 之間直連 → 無法觀察、錯誤散落各處</span></code></pre>
+  </div>
+  <div class="key"><b>考點重點:</b>中樞輻條 = 一切經過 coordinator;subagent 不互相直連。</div>
+
+  <h2><span class="num">知識 2</span> &nbsp;subagent 的 context 是隔離的——不會自動繼承 coordinator 的對話歷史</h2>
+  <p>這是最常考、也最容易踩雷的一條。subagent 被叫出來時,<b>看不到 coordinator 之前的對話</b>。它沒有自動繼承任何歷史,也不會跟其他 subagent 共享記憶。你想讓它知道什麼,就得明白寫進它的 prompt 裡。</p>
+  <p>把它想成你找一位外部顧問:他完全不知道你公司內部之前討論過什麼,你得把背景整理好交給他。(此點與 Task 1.3「context 必須在 prompt 裡明白給」直接呼應。)</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 以為 subagent 看得到 coordinator 的對話</span>
+<span class="tok-fn">Task</span>(agent=<span class="tok-str">"analysis"</span>, prompt=<span class="tok-str">"分析剛才搜尋到的資料"</span>)
+<span class="tok-com"># 「剛才搜尋到的」對 subagent 是空白——它沒有那段歷史</span>
+
+<span class="tok-good"># ✅ 把背景明白塞進 prompt</span>
+<span class="tok-fn">Task</span>(
+    agent=<span class="tok-str">"analysis"</span>,
+    prompt=<span class="tok-str">f"""分析以下搜尋結果並萃取重點:
+
+{search_results}
+"""</span>
+)</code></pre>
+  </div>
+  <div class="key"><b>一句話記住:</b>subagent 的 context 是隔離的——背景要手動餵,不會自動繼承。</div>
+
+  <h2><span class="num">知識 3</span> &nbsp;coordinator 的職責:拆任務、派工、匯整結果、決定要叫哪些 subagent</h2>
+  <p>coordinator 不只是傳話的,它有四項核心職責:<b>task decomposition</b>(把大問題拆成子任務)、<b>delegation</b>(把子任務派給合適的 subagent)、<b>result aggregation</b>(把各方結果匯整成完整答案)、以及<b>依查詢複雜度決定要叫哪些 subagent</b>——簡單的問題不必動用整條 pipeline,複雜的才全員出動。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">class</span> <span class="tok-fn">Coordinator</span>:
+    <span class="tok-kw">def</span> <span class="tok-fn">run</span>(self, query):
+        subtasks = self.<span class="tok-fn">decompose</span>(query)        <span class="tok-com"># 1. 拆任務</span>
+        results = []
+        <span class="tok-kw">for</span> st <span class="tok-kw">in</span> subtasks:
+            agent = self.<span class="tok-fn">pick_agent</span>(st)         <span class="tok-com"># 2. 依需要派給合適 subagent</span>
+            results.<span class="tok-fn">append</span>(<span class="tok-fn">Task</span>(agent=agent, prompt=st).result)
+        <span class="tok-kw">return</span> self.<span class="tok-fn">aggregate</span>(results)         <span class="tok-com"># 3. 匯整成完整答案</span>
+
+    <span class="tok-kw">def</span> <span class="tok-fn">pick_agent</span>(self, subtask):
+        <span class="tok-com"># 4. 依複雜度決定:簡單問題不必叫全部 subagent</span>
+        <span class="tok-kw">return</span> <span class="tok-str">"search"</span> <span class="tok-kw">if</span> subtask.is_factual <span class="tok-kw">else</span> <span class="tok-str">"analysis"</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>coordinator = 拆任務 + 派工 + 匯整 + 依複雜度選人。</div>
+
+  <h2><span class="num">知識 4</span> &nbsp;風險:任務拆得太細太窄,反而漏掉廣泛主題的涵蓋面</h2>
+  <p>拆任務不是拆越細越好。如果 coordinator 把一個廣泛的研究題目<b>拆得太窄</b>,每個 subagent 只盯著一個小角落,結果就是「每個點都查了,但整體主題沒查全」——出現涵蓋面缺口(incomplete coverage)。</p>
+  <p>例如研究「2025 電動車趨勢」,若只拆成「查特斯拉股價」「查比亞迪銷量」兩個極窄子題,就會漏掉電池技術、政策補貼、充電基建等同樣重要的面向。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-bad"># ❌ 拆太窄:只盯兩個點 → 廣泛主題涵蓋不全</span>
+subtasks = [<span class="tok-str">"查特斯拉股價"</span>, <span class="tok-str">"查比亞迪銷量"</span>]
+<span class="tok-com"># 漏了:電池技術、政策、充電基建、市場規模...</span>
+
+<span class="tok-good"># ✅ 涵蓋主要面向,廣度與深度兼顧</span>
+subtasks = [
+    <span class="tok-str">"電動車市場規模與成長率"</span>,
+    <span class="tok-str">"電池技術趨勢"</span>,
+    <span class="tok-str">"各國政策與補貼"</span>,
+    <span class="tok-str">"充電基礎建設"</span>,
+    <span class="tok-str">"主要廠商競爭態勢"</span>,
+]</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>拆太窄 → 涵蓋面缺口。廣泛主題要確保子題涵蓋主要面向。</div>
+
+  <p class="section-kicker">Skills in · 技能點</p>
+
+  <h2><span class="num">技能 1</span> &nbsp;coordinator 動態選人,而非每次都跑完整 pipeline</h2>
+  <p>這是知識 3 的實作版。好的 coordinator 會<b>先分析這個 query 需要什麼</b>,再動態挑出該叫的 subagent——而不是不管什麼問題都把整條 pipeline(搜尋→分析→綜合)全跑一遍。簡單的事實查詢可能只需要 search;複雜的研究才動用全員。這省時、省 token,也降低出錯面。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">select_subagents</span>(query):
+    needs = <span class="tok-fn">analyze_requirements</span>(query)   <span class="tok-com"># 先看這題需要什麼</span>
+    agents = []
+    <span class="tok-kw">if</span> needs.requires_search:
+        agents.<span class="tok-fn">append</span>(<span class="tok-str">"search"</span>)
+    <span class="tok-kw">if</span> needs.requires_deep_analysis:    <span class="tok-com"># 簡單問題就不必加分析</span>
+        agents.<span class="tok-fn">append</span>(<span class="tok-str">"analysis"</span>)
+    <span class="tok-kw">if</span> needs.requires_synthesis:
+        agents.<span class="tok-fn">append</span>(<span class="tok-str">"synthesis"</span>)
+    <span class="tok-kw">return</span> agents
+<span class="tok-com"># ❌ 反模式:不分情況一律跑 search→analysis→synthesis 全程</span></code></pre>
+  </div>
+
+  <h2><span class="num">技能 2</span> &nbsp;切分研究範圍,讓 subagent 不重工</h2>
+  <p>把研究範圍切給不同 subagent 時,要<b>分清楚各自負責的子題或來源類型</b>,避免兩個 subagent 查到同一批東西(重工浪費)。常見做法:依「子主題」切(A 查電池、B 查政策),或依「來源類型」切(A 查學術論文、B 查新聞、C 查官方數據)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 依子主題切分,各管一塊,不重疊</span>
+assignments = {
+    <span class="tok-str">"agent_1"</span>: <span class="tok-str">"電池技術趨勢"</span>,
+    <span class="tok-str">"agent_2"</span>: <span class="tok-str">"各國政策補貼"</span>,
+    <span class="tok-str">"agent_3"</span>: <span class="tok-str">"充電基礎建設"</span>,
+}
+
+<span class="tok-good"># ✅ 或依來源類型切分,避免大家都去翻同一批資料</span>
+by_source = {
+    <span class="tok-str">"agent_1"</span>: <span class="tok-str">"學術論文"</span>,
+    <span class="tok-str">"agent_2"</span>: <span class="tok-str">"產業新聞"</span>,
+    <span class="tok-str">"agent_3"</span>: <span class="tok-str">"官方統計數據"</span>,
+}
+<span class="tok-com"># ❌ 反模式:三個 agent 都去搜同樣的關鍵字 → 結果高度重複</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>明確切分子題或來源 → 最小化重工。</div>
+
+  <h2><span class="num">技能 3</span> &nbsp;迭代精修:coordinator 評估綜合結果、找缺口、再派工、再綜合</h2>
+  <p>不是「跑一次就交差」。好的 coordinator 會看 synthesis 的產出<b>有沒有缺口</b>,有的話用更精準的 query 重新派給 search / analysis subagent,補完後再叫 synthesis 重做——直到涵蓋面夠了才收。這是一個 refinement loop(精修迴圈)。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">def</span> <span class="tok-fn">refine_until_complete</span>(query, max_rounds=<span class="tok-num">3</span>):
+    findings = <span class="tok-fn">gather</span>(query)
+    <span class="tok-kw">for</span> _ <span class="tok-kw">in</span> <span class="tok-fn">range</span>(max_rounds):
+        draft = <span class="tok-fn">Task</span>(agent=<span class="tok-str">"synthesis"</span>, prompt=<span class="tok-fn">build</span>(findings)).result
+        gaps = self.<span class="tok-fn">evaluate_gaps</span>(draft)       <span class="tok-com"># coordinator 找缺口</span>
+        <span class="tok-kw">if</span> <span class="tok-kw">not</span> gaps:
+            <span class="tok-kw">return</span> draft                       <span class="tok-good"># ✅ 涵蓋足夠 → 收</span>
+        <span class="tok-com"># 針對缺口用更精準的 query 重新派工</span>
+        findings += <span class="tok-fn">Task</span>(agent=<span class="tok-str">"search"</span>, prompt=<span class="tok-fn">targeted</span>(gaps)).result
+    <span class="tok-kw">return</span> draft</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>評估缺口 → 針對性重派 → 重綜合,迴圈到足夠為止。</div>
+
+  <h2><span class="num">技能 4</span> &nbsp;所有 subagent 溝通都路由經過 coordinator</h2>
+  <p>這是知識 1 的實作紀律。把<b>每一次</b>對 subagent 的呼叫與回收都集中在 coordinator,好處有三:統一觀察(observability,能看到完整資料流)、一致的錯誤處理(在一處 try/except)、可控的資訊流(誰拿到什麼由中樞決定)。絕不讓 subagent 私下互傳。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-kw">class</span> <span class="tok-fn">Coordinator</span>:
+    <span class="tok-kw">def</span> <span class="tok-fn">dispatch</span>(self, agent, payload):
+        self.<span class="tok-fn">log</span>(<span class="tok-str">f"→ {agent}"</span>)          <span class="tok-com"># 觀察:每次呼叫都留痕</span>
+        <span class="tok-kw">try</span>:
+            result = <span class="tok-fn">Task</span>(agent=agent, prompt=payload).result
+            self.<span class="tok-fn">log</span>(<span class="tok-str">f"← {agent} ok"</span>)
+            <span class="tok-kw">return</span> result
+        <span class="tok-kw">except</span> Exception <span class="tok-kw">as</span> e:
+            self.<span class="tok-fn">log</span>(<span class="tok-str">f"← {agent} error: {e}"</span>)   <span class="tok-com"># 一致錯誤處理</span>
+            <span class="tok-kw">return</span> self.<span class="tok-fn">fallback</span>(agent, e)
+<span class="tok-com"># 所有資料流都過這個方法 → 可觀察、可控、錯誤集中</span></code></pre>
+  </div>
+  <div class="key"><b>重點:</b>一切經中樞 → 可觀察、錯誤一致、資訊流可控。</div>
+
+  <div class="summary">
+    <h2>整個 Task 1.2 的記憶骨架</h2>
+    <p>架構是 <span class="num">hub-and-spoke</span>:coordinator 當軸心,subagent 是輪輻,<span class="num">彼此不直連</span>,一切溝通/錯誤/路由都經中樞。subagent 的 <span class="num">context 是隔離的</span>,背景要手動餵。coordinator 負責<span class="num">拆任務、派工、匯整、依複雜度選人</span>,並動態選人而非每次跑完整 pipeline。拆任務別<span class="num">太窄</span>(會漏涵蓋面),要切分範圍<span class="num">避免重工</span>,並用<span class="num">迭代精修</span>補缺口,直到夠了才收。</p>
+  </div>
+
+  <footer>
+    Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration
+  </footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(function () {
+        var original = btn.textContent;
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('done');
+        }, 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
