@@ -212,6 +212,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -266,28 +330,33 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;tool_use + JSON schema 是最可靠的結構化輸出方式</h2>
-  <p>傳統做法:在 prompt 裡叫模型「請回我 JSON」,然後你 <code>json.loads()</code> 它的文字回覆——常常遇到漏引號、多逗號、夾雜說明文字而 parse 失敗。改用 <b>tool use</b>:你定義一個工具,它的 <code>input_schema</code> 就是你要的 JSON 結構;模型「呼叫這個工具」時,參數會<b>保證符合 schema</b>,JSON 語法錯誤直接消滅。</p>
+  <h2><span class="num">知識 1</span> &nbsp;tool_use + JSON schema 是最可靠的 structured output（結構化輸出）方式</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的發票抽取管線每天有 3% 的請求因為模型回傳的 JSON 包含多餘的說明文字或漏掉引號而 parse 失敗，下游系統因此產生錯誤告警，你需要從根本消滅這類語法錯誤。</div>
+  <p>傳統做法:在 prompt 裡叫模型「請回我 JSON」,然後你 <code>json.loads()</code> 它的文字回覆——常常遇到漏引號、多逗號、夾雜說明文字而 parse 失敗（syntax error，語法錯誤）。改用 <b>tool use</b>:你定義一個工具,它的 <code>input_schema</code> 就是你要的 JSON 結構;模型「呼叫這個工具」時,參數會<b>保證符合 schema</b>,JSON 語法錯誤直接消滅。</p>
   <div class="key"><b>考點重點:</b>guaranteed schema-compliant output、eliminate JSON syntax errors = tool use + JSON schema。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;tool_choice 三種模式:auto / any / 強制特定工具</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你有三個抽取工具（發票、收據、論文），但傳入的文件類型未知；同時某個流程要求一定要先跑 extract_metadata 才能進行後續 enrichment，你需要為不同情境選擇正確的 tool_choice 設定。</div>
   <p>這是 4.3 最常考的辨析,務必記牢:</p>
   <p><b><code>"auto"</code></b>:模型「可以」呼叫工具,也<b>可以直接回文字</b>(不保證結構化)。<br>
   <b><code>"any"</code></b>:模型<b>必須</b>呼叫某個工具,但可<b>自己選哪一個</b>。<br>
   <b>強制特定工具</b> <code>{"type":"tool","name":"..."}</code>:模型<b>必須呼叫你指定的那一個</b>。</p>
   <div class="key"><b>一句話記住:</b>auto=可不叫;any=一定叫但自選;forced=指定叫哪個。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;schema 消滅「語法錯誤」,但不防「語意錯誤」</h2>
-  <p>很重要的一條警語。strict JSON schema 保證<b>格式</b>對(欄位齊、型別對、是合法 JSON),但它<b>管不到內容對不對</b>:line items 加起來不等於 total、值被放到錯的欄位——這些都是 schema 合法、語意卻錯的情況。語意錯誤要靠驗證流程(Task 4.4)另外抓。</p>
+  <h2><span class="num">知識 3</span> &nbsp;schema 消滅 syntax error（語法錯誤）,但不防 semantic error（語意錯誤）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你改用 tool use 後 JSON parse 失敗率降到零，但財務部門反映有些發票的 line items 加總不等於 total_amount，而這個問題通過了 schema validation，你需要了解為什麼以及如何補救。</div>
+  <p>很重要的一條警語。strict JSON schema 保證<b>格式</b>對(欄位齊、型別對、是合法 JSON),但它<b>管不到內容對不對</b>:line items 加起來不等於 total、值被放到錯的欄位——這些都是 schema 合法、但 semantic error（語意錯誤）仍然存在的情況。語意錯誤要靠 validation（驗證）流程(Task 4.4)另外抓。</p>
   <div class="key"><b>重點:</b>schema 治 syntax errors,治不了 semantic errors(不加總、放錯欄位)。</div>
 
   <h2><span class="num">知識 4</span> &nbsp;schema 設計:required vs optional、enum 的 "other" + detail 可擴充模式</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你發現模型為了滿足必填的 po_number 欄位而捏造 PO 號碼，同時新的文件類型（信用備忘單）不在 doc_type enum 裡，你需要重新設計 schema 來防幻覺並支援未來擴充。</div>
   <p>設計 schema 時兩個關鍵決策:哪些欄位<b>必填(required)</b>、哪些該<b>選填(optional/nullable)</b>;以及 enum(列舉)欄位要不要留一個 <code>"other"</code> 加一個 detail 字串欄,讓不在清單上的類別也能被表達——這樣未來新類型不用改 schema 就能容納(可擴充)。</p>
   <div class="key"><b>重點:</b>required/optional 要分清;enum 用 "other" + detail 留擴充空間。</div>
 
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;把抽取定義成「帶 JSON schema 的工具」,從 tool_use 回覆取結構化資料</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要把現有的「prompt 請模型輸出 JSON 字串再 parse」的流程，改成保證不會有 JSON 語法錯誤的架構，並且要能從 API 回應中正確取出結構化資料。</div>
   <p>核心實作。定義 <code>extract_invoice</code> 工具,<code>input_schema</code> 就是發票該有的欄位;呼叫 API 後,從回覆裡 <code>type == "tool_use"</code> 的 block 取 <code>.input</code>,就是保證合規的結構化資料。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -325,6 +394,7 @@ resp = client.messages.<span class="tok-fn">create</span>(
   <div class="key"><b>重點:</b>工具的 input_schema = 目標結構;從 tool_use block 的 .input 取資料。</div>
 
   <h2><span class="num">技能 2</span> &nbsp;文件類型未知時,用 tool_choice: "any" 保證有結構化輸出</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的批次處理管線每天收到數千份混合文件（發票、收據、論文），文件類型沒有事先標籤，你需要保證每一份都用正確的工具抽取，同時不能讓模型回傳純文字跳過結構化輸出。</div>
   <p>當你準備了多個抽取 schema(發票、收據、論文),但<b>進來的文件不知道是哪一種</b>,設 <code>tool_choice: "any"</code>:強制模型一定要呼叫工具(不准只回文字),但讓它<b>自己選</b>最合適的那個 extract 工具。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -343,6 +413,7 @@ resp = client.messages.<span class="tok-fn">create</span>(
   <div class="key"><b>重點:</b>多 schema + 類型不明 → tool_choice: "any"(一定叫、自選)。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;強制特定工具:確保某個抽取先跑(在 enrichment 之前)</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 enrichment 流程需要先從文件抽出 metadata（類型、日期、供應商），再根據這些 metadata 去外部 API 查詢補充資料，但你發現模型有時跳過 extract_metadata 直接嘗試 enrichment 而失敗。</div>
   <p>有時流程上必須<b>先</b>抽出 metadata,後續步驟才能 enrich(補資料)。這時用強制特定工具,確定模型<b>一定先呼叫 <code>extract_metadata</code></b>,不會跳過或選別的。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -361,6 +432,7 @@ metadata = <span class="tok-fn">next</span>(b.input <span class="tok-kw">for</sp
   <div class="key"><b>重點:</b>{"type":"tool","name":"extract_metadata"} → 保證指定工具先跑。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;來源可能沒有的資訊,欄位設為 optional(nullable),防止模型瞎編</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你把 po_number 放進 required 後，稽核發現模型在沒有採購單的一般消費發票上捏造了 PO 號碼，這些假數字進入了 ERP 系統，你需要修正 schema 設計防止這種幻覺。</div>
   <p>關鍵反幻覺技巧。如果某欄位放進 <code>required</code>,但文件其實沒有那個資訊,模型為了「滿足必填」就會<b>編一個值</b>。正確做法:把「不一定有」的欄位設成 <b>nullable / optional</b>,讓模型可以誠實回 null,而不是捏造。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -379,6 +451,7 @@ schema = {
   <div class="key"><b>重點:</b>來源可能沒有 → optional/nullable,防止為了滿足 required 而捏造。</div>
 
   <h2><span class="num">技能 5</span> &nbsp;enum 加 "unclear"(模糊)與 "other" + detail(可擴充)</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 doc_type enum 只有 invoice/receipt/paper，但客戶開始傳來信用備忘單和退款通知，模型強行把這些分到最近似的類別，產生錯誤的分類結果，你需要在不改 schema 的前提下容納新類型。</div>
   <p>enum 限制了可選值,但現實會有<b>判不準</b>和<b>清單外</b>的情況。兩個慣用補丁:加一個 <code>"unclear"</code> 讓模型在不確定時誠實標註(而非硬猜);加 <code>"other"</code> 搭配一個 detail 字串欄,容納未列舉的新類別。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -399,6 +472,7 @@ schema = {
   <div class="key"><b>重點:</b>enum 加 "unclear"(誠實)與 "other"+detail(可擴充)。</div>
 
   <h2><span class="num">技能 6</span> &nbsp;在 prompt 裡併入「格式正規化規則」,搭配嚴格 schema</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的發票來自不同國家的供應商，日期格式有 2024/1/3、Jan 3 2024、03-01-24 等多種寫法，金額有 $1,240 和 1240.00 兩種格式，雖然 schema 保證了欄位存在，但欄位內的格式不統一讓下游系統無法直接使用。</div>
   <p>schema 管結構,但<b>來源格式很亂</b>(日期 2024/1/3 vs Jan 3 2024、金額 $1,240 vs 1240.00)。光靠 schema 不會自動統一。做法:在 prompt 裡寫明<b>正規化規則</b>(日期一律 ISO、金額去逗號轉 number),讓輸出進到 schema 前先被統一。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -422,6 +496,77 @@ resp = client.messages.<span class="tok-fn">create</span>(
     <h2>整個 Task 4.3 的記憶骨架</h2>
     <p>要保證結構化輸出,別 parse 字串——把抽取設計成<span class="num">帶 JSON schema 的工具</span>,從 <span class="num">tool_use</span> 取 <code>.input</code>,JSON 語法錯誤消滅。<span class="num">tool_choice</span> 三模式:auto(可不叫)、any(一定叫、自選,用於文件類型不明)、forced(指定工具先跑,如 extract_metadata)。schema 治<span class="num">語法</span>不治<span class="num">語意</span>(不加總、放錯欄位要靠 4.4)。設計上:來源可能沒有的欄位設 <span class="num">nullable</span> 防瞎編;enum 加 <span class="num">"unclear" / "other"+detail</span>;再把<span class="num">正規化規則</span>寫進 prompt 統一亂格式。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 6 · Structured Data Extraction</span>
+      </div>
+      <p class="q-text">Your invoice extraction service processes 10,000 documents daily. Currently you ask Claude to "respond with a JSON object" and parse the text response with json.loads(). Your monitoring shows a 4% failure rate from JSON syntax errors — missing quotes, extra commas, or explanatory text mixed into the response. What is the most reliable architectural fix?</p>
+      <ol class="q-options" type="A">
+        <li>Add "respond only with valid JSON, no extra text" to the system prompt and implement retry logic on parse failures.</li>
+        <li>Define an extract_invoice tool with a JSON input_schema and use tool_choice to force the model to call it, then read the structured data from the tool_use block's .input field.</li>
+        <li>Use few-shot examples showing valid JSON output to train the model to produce better-formatted responses.</li>
+        <li>Post-process the model's text response with a regex to extract the JSON portion before parsing.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：tool use + JSON schema 是「消滅 JSON syntax error（語法錯誤）」的根本解法。模型呼叫工具時，API 層保證輸出符合 input_schema，不可能出現漏引號或夾雜說明文字的問題。從 tool_use block 的 .input 取值，得到的就是已保證合規的 dict，不需要 parse 字串。</p>
+          <p>A 錯在哪：再強調「只回 JSON」仍是依賴模型的文字輸出，4% 失敗率是模型行為特性，不是因為指令不夠明確；加 retry 只是緩解症狀，無法從根本消滅語法錯誤。C 錯在哪：few-shot 可以提升一致性，但不能「保證」不出現語法錯誤，遇到複雜或邊界文件仍可能出問題，達不到「消滅」的效果。D 錯在哪：regex post-processing 是脆弱的 workaround，維護成本高、遇到新的格式問題又會失效，不是可靠的架構選擇。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 6 · Structured Data Extraction</span>
+      </div>
+      <p class="q-text">You have three extraction tools: extract_invoice, extract_receipt, and extract_paper_metadata. An incoming document batch has no pre-labeling — document types are unknown. You need to guarantee that every document produces structured output (no plain text responses), but the model should choose the most appropriate tool for each document. Which tool_choice setting achieves this?</p>
+      <ol class="q-options" type="A">
+        <li>tool_choice: "auto" — the model decides whether to call a tool or return text.</li>
+        <li>tool_choice: {"type": "tool", "name": "extract_invoice"} — force all documents through the invoice tool.</li>
+        <li>tool_choice: "any" — the model must call one of the tools but selects which one itself.</li>
+        <li>No tool_choice setting needed; structured output is guaranteed once tools are defined.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確："any" 設定強制模型一定要呼叫某個工具（不准只回文字），同時讓模型自己選最合適的那一個。這正好符合「必須有結構化輸出 + 讓模型選正確工具」的雙重需求。</p>
+          <p>A 錯在哪："auto" 表示模型「可以」呼叫工具，也可以直接回文字，不保證有結構化輸出。題目要求「guarantee structured output」，auto 不符合。B 錯在哪：強制 extract_invoice 會把論文和收據也用發票 schema 抽，產生嚴重的 semantic error（語意錯誤），因為不同類型的文件欄位定義完全不同。D 錯在哪：定義工具不等於保證模型會使用工具；不設 tool_choice 時預設行為等同 "auto"，模型可能回文字。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 6 · Structured Data Extraction</span>
+      </div>
+      <p class="q-text">Your invoice schema has po_number defined as a required string field. After processing 500 invoices from consumer vendors (who never issue PO numbers), your audit finds that po_number is populated with fabricated values like "PO-UNKNOWN" or random numbers in every record. What schema change best prevents this fabrication?</p>
+      <ol class="q-options" type="A">
+        <li>Add an instruction to the prompt: "If po_number is not found in the document, output an empty string."</li>
+        <li>Remove po_number from the schema entirely since not all vendors use it.</li>
+        <li>Change po_number to allow null values (type: ["string", "null"]) and remove it from the required array.</li>
+        <li>Add a validation step that checks if po_number matches a known PO format and rejects values that don't match.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：把欄位設為 nullable（type: ["string", "null"]）並從 required 移除，讓模型在文件沒有 PO 號時可以誠實回 null，而不是被迫捏造一個值來滿足 required 的要求。這是「optional/nullable 防幻覺」的標準設計模式。</p>
+          <p>A 錯在哪：文字指令「輸出空字串」的效果不穩定，模型可能不遵守，而且空字串和 null 在語意上不同，還是沒有解決 required 強迫模型填值的根本問題。B 錯在哪：完全移除欄位會讓有 PO 號的企業發票也抽不到這個值，過度砍需求；正確做法是保留欄位但允許 null。D 錯在哪：validation 是事後補救，無法防止幻覺進入資料庫；而且 PO 格式千變萬化，regex 難以涵蓋，並不是根本解法。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output

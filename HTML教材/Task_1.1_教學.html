@@ -222,6 +222,70 @@
   }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -274,6 +338,7 @@
   <p class="section-kicker">Knowledge of · 知識點</p>
 
   <h2><span class="num">知識 1</span> &nbsp;agentic loop 的生命週期:送請求 → 看 stop_reason → 執行工具 → 回傳結果</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 loop 不知道何時該繼續、何時該停，只能靠猜或硬設次數——正確的控制訊號是什麼？</div>
   <p>agentic loop 是一個重複的圈。每一輪:你把目前的對話送給 Claude,Claude 回應後你檢查它的 <code>stop_reason</code>。如果是 <code>"tool_use"</code>,代表「它想用工具」——你就去執行它要求的工具,把結果加回對話,再進下一輪。如果是 <code>"end_turn"</code>,代表「它講完了、不需要工具了」——迴圈結束。</p>
   <p>把它想成你跟助理共事:你交代任務,助理說「我需要查一下資料庫」(tool_use),你幫它查、把結果給它,它再繼續想;直到它說「好了,這是最終答案」(end_turn)。</p>
   <div class="codeblock">
@@ -294,8 +359,9 @@ messages = [{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</
   </div>
   <div class="key"><b>考點重點:</b>迴圈的方向盤是 <code>stop_reason</code>;<code>"tool_use"</code> 繼續、<code>"end_turn"</code> 結束。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;工具結果會被附加到對話歷史,讓模型能據此推理下一步</h2>
-  <p>每跑完一個工具,你要把結果<b>加回 messages(對話歷史)</b>。下一輪 Claude 看到的是「包含這次工具結果」的完整對話,它才能根據新資訊決定接下來要做什麼。如果你跑了工具卻沒把結果加回去,Claude 下一輪等於什麼都沒看到——它會一直重複要求同一個工具,或亂猜。</p>
+  <h2><span class="num">知識 2</span> &nbsp;工具結果會被附加到 conversation history（對話歷史）,讓模型據此推理下一步</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Claude 一直重複索取同一個工具，好像完全看不到上一輪的執行結果——問題出在哪裡？</div>
+  <p>每跑完一個工具,你要把結果<b>加回 messages（即 conversation history，對話歷史）</b>。下一輪 Claude 看到的是「包含這次工具結果」的完整對話,它才能根據新資訊決定接下來要做什麼。如果你跑了工具卻沒把結果加回去,Claude 下一輪等於什麼都沒看到——它會一直重複要求同一個工具,或亂猜。</p>
   <p>關鍵:工具結果用 <code>role: "user"</code> 的訊息加回去,且每個結果要對應到當初的 <code>tool_use_id</code>,Claude 才知道「這是我剛剛要的那個工具的回覆」。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -314,9 +380,10 @@ messages = [{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</
   </div>
   <div class="key"><b>一句話記住:</b>工具結果不回填進對話 = Claude 等於沒看到 = 迴圈空轉。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;模型驅動的決策 vs. 預先寫死的決策樹</h2>
-  <p>agentic loop 的精神是<b>讓 Claude 自己根據 context 決定下一步用哪個工具</b>(model-driven)。你提供工具清單,但「先做什麼、再做什麼、要不要做」由 Claude 推理。這跟傳統「寫死的 if-else 決策樹 / 固定工具順序」相反——後者每種情況你都得事先想到並寫程式。</p>
-  <p>差別:寫死的流程遇到沒設想過的情況就卡住;model-driven 能依現場彈性應變。代價是它較難預測,所以才需要 <code>stop_reason</code> 這種明確的控制訊號來收尾。</p>
+  <h2><span class="num">知識 3</span> &nbsp;model-driven（模型驅動）決策 vs. pre-configured decision tree（預先寫死的決策樹）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>同事說「直接 if 退款 → 呼叫 A → B → C 把順序寫死就好」——這在生產環境遇到沒想到的情況時會有什麼問題？</div>
+  <p>agentic loop 的精神是<b>讓 Claude 自己根據 context 決定下一步用哪個工具</b>（即 model-driven，模型驅動）。你提供工具清單,但「先做什麼、再做什麼、要不要做」由 Claude 推理。這跟傳統「寫死的 if-else decision tree（決策樹）/ 固定工具順序（pre-configured tool sequence）」相反——後者每種情況你都得事先想到並寫程式。</p>
+  <p>差別:pre-configured 流程遇到沒設想過的情況就卡住;model-driven 能依現場彈性應變。代價是它較難預測,所以才需要 <code>stop_reason</code> 這種明確的控制訊號來收尾。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ 寫死的決策樹:每種情況都要自己 if-else,難以擴充</span>
@@ -337,6 +404,7 @@ TOOLS = [get_customer, lookup_order, process_refund, escalate_to_human]
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;用 stop_reason 控制迴圈:"tool_use" 繼續、"end_turn" 結束</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要實作 agentic loop 的 while 迴圈——break 的條件應該長什麼樣？繼續跑的條件又是什麼？</div>
   <p>這是知識 1 的實作核心。控制流程<b>只該</b>看 <code>stop_reason</code>:等於 <code>"tool_use"</code> 就繼續跑工具進下一輪;等於 <code>"end_turn"</code> 就跳出迴圈。不要用別的東西當主要判斷依據。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -357,6 +425,7 @@ TOOLS = [get_customer, lookup_order, process_refund, escalate_to_human]
   </div>
 
   <h2><span class="num">技能 2</span> &nbsp;每輪之間把工具結果加進 context,讓模型納入新資訊</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>工具執行完了，結果要怎麼「接回」messages 讓 Claude 下一輪能讀到？role 要設什麼、要帶哪個 id？</div>
   <p>這是知識 2 的實作版。重點在於「<b>每一輪之間</b>」都要把工具結果回填,Claude 才能把新拿到的資訊納入推理。漏了任何一輪的回填,後續推理就建立在缺漏的資訊上。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -374,11 +443,12 @@ messages = [{<span class="tok-str">"role"</span>: <span class="tok-str">"user"</
   </div>
   <div class="key"><b>重點:</b>工具結果要逐輪累積進 context,推理才連貫。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;避開反模式:別用自然語言、別把次數上限當主要停止機制</h2>
+  <h2><span class="num">技能 3</span> &nbsp;避開 anti-patterns（反模式）:別用自然語言、別把 iteration cap 當主要停止機制</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你看到同事寫了 <code>if "完成" in resp.text: break</code>，或是 <code>for i in range(5):</code> 來控制 loop——這三種反模式分別錯在哪裡？</div>
   <p>這條最常考。三個一定要避開的錯誤停止方式:</p>
-  <p><b>反模式一:解析自然語言判斷該不該停。</b>例如偵測 Claude 有沒有講「完成了」「done」這種字。模型措辭千變萬化,靠關鍵字判斷一定會誤判。<br>
-  <b>反模式二:把固定 iteration 上限當作主要的停止機制。</b>「最多跑 5 圈就停」可以當<b>安全保險絲</b>,但不能當主要邏輯——任務還沒完就被硬切掉,或上限設太大空轉。<br>
-  <b>反模式三:看 assistant 有沒有文字內容來判斷是否完成。</b>Claude 在要求工具時也可能附帶文字說明,有文字不代表它做完了。</p>
+  <p><b>Anti-pattern 1（反模式一）:解析自然語言判斷該不該停。</b>例如偵測 Claude 有沒有講「完成了」「done」這種字。模型措辭千變萬化,靠關鍵字判斷一定會誤判。<br>
+  <b>Anti-pattern 2（反模式二）:把固定 iteration cap（迭代次數上限）當作主要的停止機制。</b>「最多跑 5 圈就停」可以當<b>安全保險絲（safety fuse）</b>,但不能當主要邏輯——任務還沒完就被硬切掉,或上限設太大空轉。<br>
+  <b>Anti-pattern 3（反模式三）:看 assistant 有沒有文字內容（text content）來判斷是否完成。</b>Claude 在要求工具時也可能附帶文字說明,有文字不代表它做完了。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ 反模式一:靠關鍵字判斷結束 → 措辭一變就誤判</span>
@@ -406,6 +476,77 @@ MAX = <span class="tok-num">25</span>   <span class="tok-com"># 防失控用,不
     <h2>整個 Task 1.1 的記憶骨架</h2>
     <p>agentic loop 是一個圈:<span class="num">送請求 → 看 stop_reason → 跑工具 → 回填結果 → 再送</span>。方向盤只有一個——<span class="num">stop_reason</span>:<code>"tool_use"</code> 繼續、<code>"end_turn"</code> 結束。每輪都要把工具結果<span class="num">回填進對話歷史</span>,Claude 才能據此推理。決策由<span class="num">模型驅動</span>(不是寫死的決策樹)。要避開三大反模式:<span class="num">靠關鍵字、靠文字內容、把次數上限當主停止機制</span>——次數上限只能當安全保險絲。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">Production logs show that your customer support agent terminates the loop early when Claude's response contains phrases like "I'll process your refund now" or "Let me check your order." Approximately 12% of requests end before any tool is actually called. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The <code>process_refund</code> tool returns inconsistent output formats, causing the loop termination logic to throw an exception.</li>
+        <li>The loop checks natural language signals in Claude's text response to determine termination, rather than inspecting <code>stop_reason</code>.</li>
+        <li>The system prompt is missing instructions requiring Claude to call tools before returning a final response.</li>
+        <li>The agentic loop has no maximum iteration cap, so it falls back to early termination when context grows too large.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>「Claude 說出特定措辭 → loop 提前停止」是<b>靠自然語言訊號判斷終止</b>的典型症狀。Claude 在呼叫工具時常附帶說明性文字，若以文字內容決定是否結束，就會在工具尚未執行時跳出。正確做法只看 <code>stop_reason</code>：<code>"tool_use"</code> 繼續、<code>"end_turn"</code> 才結束。</p>
+          <p><b>A 錯在哪：</b>工具回傳格式問題不會造成「特定措辭觸發」的規律性提前停止。<b>C 錯在哪：</b>system prompt 缺失影響的是工具呼叫頻率，不是 loop 在 tool_use 前就終止。<b>D 錯在哪：</b>描述的是 context 大小觸發的問題，與「措辭觸發」的模式完全不符。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">Production logs show the agent calls <code>get_customer</code> repeatedly within the same session — sometimes 3–4 times — even after a prior call already returned the customer's data successfully. What is the most likely architectural cause?</p>
+      <ol class="q-options" type="A">
+        <li>The <code>get_customer</code> tool description is too broad, causing the model to trigger a call whenever customer-related terms appear in the conversation.</li>
+        <li>The agentic loop does not append tool results back to the conversation history (messages), so Claude cannot see results from prior iterations.</li>
+        <li>The system prompt is missing instructions telling Claude to cache lookup results across tool calls.</li>
+        <li>The maximum iteration cap is set too high, allowing Claude to keep calling tools even when it already has sufficient information.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>重複索取同一工具是<b>工具結果未回填進 messages</b> 的典型症狀。Claude 下一輪收到的 messages 若不含上一輪的工具結果，它便無法得知資料已取得，因此再次請求。正確做法：每輪後以 <code>role: "user"</code>（帶 <code>tool_use_id</code>）把 tool result 附回 messages。</p>
+          <p><b>A 錯在哪：</b>工具描述過廣是「呼叫錯工具」的問題，不會造成同一工具重複呼叫的規律。<b>C 錯在哪：</b>快取是應用層邏輯，agentic loop 的本質是讓模型從對話歷史推理，靠 prompt 指示快取是錯誤方向。<b>D 錯在哪：</b>迭代次數上限是安全保險絲，不會導致特定工具被反覆呼叫的模式。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">Your team is debating two designs: Option 1 — hardcode tool order with if-else logic (refund request → <code>get_customer</code> → <code>lookup_order</code> → <code>process_refund</code>); Option 2 — provide Claude the full tool set and let the model reason about which tools to call. In production, customers sometimes submit combined refund and billing inquiries, and sometimes need only an order status check. What is the core advantage of the model-driven approach in this varied context?</p>
+      <ol class="q-options" type="A">
+        <li>Option 1, because a fixed sequence guarantees deterministic tool calls and prevents unpredictable model behavior.</li>
+        <li>Option 2, because the model can adapt its tool usage to unanticipated request combinations based on actual conversation context, without requiring code changes for each new case.</li>
+        <li>Option 1, because if-else execution is faster than model reasoning, reducing agent response latency.</li>
+        <li>Option 2, because the <code>stop_reason</code> mechanism automatically enforces the correct tool call order to ensure compliance.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>model-driven 的核心優勢是「彈性應對未設想情況」——客戶提出混合需求或邊緣情況時，寫死的 if-else 決策樹會卡住或走錯分支，而模型能根據當前 context 推理出合適的工具序列，不需要人工枚舉所有情況。</p>
+          <p><b>A 錯在哪：</b>deterministic 是方案一的優點，但「無法應對未設想情況」是嚴重的生產風險，且題目明確說情境多變。<b>C 錯在哪：</b>在實際 API 呼叫延遲面前，if-else 與模型推理的 CPU 差異微不足道；且方案一反而需要人工維護所有分支。<b>D 錯在哪：</b><code>stop_reason</code> 控制的是 loop 的停止時機，與工具呼叫順序的強制執行無關。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration

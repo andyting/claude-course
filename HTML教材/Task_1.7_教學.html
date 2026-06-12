@@ -153,6 +153,70 @@
   }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -196,12 +260,13 @@
 
 
   <div class="lead">
-    一句話抓住主軸:<b>session 可以「續(resume)」、可以「分岔(fork)」;但續用前要先問——舊的 context 還新鮮嗎?</b> 新鮮就 resume,過期(stale)就帶著一份結構化摘要<b>重開新局</b>。這個取捨是整個 Task 1.7 的核心。
+    一句話抓住主軸:<b>session 可以「續（resume，恢復）」、可以「分岔（fork）」;但續用前要先問——舊的 context（對話歷史）還新鮮嗎?</b> 新鮮就 resume,過期(stale，陳舊)就帶著一份結構化摘要<b>重開新局</b>。這個取捨是整個 Task 1.7 的核心。
   </div>
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;具名 session resumption:用 <code>--resume &lt;session-name&gt;</code> 續特定對話</h2>
+  <h2><span class="num">知識 1</span> &nbsp;具名 session resumption（續接）:用 <code>--resume &lt;session-name&gt;</code> 續特定對話</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你進行了一個跨越三天的架構調查，每次重新開始都要重新向 Claude Code 解釋背景脈絡，浪費大量時間；你需要一個機制讓每次工作都能接回上次中斷的地方。</div>
   <p>你可以給 session 取名字,之後用 <code>--resume &lt;session-name&gt;</code> 精準接回<b>那一個</b>之前的對話,而不是大海撈針。重點在「<b>具名(named)</b>」——靠名字鎖定要續哪一段歷史。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -212,8 +277,9 @@ $ claude <span class="tok-str">--resume</span> auth-refactor-investigation
   </div>
   <div class="key"><b>考點重點:</b><code>--resume &lt;session-name&gt;</code> = 用名字續特定的舊對話。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;<code>fork_session</code>:從共享基線分岔出獨立分支</h2>
-  <p><code>fork_session</code> 把一個已建立的分析基線<b>複製分岔</b>,各分支獨立往下走、互不干擾。用途是「從同一起點探索不同方向」(divergent approaches)——例如同一份程式碼分析基線,一條試方案 A、一條試方案 B。(與 Task 1.3 的 fork-based session 呼應。)</p>
+  <h2><span class="num">知識 2</span> &nbsp;<code>fork_session</code>:從共享基線 fork（分岔）出獨立分支</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你已完成一份完整的 codebase 分析，現在想比較「策略模式重構」和「工廠模式重構」兩個方案，但不想為了每個方案重新跑一遍相同的基線分析。</div>
+  <p><code>fork_session</code> 把一個已建立的分析基線<b>複製分岔</b>,各分支獨立往下走、互不干擾。用途是「從同一起點探索不同方向」（divergent approaches，分歧探索）——例如同一份程式碼分析基線,一條試方案 A、一條試方案 B。(與 Task 1.3 的 fork-based session 呼應。)</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-com"># 已有共享分析基線</span>
@@ -227,6 +293,7 @@ branch_b = <span class="tok-fn">fork_session</span>(baseline, name=<span class="
   <div class="key"><b>考點重點:</b><code>fork_session</code> = 共享基線 + 獨立分支,探索 divergent approaches。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;resume 改過的程式碼後,要主動告知 agent「哪些檔變了」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你昨天用 Claude Code 分析了 auth 模組，今天修改了 auth.py 後 resume 同一個 session，但 Claude Code 基於過時的認知給出了錯誤的建議，沒有反映最新的程式碼狀態。</div>
   <p>常見陷阱:你上次分析完後<b>改了程式碼</b>,隔天 resume 舊 session——但 agent 腦中記得的還是<b>舊版</b>的檔案內容。如果不告訴它「這些檔已經變了」,它會拿過期認知繼續做,結論就錯。resume 後務必主動通報變更。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -238,8 +305,9 @@ $ claude <span class="tok-str">--resume</span> auth-refactor-investigation
   </div>
   <div class="key"><b>考點重點:</b>改過碼再 resume → 一定要告知 agent 哪些檔變了。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;為什麼「帶摘要重開」比「續用過期結果」更可靠</h2>
-  <p>這是 Task 1.7 最深的一條觀念。當舊 session 裡的<b>工具結果已經過期(stale)</b>——例如那些檔案、那些查詢結果都變了——硬 resume 反而危險:agent 會被一堆過時資料污染。更可靠的做法是<b>開一個新 session,只注入一份乾淨的結構化摘要</b>,把「目前真正有效的結論」帶過去,而不是拖著一整袋過期的 tool results。</p>
+  <h2><span class="num">知識 4</span> &nbsp;為什麼「帶摘要重開」比「續用過期（stale）結果」更可靠</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>一個調查 session 已有兩週歷史，其中引用的檔案路徑、函式名稱和架構決策大多已改變，你面臨抉擇：繼續用這個 session 還是帶著結論重開新的。</div>
+  <p>這是 Task 1.7 最深的一條觀念。當舊 session 裡的<b>工具結果已經過期（stale，陳舊）</b>——例如那些檔案、那些查詢結果都變了——硬 resume 反而危險:agent 會被一堆過時資料污染。更可靠的做法是<b>開一個新 session,只注入一份乾淨的結構化摘要（structured summary）</b>,把「目前真正有效的結論」帶過去,而不是拖著一整袋過期的 tool results。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ 硬 resume:把一整袋過期 tool results 也帶進來,污染判斷</span>
@@ -255,6 +323,7 @@ $ claude   <span class="tok-com"># 全新 session</span>
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;用 <code>--resume</code> + session 名稱跨工作階段續調查</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你正在進行一個需要多天才能完成的效能瓶頸調查，希望每次坐下來工作時都能直接從上次分析中斷的地方繼續，而不必重新描述背景。</div>
   <p>知識 1 的實作。一個長期調查可能跨好幾天、好幾次坐下來做。給它一個固定名字,每次用 <code>--resume &lt;name&gt;</code> 接回同一條調查線,context 自然延續,不必每次重講背景。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -265,7 +334,8 @@ $ claude <span class="tok-str">--resume</span> perf-bottleneck-hunt   <span clas
   </div>
   <div class="key"><b>重點:</b>具名 + <code>--resume</code> = 跨日續同一條調查,不重講背景。</div>
 
-  <h2><span class="num">技能 2</span> &nbsp;用 <code>fork_session</code> 開平行探索分支</h2>
+  <h2><span class="num">技能 2</span> &nbsp;用 <code>fork_session</code> 開平行探索分支（parallel exploration branches）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>完成 codebase 基線分析後，你想同時評估「測試策略 A：以整合測試為主」和「測試策略 B：以單元測試為主」，需要從同一個起點分別往兩個方向探索並最後比較結果。</div>
   <p>知識 2 的實作。從一份共享的 codebase 分析基線,fork 出多條平行分支,各自試不同策略——例如「比較兩種測試策略」或「兩種重構方法」。最後把各分支結果擺在一起比較,而起點完全一致,比較才公平。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -280,7 +350,8 @@ refactor_b = <span class="tok-fn">fork_session</span>(baseline, name=<span class
   </div>
   <div class="key"><b>重點:</b><code>fork_session</code> 從共享基線開平行分支,公平比較不同策略。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;判斷:resume 還是「重開 + 注入摘要」?</h2>
+  <h2><span class="num">技能 3</span> &nbsp;判斷:resume 還是「重開 + 注入摘要（structured summary）」?</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你需要決定是否繼續使用一個三週前的調查 session，判準是舊 session 中的 tool results（工具查詢結果）是否仍然反映現在的程式碼狀態。</div>
   <p>這是整個 Task 1.7 最該練熟的決策。判準很單純:<b>舊 context 大致還有效 → resume</b>;<b>舊 tool results 已過期(stale)→ 重開新 session 並注入摘要</b>。不要因為「續用比較省事」就忽略資料已經過期的事實。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -293,7 +364,8 @@ refactor_b = <span class="tok-fn">fork_session</span>(baseline, name=<span class
   </div>
   <div class="key"><b>重點:</b>context 大致有效 → resume;結果 stale → 重開新局 + 注入摘要。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;告知「具體哪些檔變了」做針對性重分析,而非整包重跑</h2>
+  <h2><span class="num">技能 4</span> &nbsp;告知「具體哪些檔變了」做針對性重分析（targeted re-analysis）,而非整包重跑</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Resume 一個 session 後，你修改了兩個檔案，但不確定應該請 agent 重新分析整個專案，還是只針對那兩個變更的檔案及其直接相依進行重分析。</div>
   <p>知識 3 的精緻版。resume 後若有檔案改動,不要叫 agent 把整個 codebase 從頭再 explore 一遍(浪費)。而是<b>明確點名哪幾個檔變了</b>,讓它只針對那幾個做<b>targeted re-analysis</b>。範圍縮小,又快又準。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -310,6 +382,77 @@ refactor_b = <span class="tok-fn">fork_session</span>(baseline, name=<span class
     <h2>整個 Task 1.7 的記憶骨架</h2>
     <p>Session 可<span class="num">具名 resume</span>(<code>--resume &lt;name&gt;</code> 續特定對話)、可 <span class="num">fork_session</span>(從共享基線開獨立分支比較不同方向)。改過碼再 resume,務必<span class="num">告知哪些檔變了</span>並做<span class="num">針對性重分析</span>。最核心的取捨:舊 context 大致有效就 resume;<span class="num">tool results 過期(stale)</span>時,<span class="num">帶結構化摘要重開新 session</span> 比硬續更可靠。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">An engineer runs <code>claude --resume auth-investigation</code> to continue a two-week-old session analyzing the authentication module. The session resumes successfully, but Claude Code's suggestions are based on function signatures and file structures that were refactored five days ago. The engineer receives incorrect recommendations. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The <code>--resume</code> flag loaded the wrong session because the session name was ambiguous.</li>
+        <li>The resumed session contains stale tool results from two weeks ago; Claude Code is reasoning from outdated file analysis rather than the current codebase state.</li>
+        <li>The session's context window was truncated after two weeks, causing Claude Code to lose track of the original investigation goals.</li>
+        <li>Claude Code does not support resuming sessions that are older than one week.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>Session resumption 最常見的陷阱是：session 裡的 tool results（讀取的檔案內容、查詢的結果）在 session 建立後就被「凍結」了。如果那之後程式碼被重構，agent resume 後仍然看到的是舊版的函式簽名和檔案結構，所有基於這些過時資料的建議都會偏離現實。正確的處理是：要麼 resume 後立即告知 agent 哪些檔案已更改，要麼在資料大幅過期時改用「帶摘要重開新 session」。</p>
+          <p>A 錯在哪：具名 session 用明確的名字鎖定特定 session，沒有歧義問題；題目也說「resumes successfully」，表示 session 被正確找到了。C 錯在哪：context window 截斷可能發生，但症狀是建議偏離目標，而非完全失憶；題目描述的問題是建議基於「過時的程式碼狀態」，這是 stale results 的典型症狀。D 錯在哪：Claude Code 的 session resumption 沒有時間限制；只要 session 存在且名稱正確，無論多久都能 resume。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">After completing a thorough analysis of a shared codebase, a team wants to evaluate two refactoring strategies: Strategy A uses the Strategy design pattern, and Strategy B uses the Factory pattern. They want both explorations to start from the same analysis baseline, and the results to be fairly comparable. What is the most effective approach?</p>
+      <ol class="q-options" type="A">
+        <li>Run the full codebase analysis twice — once for each strategy — to ensure each exploration has a clean, independent starting point.</li>
+        <li>Use <code>fork_session</code> to create two independent branches from the shared analysis baseline, then explore each strategy in its own branch.</li>
+        <li>Run Strategy A first, complete it fully, then resume the original session and run Strategy B from that point.</li>
+        <li>Create two separate named sessions and independently reproduce the baseline analysis in each before starting the strategy-specific work.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p><code>fork_session</code> 的設計目的正是「從同一基線出發、探索不同方向」。它複製目前 session 的狀態作為兩個獨立分支的起點，各分支往後的操作互不影響。兩種策略從完全相同的分析基線出發，比較結果才具有公平性；而且不需要重複跑一遍耗時的基線分析。</p>
+          <p>A 錯在哪：重複跑兩次完整的基線分析浪費大量時間和資源，且兩次分析結果可能因為執行細節不同而略有差異，影響比較公平性；fork_session 正是為了解決「不必重複基線」這個問題。C 錯在哪：先跑完 A 再 resume 原始 session 跑 B，這種方法讓兩次探索在時序上有先後，resume 後的 session 已包含 A 的影響（即使你 resume 到原始點，A 的工作歷程可能影響後續判斷）；fork 才能真正獨立。D 錯在哪：分別在兩個 session 中重新做一遍基線分析等同於選項 A 的問題——浪費資源且無法保證基線完全一致。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">An engineer resumes a session named <code>payment-refactor</code> that was used three days ago. Since then, <code>payment.py</code> and <code>invoice.py</code> have been significantly modified, but the other 20 files in the codebase are unchanged. The engineer needs Claude Code to re-analyze the changes. What is the most effective approach?</p>
+      <ol class="q-options" type="A">
+        <li>Start a completely new session and re-explain the full project context from scratch to avoid any stale information.</li>
+        <li>Ask Claude Code to re-analyze the entire project from the beginning to ensure all information is fresh.</li>
+        <li>After resuming, explicitly tell Claude Code that <code>payment.py</code> and <code>invoice.py</code> have been modified and ask it to re-analyze only those two files and their direct dependencies.</li>
+        <li>Run <code>--resume payment-refactor</code> without any additional instructions, as Claude Code will automatically detect and re-read changed files.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>當只有少數幾個檔案發生變更時，最有效率的做法是 targeted re-analysis（針對性重分析）：resume session 後明確告知 agent 哪些具體檔案已變更，請它只針對那幾個檔案及其直接相依重新分析，其餘 20 個未變更的檔案維持原有分析結果。這樣既保留了舊 session 中仍然有效的大量分析，又確保變更部分被重新評估。</p>
+          <p>A 錯在哪：只有兩個檔案變更，舊 session 中其他 20 個檔案的分析仍然有效；完全重開新 session 放棄了大量仍然有用的 context，浪費不必要的工作。B 錯在哪：要求重新分析整個專案同樣浪費——這是「整包重跑」的反模式；針對性重分析比整包重跑更快、更準。D 錯在哪：Claude Code 在 resume 時不會自動偵測檔案變更並重新讀取；agent 的認知仍停留在上次 session 讀取的狀態，必須由工程師主動告知哪些檔案已更改。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration

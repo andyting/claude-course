@@ -143,6 +143,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -192,7 +256,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;摘要步驟會弄丟出處——當發現被壓縮卻沒保住 claim-source mapping</h2>
+  <h2><span class="num">知識 1</span> &nbsp;摘要步驟會弄丟 provenance（來源溯源）——當發現被壓縮卻沒保住 claim-source mapping（主張來源對應）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>研究報告中引用「市場成長 35%」這個數字，但讀者要求查證原始來源時，synthesis 步驟已將出處資訊丟失，整份報告的可信度因為無法追溯引用來源而受到質疑。</div>
   <p>多代理研究的常見失血點:web 搜尋 subagent 找到「市場成長 35%」並記得出處,但到了<b>摘要 / 綜合步驟</b>,內容被壓縮,而<b>「這句話對應哪個來源」的映射沒被一起保留</b>。最終報告只剩一個沒有出處的數字,無法被引用或查證。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -209,7 +274,8 @@ claim = {
   </div>
   <div class="key"><b>考點重點:</b>出處在摘要步驟流失,因為「claim→source 映射」沒跟著被保留。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;結構化 claim-source mapping:synthesis 必須保留並合併</h2>
+  <h2><span class="num">知識 2</span> &nbsp;結構化 claim-source mapping（主張來源對應）:synthesis 必須保留並合併</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Synthesis subagent 將三個 subagent 的發現合併成一段散文時，將每個主張對應的來源全部混合丟失，最終報告無法標明哪句話來自哪份文件，無法通過法律部門的引用審查。</div>
   <p>解法是讓每個發現都帶<b>結構化的 claim-source mapping</b>(主張 ↔ 來源)。重點在 synthesis subagent 的職責:它在<b>合併</b>多個 subagent 的發現時,必須<b>保留每筆 mapping</b>,而不是把它們攪成一段沒有出處的散文。合併後,每個主張仍能追回原始來源。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -226,7 +292,8 @@ claim = {
   </div>
   <div class="key"><b>重點:</b>synthesis 合併發現時,必須保留並合併 claim-source mapping,出處不能斷。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;可信來源間數據衝突:標注衝突 + 雙方出處,而非任意挑一個</h2>
+  <h2><span class="num">知識 3</span> &nbsp;可信來源間數據 conflict annotation（衝突標注）+ 雙方出處,而非任意挑一個</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>A 報告（IEA）與 B 報告（BloombergNEF）對同一市場成長率給出 35% 和 28% 的不同數字，synthesis agent 若擅自選擇其中一個，讀者無法知道另一個可信來源的存在，可能做出基於單一視角的錯誤決策。</div>
   <p>當兩個都可信的來源給出<b>不同數字</b>(A 報告說成長 35%、B 報告說 28%),<b>不可以</b>擅自挑一個寫進報告、把另一個丟掉。正確做法是<b>把衝突標注出來</b>,並附上<b>各自的出處</b>,讓讀者(或下游)知道有分歧、各自從何而來。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -244,7 +311,8 @@ growth = {
   </div>
   <div class="key"><b>重點:</b>可信來源衝突 → 標注分歧 + 雙方出處,絕不任意選一個值。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;時間性資料:要求附發佈/採集日期,避免時間差被誤判為矛盾</h2>
+  <h2><span class="num">知識 4</span> &nbsp;時間性資料:要求附發佈/採集日期,避免時間差被誤判為 conflict annotation（衝突標注）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Synthesis agent 將 2024 Q4 的失業率 4.1% 與 2025 Q3 的 3.8% 標記為「數據衝突」，但這兩個數字都正確，只是時間點不同；若結構化輸出強制附上採集日期，就不會發生這種誤判。</div>
   <p>有些「衝突」其實只是<b>時間不同</b>:A 說失業率 4.1%(2024 資料)、B 說 3.8%(2025 資料)——它們不矛盾,只是不同時點。若結構化輸出<b>不帶日期</b>,下游會把時間差<b>誤判成矛盾</b>。所以要求每筆數據都附<b>發佈或採集日期</b>。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -261,7 +329,8 @@ stat = {
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;要求 subagent 輸出結構化 claim-source mapping,讓下游一路保留</h2>
+  <h2><span class="num">技能 1</span> &nbsp;要求 subagent 輸出結構化 claim-source mapping（主張來源對應）,讓下游一路保留 provenance（來源溯源）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Web 搜尋 subagent 找到了關鍵的再生能源投資成長數字，但輸出規格只要求 claim 文字，沒有強制附上 source URL 和原文 excerpt，導致下游 synthesis 在引用時缺乏可追溯的出處。</div>
   <p>知識 1/2 的實作。在 subagent 的輸出規格裡<b>強制</b>每筆發現帶上 source URL、文件名、相關摘錄(excerpt),且要求下游 synthesis <b>原樣保留</b>到最終報告。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -277,6 +346,7 @@ finding = {
   <div class="key"><b>重點:</b>subagent 輸出強制帶 URL/文件名/excerpt；下游綜合原樣保留。</div>
 
   <h2><span class="num">技能 2</span> &nbsp;報告分區:明確區分「已確立」與「有爭議」的發現,保留原始來源定性</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>研究報告將「市場規模超過 500 億（3 個獨立來源確認）」與「年成長率 28-35%（兩份報告數字不同）」並排呈現，讀者無法分辨哪些是共識結論、哪些是仍有爭議的數字，需要明確的分區設計。</div>
   <p>知識 3 的實作。把最終報告用<b>明確區塊</b>切開:一塊放<b>已充分確立</b>的發現,一塊放<b>仍有爭議</b>的發現;並保留各來源<b>原本的定性描述與方法論脈絡</b>(例如「該數字為估計值,樣本 n=200」),不要抹平成斬釘截鐵的結論。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -293,7 +363,8 @@ finding = {
   </div>
   <div class="key"><b>重點:</b>報告分「已確立 / 有爭議」兩區,保留原始來源定性與方法論脈絡。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;文件分析帶著衝突值「明確標注」交出,由 coordinator 決定如何調和</h2>
+  <h2><span class="num">技能 3</span> &nbsp;文件分析帶著 conflict annotation（衝突標注）交出,由 coordinator 決定如何調和</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>文件分析 subagent 發現同一份文件內市占率數字前後不一致，若 subagent 自行選擇一個值上報，coordinator 和最終讀者都不會知道文件本身就有矛盾，而此矛盾本身可能是重要的發現。</div>
   <p>知識 3 的職責劃分。文件分析 subagent <b>不該自己解決衝突</b>。它的工作是把<b>衝突值連同標注一起完整交出</b>,把「要怎麼調和」的決定權留給 <b>coordinator</b>——coordinator 有全局視野,再決定傳給 synthesis 前如何處理。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -310,6 +381,7 @@ finding = {
   <div class="key"><b>重點:</b>analysis subagent 把衝突明確標注後上交,調和決策交給 coordinator。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;要求 subagent 在結構化輸出附上發佈/採集日期</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Subagent 輸出格式沒有強制包含 publication_date 欄位，coordinator 收到兩筆失業率數字（4.1% 和 3.8%）時無法判斷是時序變化還是真正的數據矛盾，需要將日期設為必填欄位並在缺失時拒絕接受輸出。</div>
   <p>知識 4 的實作。把「附日期」寫進 subagent 輸出的<b>硬性規格</b>:每筆數據都要有 publication date 或 data collection date,讓 synthesis 能正確做時序判讀,而非把不同年份的數字當成打架。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -326,6 +398,7 @@ finding = {
   <div class="key"><b>重點:</b>把「附發佈/採集日期」設為輸出硬性必填,支援正確時序判讀。</div>
 
   <h2><span class="num">技能 5</span> &nbsp;不同內容類型用適當形式呈現,別全部塞成同一種格式</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Synthesis agent 將財務數據、新聞摘要和技術規格全部轉成散文格式，導致財務數字難以比較、技術規格難以查找；需要根據內容類型選擇最適合的呈現形式（表格、散文、清單）。</div>
   <p>synthesis 輸出要<b>因內容而異</b>:<b>財務數據用表格</b>、<b>新聞用散文</b>、<b>技術發現用結構化清單</b>。把所有東西硬轉成同一種格式(例如全部寫成散文)會讓財務數字難讀、技術細節難查。讓形式服務內容。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -344,6 +417,77 @@ finding = {
     <h2>整個 Task 5.6 的記憶骨架</h2>
     <p>多代理研究的終點是<span class="num">有引用來源的報告</span>,但出處最容易在<span class="num">摘要步驟流失</span>。對策:每筆發現帶結構化 <span class="num">claim-source mapping</span>(URL/文件名/excerpt),synthesis <span class="num">合併時原樣保留</span>。可信來源<span class="num">數據衝突</span>時要<span class="num">標注雙方出處</span>、不擅自挑值,且把調和決定權留給 coordinator;數據一律附<span class="num">發佈/採集日期</span>,避免時間差被誤判為矛盾。報告分<span class="num">已確立 / 有爭議</span>兩區、保留原始定性,並讓<span class="num">財務用表格、新聞用散文、技術用清單</span>,形式服務內容。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A multi-agent research system produces a report on renewable energy investment trends. The web search subagent finds the claim "Global renewable investment rose 22% in 2025" with a source URL from IEA. The synthesis subagent merges findings from three subagents into a final report. The final report states "Renewable investment grew significantly in 2025" with no source citation. A client challenges the figure and the team cannot locate the original source. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The web search subagent did not verify the IEA figure before including it in its output</li>
+        <li>The synthesis subagent merged findings without preserving the claim-source mappings from subagent outputs, losing the source URL and excerpt during the summarization step</li>
+        <li>The IEA source URL was invalid and could not be accessed by the synthesis subagent</li>
+        <li>The coordinator did not instruct the synthesis subagent to include citations in the final report</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：這是「摘要步驟弄丟 provenance（來源溯源）」的典型案例。Web 搜尋 subagent 確實有來源資訊（IEA URL + excerpt），但 synthesis subagent 在合併多個 subagent 的發現時，只保留了結論文字而丟棄了 claim-source mapping，導致最終報告無法追溯引用來源。正確做法是讓 synthesis 在合併時原樣保留每筆 claim-source 對應。</p>
+          <p>A 錯在哪：問題不在來源的真實性，而在出處資訊在 synthesis 步驟中被丟失。即使 IEA 數字完全正確，沒有保留引用來源的報告仍無法通過引用審查。C 錯在哪：問題發生在 synthesis 合併步驟，與 URL 是否可訪問無關；且 synthesis 應使用 subagent 已提供的 excerpt，不需要重新訪問原始 URL。D 錯在哪：coordinator 的指示是次要因素，根本問題是 synthesis 的資料流設計沒有保留 claim-source mapping；即使有明確指示，若 synthesis 接收到的輸入已丟失出處資訊，它也無法重建。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A research system is synthesizing data on electric vehicle market share. Source A (industry report, 2024-Q4) states 18% EV market share. Source B (government statistics, 2025-Q3) states 23% market share. The synthesis subagent flags this as a "data conflict" and requests coordinator intervention to resolve which number to use. A senior analyst reviewing the system notes this behavior is incorrect. What is the most effective change to address this?</p>
+      <ol class="q-options" type="A">
+        <li>Configure the synthesis subagent to always select the more recent source when values conflict</li>
+        <li>Require subagents to include publication or data collection dates in structured outputs so the synthesis agent can recognize temporal differences as sequential data points rather than conflicts</li>
+        <li>Add a data validation step that rejects any source with values differing by more than 10 percentage points</li>
+        <li>Have the synthesis subagent average conflicting values to produce a single consensus figure</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：18%（2024-Q4）和 23%（2025-Q3）不是衝突，而是時序資料的正常變化——EV 市占率在一年內從 18% 成長到 23%。若每筆數據都附上採集日期，synthesis agent 就能正確判讀這是時序變化，而非需要調和的矛盾。這正是「附發佈/採集日期避免時間差被誤判為矛盾」的核心應用。</p>
+          <p>A 錯在哪：「永遠選最新來源」的啟發法會丟失時序趨勢資訊，且在真正存在方法論差異的衝突中（而非只是時間差）也可能選錯。問題根源是無法區分「時間差」和「真正的數據矛盾」，而不是選哪個數字。C 錯在哪：以差距超過 10% 為標準拒絕來源是任意的閾值，且在動態市場中不同時間點的數字差距可能合理超過這個範圍，這個規則會過度拒絕有效資料。D 錯在哪：對 18% 和 23% 取平均值（20.5%）得到一個在任何時間點都不準確的數字，且會破壞時序趨勢資訊，是最不應該做的處理方式。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A document analysis subagent is processing a market research document. It extracts the "market share" metric and finds two different values within the same document: 34% on page 2 (in an executive summary) and 31% on page 8 (in a detailed methodology section with a note that the figure excludes one geographic region). The subagent selects 34% as the "primary" value and returns only that in its structured output. A downstream coordinator later challenges the figure. What change best addresses this issue?</p>
+      <ol class="q-options" type="A">
+        <li>Instruct the subagent to always prefer the value that appears first in the document</li>
+        <li>Have the subagent complete analysis with conflicting values explicitly annotated — including both values and a note explaining the discrepancy — and pass this to the coordinator to decide how to reconcile before synthesis</li>
+        <li>Have the subagent automatically select the lower value to ensure conservative estimates</li>
+        <li>Add a post-processing validation step that checks all extracted values against an external benchmark database</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：文件分析 subagent 不應自行解決文件內的衝突——它沒有全局視野來決定哪個值更適合最終報告的目的。正確做法是把衝突值連同明確的 conflict annotation（衝突標注）和差異說明完整上交給 coordinator，讓有全局視野的 coordinator 決定如何調和（例如：用於全球市場分析時用 34%，用於區域比較時需澄清 31% 的地理排除範圍）。</p>
+          <p>A 錯在哪：「優先選第一個出現的值」是任意啟發法，且在此案例中選擇了缺乏方法論細節的執行摘要數字（34%），而忽略了有更完整脈絡的方法論說明（31%）；這種做法系統性地偏向較草率的數字。C 錯在哪：永遠選較低值的保守策略會在某些分析場景中產生錯誤結論（如競爭對手市占率分析需要準確值而非保守值），且忽略了兩個值背後不同的方法論意義。D 錯在哪：外部基準資料庫無法解決「同一文件內兩個不同口徑的數字」這種文件內部衝突問題，且增加了不必要的系統複雜度。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability

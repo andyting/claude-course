@@ -224,6 +224,70 @@
   }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -277,8 +341,9 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;工具描述是 LLM 選工具的「主要依據」</h2>
-  <p>模型在決定要呼叫哪個工具時,主要不是看工具名稱、也不是看程式碼,而是讀<b>工具的 description</b>。description 就是模型眼中的「使用說明」。如果你只寫一句草率的描述,模型在多個相似工具之間就會<b>選得不可靠</b>——時對時錯。</p>
+  <h2><span class="num">知識 1</span> &nbsp;tool description（工具描述）是 LLM 選工具的「主要依據」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 在幾個功能相似的工具之間反覆選錯，導致客戶資料被送進退款流程、訂單查詢卻呼叫了帳戶工具，你需要從根本理解 LLM 靠什麼決定呼叫哪個工具。</div>
+  <p>模型在決定要呼叫哪個工具時,主要不是看工具名稱、也不是看程式碼,而是讀<b>工具的 description（工具描述）</b>。description 就是模型眼中的「使用說明」。如果你只寫一句草率的描述,模型在多個相似工具之間就會<b>選得不可靠</b>——時對時錯。</p>
   <p>把它想成超市貨架:標籤寫得清楚,客人一眼挑對;標籤含糊,客人就拿錯。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -298,7 +363,8 @@ lookup_order = {
   </div>
   <div class="key"><b>考點重點:</b>description 是選工具的主要機制;描述太少 = 選擇不可靠。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;好描述要含:輸入格式、範例查詢、邊界與例外</h2>
+  <h2><span class="num">知識 2</span> &nbsp;好描述要含：input format（輸入格式）、example queries（範例查詢）、boundary（邊界）與 edge cases（例外）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的工具描述只寫了一句「查詢訂單」，上線後發現模型在某些特殊格式的訂單編號或「查不到結果」時行為異常，你需要知道一份完整工具描述應該包含哪些元素。</div>
   <p>一個夠用的工具描述不是只寫「這工具做什麼」,還要把模型需要的判斷資訊都補齊:</p>
   <p><b>輸入格式</b>(input format):參數長怎樣、型別是什麼。<br>
   <b>範例查詢</b>(example queries):什麼樣的請求該用它。<br>
@@ -319,8 +385,9 @@ lookup_order = {
   </div>
   <div class="key"><b>重點:</b>輸入格式 + 範例 + 邊界 + 例外,四件齊全,模型才不會猜。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;描述重疊會造成 misrouting(派錯工具)</h2>
-  <p>最經典的反例:兩個工具描述<b>幾乎一模一樣</b>。例如 <code>analyze_content</code> 和 <code>analyze_document</code> 都寫「分析內容」——模型根本分不出差別,只好亂猜,把該給 A 的請求送去 B。這就是 misrouting。</p>
+  <h2><span class="num">知識 3</span> &nbsp;描述重疊會造成 misrouting（派錯工具）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的系統裡有 <code>analyze_content</code> 和 <code>analyze_document</code> 兩個工具，測試時發現 agent 隨機選擇兩者之一，造成網頁內容分析與 PDF 文件分析的結果互換，你需要理解為何描述重疊是 misrouting 的根本原因。</div>
+  <p>最經典的 anti-pattern（反模式）:兩個工具描述<b>幾乎一模一樣</b>。例如 <code>analyze_content</code> 和 <code>analyze_document</code> 都寫「分析內容」——模型根本分不出差別,只好亂猜,把該給 A 的請求送去 B。這就是 misrouting。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ 兩個工具描述近乎相同 → 模型無法區分,派錯</span>
@@ -334,8 +401,9 @@ extract_pdf_datapoints = {<span class="tok-str">"description"</span>: <span clas
   </div>
   <div class="key"><b>重點:</b>描述重疊 = misrouting 的元兇;每個工具的描述要彼此「可區分」。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;system prompt 的措辭也會影響選工具</h2>
-  <p>就算工具描述寫得很好,<b>system prompt 裡某些關鍵字</b>仍可能「蓋過」它,造成意外的工具聯想。例如 system prompt 寫「優先分析文件」,模型可能一看到「文件」兩字就硬選名字含 document 的工具,即使該情境其實該用別的。這叫 keyword-sensitive(對關鍵字敏感)。</p>
+  <h2><span class="num">知識 4</span> &nbsp;system prompt 的措辭也會影響 tool selection（工具選擇）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你把工具描述寫得很清楚，但 agent 在某些情況下仍固執地選同一個工具，翻查後發現 system prompt 裡有「優先分析文件」這樣的措辭，你需要了解 keyword-sensitive（對關鍵字敏感）指令如何干擾工具選擇。</div>
+  <p>就算工具描述寫得很好,<b>system prompt 裡某些關鍵字</b>仍可能「蓋過」它,造成意外的工具聯想。例如 system prompt 寫「優先分析文件」,模型可能一看到「文件」兩字就硬選名字含 document 的工具,即使該情境其實該用別的。這叫 keyword-sensitive（對關鍵字敏感）。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ system prompt 的關鍵字製造了不該有的工具聯想</span>
@@ -349,7 +417,8 @@ system_prompt = <span class="tok-str">"你是研究助理。依使用者需求,�
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;寫出能清楚區分用途、輸入輸出與「何時用」的描述</h2>
+  <h2><span class="num">技能 1</span> &nbsp;寫出能清楚區分用途、輸入輸出與「何時用」的 tool description（工具描述）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你被要求為客服 agent 的三個工具（<code>get_customer</code>、<code>lookup_order</code>、<code>process_refund</code>）撰寫描述，你需要一套實作框架來確保每個描述都能讓模型在退款與帳務情境中正確選擇。</div>
   <p>把知識 1～2 落實:每個工具的描述都要回答四個問題——做什麼、吃什麼輸入、吐什麼輸出、<b>何時該用它而非相似工具</b>。最後一點(versus 相似工具)最關鍵,因為那正是模型最容易混淆的地方。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -364,7 +433,8 @@ system_prompt = <span class="tok-str">"你是研究助理。依使用者需求,�
 }</code></pre>
   </div>
 
-  <h2><span class="num">技能 2</span> &nbsp;改名 + 改描述,消除功能重疊</h2>
+  <h2><span class="num">技能 2</span> &nbsp;改名 + 改描述，消除功能重疊</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>code review 時發現系統中有兩個名稱相近且描述幾乎相同的工具，你需要重構它們的命名與描述來徹底消除 overlap，使模型的工具選擇變得可預期。</div>
   <p>遇到重疊工具,最直接的修法是<b>重新命名並改寫描述</b>,讓名字本身就帶出差異。官方範例:把含糊的 <code>analyze_content</code> 改名為 <code>extract_web_results</code>,描述也改成「網路專用」,一眼就和其他分析工具區隔開。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -380,7 +450,8 @@ extract_web_results = {
   </div>
   <div class="key"><b>重點:</b>改名 + 改描述 = 消除 overlap 的第一招。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;把「通用大工具」拆成「目的明確的小工具」</h2>
+  <h2><span class="num">技能 3</span> &nbsp;把「通用大工具」拆成「目的明確的 purpose-specific 小工具」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 <code>analyze_document</code> 工具被 agent 在萃取數據、摘要和查證三種場景中隨機呼叫，造成輸出格式不一致，你需要將它拆解成有明確 input/output contract（輸入/輸出契約）的子工具。</div>
   <p>一個 <code>analyze_document</code> 想包山包海(萃取數據、摘要、查證),反而讓模型不知何時用。官方做法:<b>拆成三個各有明確輸入/輸出契約</b>的小工具——<code>extract_data_points</code>(取數據)、<code>summarize_content</code>(摘要)、<code>verify_claim_against_source</code>(對原文查證)。各司其職,選擇就明確。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -397,7 +468,8 @@ verify_claim_against_source = {
   </div>
   <div class="key"><b>重點:</b>通用工具拆成 purpose-specific 小工具,每個有明確 input/output 契約。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;審查 system prompt,揪出會覆蓋工具描述的關鍵字指令</h2>
+  <h2><span class="num">技能 4</span> &nbsp;審查 system prompt，揪出 keyword-sensitive（對關鍵字敏感）的指令</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>工具描述重構完成、單元測試全過，但上線後特定流程仍發生 misrouting，你懷疑問題出在 system prompt，需要一套審查清單找出會蓋過工具描述的措辭。</div>
   <p>對應知識 4 的實作:設計完工具後,回頭<b>檢查 system prompt</b>,看有沒有「對關鍵字敏感」的指令會把模型硬導向某工具。把這類措辭改成中性、以任務為準,讓寫得好的工具描述真正發揮作用。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -415,6 +487,77 @@ checks = [
     <h2>整個 Task 2.1 的記憶骨架</h2>
     <p>對 LLM 來說,<span class="num">工具描述就是說明書</span>:寫得太少或彼此<span class="num">重疊</span>就會 misrouting。好描述要含<span class="num">輸入格式、範例、邊界、例外</span>,並講清「何時用它 vs 相似工具」。修法三招:<span class="num">改名改描述</span>消重疊、把通用工具<span class="num">拆成目的明確的小工具</span>、回頭<span class="num">審查 system prompt</span> 避免關鍵字蓋過好描述。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A customer support agent has two tools: <code>get_customer</code> (described as "retrieves customer information") and <code>lookup_order</code> (described as "retrieves order information"). In production, when a user says "I need help with my recent purchase," the agent calls <code>get_customer</code> instead of <code>lookup_order</code> about 40% of the time. Logs confirm the tool descriptions are the only difference between the two tool configs. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The model's context window is too small to process both tool descriptions simultaneously.</li>
+        <li>The two tool descriptions are too similar and lack boundary explanations, so the model cannot reliably distinguish between them.</li>
+        <li>The system prompt is not instructing the model to prefer <code>lookup_order</code> for purchase-related queries.</li>
+        <li>The <code>get_customer</code> tool is listed first in the tools array, causing the model to select it by position bias.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>兩個工具的描述都只寫了籠統的「retrieves X information」，完全沒有說明各自的輸入格式、使用時機或與對方的邊界。模型看不出差異，只能在兩者之間隨機猜測，導致約 40% 的情況選錯。</p>
+          <p>A 錯在哪：兩個工具的描述都很短，context window 完全足夠，問題不在長度。C 錯在哪：system prompt 確實可影響工具選擇，但題目明確說「tool descriptions are the only difference」，且加入 keyword instruction 並非解決描述不清的根本辦法。D 錯在哪：LLM 工具選擇不是依陣列順序，而是依描述內容語義匹配，沒有「位置偏好」機制。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">An architect is redesigning a generic <code>analyze_document</code> tool that currently handles data extraction, summarization, and claim verification all in one. In testing, the agent frequently calls it for the wrong sub-task and produces misformatted outputs. Which change best addresses this issue?</p>
+      <ol class="q-options" type="A">
+        <li>Add a <code>mode</code> parameter to <code>analyze_document</code> with values "extract", "summarize", and "verify" so the agent can specify intent.</li>
+        <li>Improve the single tool's description to list all three capabilities with detailed examples of each use case.</li>
+        <li>Split <code>analyze_document</code> into three purpose-specific tools — <code>extract_data_points</code>, <code>summarize_content</code>, and <code>verify_claim_against_source</code> — each with a clear input/output contract.</li>
+        <li>Add a routing layer in the system prompt that maps user intent keywords to the correct tool mode.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>通用大工具（generic tool）包山包海是根本問題。把它拆成三個 purpose-specific 小工具，每個都有明確的 input/output contract，模型就能根據任務需求精確選擇，輸出格式也自然對應。這正是官方範例中的推薦做法。</p>
+          <p>A 錯在哪：加 mode 參數只是把問題從「選哪個工具」變成「填什麼 mode」，模型仍然需要判斷正確的 mode，沒有解決根本的歧義問題。B 錯在哪：在一個工具裡把三種用途都列出來，反而讓描述更長、更難閱讀，模型的決策複雜度不降反升。D 錯在哪：system prompt routing 是 keyword-sensitive 的 anti-pattern，容易被用戶措辭影響，且維護成本高，不如在工具介面層解決問題。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">After an architect refactors all tool descriptions to be specific and non-overlapping, a new issue emerges: whenever the system prompt contains the phrase "always analyze the customer's document first," the agent calls <code>analyze_document</code> even for queries that only require looking up an order status. Tool descriptions are correct. What is the most effective approach to fix this?</p>
+      <ol class="q-options" type="A">
+        <li>Remove <code>analyze_document</code> from the tool list for order-status queries and add it back only for document-related queries.</li>
+        <li>Rewrite the system prompt to use neutral, task-goal-oriented language instead of keyword instructions that reference specific tool names or actions.</li>
+        <li>Add a negative example to <code>analyze_document</code>'s description that explicitly says "do not use for order status lookups."</li>
+        <li>Increase the temperature setting so the model is less likely to rigidly follow the system prompt instruction.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>System prompt 裡的「always analyze the customer's document first」是 keyword-sensitive 指令——模型一看到「document」或「analyze」就被觸發，蓋過了工具描述的判斷。正確解法是把 system prompt 改成中性的任務目標描述（如「根據使用者需求選擇最合適的工具」），讓工具描述自己發揮作用。</p>
+          <p>A 錯在哪：動態調整工具清單在技術上可行但架構複雜，且 root cause 是 system prompt 措辭，不是工具清單問題。C 錯在哪：在工具描述加排除說明是好習慣，但當 system prompt 強制導向某工具時，工具描述的 negative example 難以抵抗，治標不治本。D 錯在哪：調高 temperature 增加隨機性，會讓整體工具選擇更不穩定，是完全錯誤的方向。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 2: Tool Design &amp; MCP Integration

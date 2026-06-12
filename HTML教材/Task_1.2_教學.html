@@ -222,6 +222,70 @@
   }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -275,7 +339,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;Hub-and-spoke:coordinator 掌管所有跨 subagent 的溝通、錯誤處理與路由</h2>
+  <h2><span class="num">知識 1</span> &nbsp;Hub-and-spoke:coordinator（協調者）掌管所有跨 subagent（子代理）的溝通、錯誤處理與路由</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>多代理系統上線後難以追蹤資料流向，某個 subagent 回傳錯誤卻不知道是哪個環節出問題，因為各代理彼此直接傳訊、沒有統一的觀察點。</div>
   <p>架構長得像腳踏車輪:中間的軸心(hub)是 coordinator,周圍的輪輻(spoke)是各個 subagent。重點是 <b>subagent 彼此不直接講話</b>——A 要把結果給 B,不是 A 傳給 B,而是 A → coordinator → B。所有的溝通、錯誤處理、資訊路由,全部集中在 coordinator 這個軸心。</p>
   <p>好處:單一進出點 → 容易觀察(observability)、錯誤統一處理、資訊流可控。壞處若違反:讓 subagent 互相直連,系統會變成一團亂線,沒人說得清資料怎麼流的。</p>
   <div class="codeblock">
@@ -298,6 +363,7 @@
   <div class="key"><b>考點重點:</b>中樞輻條 = 一切經過 coordinator;subagent 不互相直連。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;subagent 的 context 是隔離的——不會自動繼承 coordinator 的對話歷史</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你呼叫分析 subagent 時只傳了「請分析剛才搜尋到的資料」，結果 subagent 回傳空洞的答案，因為它根本看不到 coordinator 之前的搜尋結果。</div>
   <p>這是最常考、也最容易踩雷的一條。subagent 被叫出來時,<b>看不到 coordinator 之前的對話</b>。它沒有自動繼承任何歷史,也不會跟其他 subagent 共享記憶。你想讓它知道什麼,就得明白寫進它的 prompt 裡。</p>
   <p>把它想成你找一位外部顧問:他完全不知道你公司內部之前討論過什麼,你得把背景整理好交給他。(此點與 Task 1.3「context 必須在 prompt 裡明白給」直接呼應。)</p>
   <div class="codeblock">
@@ -317,8 +383,9 @@
   </div>
   <div class="key"><b>一句話記住:</b>subagent 的 context 是隔離的——背景要手動餵,不會自動繼承。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;coordinator 的職責:拆任務、派工、匯整結果、決定要叫哪些 subagent</h2>
-  <p>coordinator 不只是傳話的,它有四項核心職責:<b>task decomposition</b>(把大問題拆成子任務)、<b>delegation</b>(把子任務派給合適的 subagent)、<b>result aggregation</b>(把各方結果匯整成完整答案)、以及<b>依查詢複雜度決定要叫哪些 subagent</b>——簡單的問題不必動用整條 pipeline,複雜的才全員出動。</p>
+  <h2><span class="num">知識 3</span> &nbsp;coordinator 的職責:task decomposition（拆任務）、派工、匯整結果、決定要叫哪些 subagent</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>簡單的查詢也走完整條 pipeline（搜尋→分析→綜合），浪費大量 token 與時間，系統回應速度遠低於預期。</div>
+  <p>coordinator 不只是傳話的,它有四項核心職責:<b>task decomposition</b>（任務分解，把大問題拆成子任務）、<b>delegation</b>(把子任務派給合適的 subagent)、<b>result aggregation</b>(把各方結果匯整成完整答案)、以及<b>依查詢複雜度決定要叫哪些 subagent</b>——簡單的問題不必動用整條 pipeline,複雜的才全員出動。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-kw">class</span> <span class="tok-fn">Coordinator</span>:
@@ -337,6 +404,7 @@
   <div class="key"><b>重點:</b>coordinator = 拆任務 + 派工 + 匯整 + 依複雜度選人。</div>
 
   <h2><span class="num">知識 4</span> &nbsp;風險:任務拆得太細太窄,反而漏掉廣泛主題的涵蓋面</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>研究報告產出後客戶反映重大面向（如政策、基礎建設）完全沒有涵蓋，但每個 subagent 各自的子題都查得很細，問題出在任務拆解時切得太窄。</div>
   <p>拆任務不是拆越細越好。如果 coordinator 把一個廣泛的研究題目<b>拆得太窄</b>,每個 subagent 只盯著一個小角落,結果就是「每個點都查了,但整體主題沒查全」——出現涵蓋面缺口(incomplete coverage)。</p>
   <p>例如研究「2025 電動車趨勢」,若只拆成「查特斯拉股價」「查比亞迪銷量」兩個極窄子題,就會漏掉電池技術、政策補貼、充電基建等同樣重要的面向。</p>
   <div class="codeblock">
@@ -359,6 +427,7 @@ subtasks = [
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;coordinator 動態選人,而非每次都跑完整 pipeline</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>使用者詢問一個簡單的事實問題，系統卻觸發了完整的搜尋→分析→綜合 pipeline，導致延遲數秒才回覆，嚴重影響使用體驗。</div>
   <p>這是知識 3 的實作版。好的 coordinator 會<b>先分析這個 query 需要什麼</b>,再動態挑出該叫的 subagent——而不是不管什麼問題都把整條 pipeline(搜尋→分析→綜合)全跑一遍。簡單的事實查詢可能只需要 search;複雜的研究才動用全員。這省時、省 token,也降低出錯面。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -376,6 +445,7 @@ subtasks = [
   </div>
 
   <h2><span class="num">技能 2</span> &nbsp;切分研究範圍,讓 subagent 不重工</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>多個搜尋 subagent 各自回傳了大量重複的資料，最終報告中有三分之一內容高度雷同，浪費了 token 預算，也增加了後續整合的難度。</div>
   <p>把研究範圍切給不同 subagent 時,要<b>分清楚各自負責的子題或來源類型</b>,避免兩個 subagent 查到同一批東西(重工浪費)。常見做法:依「子主題」切(A 查電池、B 查政策),或依「來源類型」切(A 查學術論文、B 查新聞、C 查官方數據)。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -396,8 +466,9 @@ by_source = {
   </div>
   <div class="key"><b>重點:</b>明確切分子題或來源 → 最小化重工。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;迭代精修:coordinator 評估綜合結果、找缺口、再派工、再綜合</h2>
-  <p>不是「跑一次就交差」。好的 coordinator 會看 synthesis 的產出<b>有沒有缺口</b>,有的話用更精準的 query 重新派給 search / analysis subagent,補完後再叫 synthesis 重做——直到涵蓋面夠了才收。這是一個 refinement loop(精修迴圈)。</p>
+  <h2><span class="num">技能 3</span> &nbsp;iteration（迭代精修）:coordinator 評估綜合結果、找缺口、再派工、再綜合</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>研究系統跑完一輪後產出的報告明顯遺漏了幾個重要子題，但因為沒有評估機制，系統直接把這份不完整的報告交給使用者，客戶滿意度很低。</div>
+  <p>不是「跑一次就交差」。好的 coordinator 會看 synthesis 的產出<b>有沒有缺口</b>,有的話用更精準的 query 重新派給 search / analysis subagent,補完後再叫 synthesis 重做——直到涵蓋面夠了才收。這是一個 refinement loop（迭代精修迴圈）。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-kw">def</span> <span class="tok-fn">refine_until_complete</span>(query, max_rounds=<span class="tok-num">3</span>):
@@ -414,7 +485,8 @@ by_source = {
   <div class="key"><b>重點:</b>評估缺口 → 針對性重派 → 重綜合,迴圈到足夠為止。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;所有 subagent 溝通都路由經過 coordinator</h2>
-  <p>這是知識 1 的實作紀律。把<b>每一次</b>對 subagent 的呼叫與回收都集中在 coordinator,好處有三:統一觀察(observability,能看到完整資料流)、一致的錯誤處理(在一處 try/except)、可控的資訊流(誰拿到什麼由中樞決定)。絕不讓 subagent 私下互傳。</p>
+  <div class="trigger"><b>遇到這個問題時用到</b>生產環境中某個 subagent 靜默失敗，整個系統沒有任何錯誤日誌，因為那個 subagent 是直接被另一個 subagent 呼叫的，繞過了 coordinator 的統一錯誤處理。</div>
+  <p>這是知識 1 的實作紀律。把<b>每一次</b>對 subagent 的呼叫與回收都集中在 coordinator（協調者），好處有三:統一觀察(observability,能看到完整資料流)、一致的錯誤處理(在一處 try/except)、可控的資訊流（pipeline，管線）(誰拿到什麼由中樞決定)。絕不讓 subagent 私下互傳。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-kw">class</span> <span class="tok-fn">Coordinator</span>:
@@ -435,6 +507,77 @@ by_source = {
     <h2>整個 Task 1.2 的記憶骨架</h2>
     <p>架構是 <span class="num">hub-and-spoke</span>:coordinator 當軸心,subagent 是輪輻,<span class="num">彼此不直連</span>,一切溝通/錯誤/路由都經中樞。subagent 的 <span class="num">context 是隔離的</span>,背景要手動餵。coordinator 負責<span class="num">拆任務、派工、匯整、依複雜度選人</span>,並動態選人而非每次跑完整 pipeline。拆任務別<span class="num">太窄</span>(會漏涵蓋面),要切分範圍<span class="num">避免重工</span>,並用<span class="num">迭代精修</span>補缺口,直到夠了才收。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A multi-agent research system is deployed in production. Logs show that when a search subagent encounters an error, the failure is never logged at the coordinator level, and subsequent subagents receive no signal that data is missing — they silently produce incomplete synthesis. Which architectural issue is most likely the root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The coordinator's system prompt does not explicitly instruct it to check for errors before proceeding.</li>
+        <li>Subagents are communicating directly with each other instead of routing all results through the coordinator, bypassing centralized error handling.</li>
+        <li>The synthesis subagent lacks access to the coordinator's conversation history and therefore cannot detect gaps.</li>
+        <li>The search subagent's <code>allowedTools</code> list does not include an error-reporting tool.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>Hub-and-spoke 架構的核心原則是：所有 subagent 之間的溝通必須路由經過 coordinator，由 coordinator 統一處理錯誤、記錄日誌、控制資訊流。如果 subagent 繞過 coordinator 直接互傳，錯誤就無法在中樞被截獲，後續 subagent 也不會知道資料缺失。</p>
+          <p>A 錯在哪：prompt 提示屬於「建議」層級，無法保證錯誤一定被處理；根本問題是架構設計，不是 prompt 措辭。C 錯在哪：synthesis subagent 的 context 隔離是已知設計，它不應該依賴 coordinator 的對話歷史來偵測缺口——正確做法是 coordinator 在傳遞資料時就標記狀態。D 錯在哪：錯誤報告不是靠 subagent 自己呼叫工具，而是透過 coordinator 統一的 try/except 和日誌機制來處理。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A research coordinator receives a broad query: "Analyze the global EV market in 2025." It decomposes the task into two subtasks: "Find Tesla stock price" and "Find BYD sales numbers." After synthesis, the client rejects the report, saying it completely omits battery technology trends, government subsidies, and charging infrastructure. What is the most likely root cause of this coverage failure?</p>
+      <ol class="q-options" type="A">
+        <li>The synthesis subagent did not have access to web search tools and could not fill in the missing topics independently.</li>
+        <li>The coordinator's iterative refinement loop ran only once instead of the required three rounds.</li>
+        <li>The coordinator decomposed the broad topic into overly narrow subtasks, causing incomplete coverage of major aspects.</li>
+        <li>The subagents were invoked sequentially rather than in parallel, reducing the breadth of research.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>拆任務的目的是讓每個 subagent 負責一塊清楚定義的範圍，但這個範圍必須足以涵蓋主題的主要面向。只拆成「特斯拉股價」和「比亞迪銷量」是極度窄化的子題，完全無法代表「全球電動車市場」這個廣泛研究議題，自然遺漏了電池技術、政策補貼、充電基建等同等重要的面向。</p>
+          <p>A 錯在哪：synthesis subagent 的職責是整合已有資料，而非主動補充研究；根本問題在於前端的任務拆解太窄。B 錯在哪：迭代精修迴圈能補充缺口，但前提是要有評估機制去「發現」缺口；此處問題在於拆解階段就已漏掉主要面向，而非精修次數不足。D 錯在哪：並行 vs. 序列影響的是速度，不影響涵蓋廣度；即使並行執行兩個極窄的子題，結果仍然不完整。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A coordinator invokes an analysis subagent with the prompt: "Please analyze the search results found earlier and extract key insights." The subagent returns a generic response that does not address the actual research topic. What is the most effective change to fix this?</p>
+      <ol class="q-options" type="A">
+        <li>Add a line to the coordinator's system prompt reminding it to always pass context to subagents.</li>
+        <li>Grant the analysis subagent access to the coordinator's conversation history via a shared memory tool.</li>
+        <li>Include the complete search results directly in the analysis subagent's prompt so it has explicit context to work from.</li>
+        <li>Switch from a hub-and-spoke architecture to a peer-to-peer architecture so the analysis subagent can directly query the search subagent.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>Subagent 的 context 是完全隔離的：它看不到 coordinator 的對話歷史，也看不到其他 subagent 找到的資料。「剛才搜尋到的結果」對這個 subagent 來說是一片空白。正確做法是把搜尋結果的完整內容直接寫進這次呼叫的 prompt 裡，讓 subagent 從明確給定的資料開始工作。</p>
+          <p>A 錯在哪：修改 coordinator 的 system prompt 是「提示式」改法，屬於建議層級；根本問題是這次呼叫的 prompt 裡沒有資料，需要在程式層修正傳遞邏輯。B 錯在哪：subagent 在設計上刻意隔離 context，讓它透過工具取用 coordinator 的對話歷史會打破隔離原則，且帶入大量不相關的歷史訊息，效果反而更差。D 錯在哪：peer-to-peer 架構違反 hub-and-spoke 原則，會導致資料流不可觀察、錯誤散落各處，是典型的反模式。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration

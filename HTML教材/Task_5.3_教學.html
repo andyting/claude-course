@@ -143,6 +143,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -192,6 +256,7 @@
   <p class="section-kicker">Knowledge of · 知識點</p>
 
   <h2><span class="num">知識 1</span> &nbsp;結構化錯誤 context 讓 coordinator 能做聰明的恢復決策</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Web 搜尋 subagent 逾時後只回傳 {"status": "error"}，coordinator 不知道是否可以重試、嘗試了哪個查詢、還是有部分結果可用，最終放棄整個研究任務，其實只需要換一條路就能完成。</div>
   <p>當 web 搜尋 subagent 失敗,它回給 coordinator 的不該只是「失敗」二字。理想的<b>結構化錯誤 context</b> 含四項:<b>失敗類型</b>、<b>試過的查詢</b>、<b>已拿到的部分結果</b>、<b>可能的替代方案</b>。有了這些,coordinator 才能判斷該重試、換來源、還是先用部分結果。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -208,6 +273,7 @@ search_error = {
   <div class="key"><b>考點重點:</b>結構化錯誤 = 失敗類型 + 試過什麼 + 部分結果 + 替代方案 → 讓 coordinator 能恢復。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;區分「存取失敗」與「合法的空結果」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Coordinator 對一個「查無相符」的合法空結果反覆重試三次，浪費了大量 API 呼叫與時間，因為回傳格式與逾時失敗完全相同，coordinator 無法判斷是否值得重試。</div>
   <p>兩種情況長得像、意義完全不同:<b>存取失敗</b>(逾時、連線斷)是「沒查成功」,coordinator 可能要<b>重試</b>;<b>合法空結果</b>(查詢成功但真的沒有相符)是「查成功、結果就是空」,重試也沒用。把這兩者混為一談,coordinator 就會做錯決定(該重試的不重試、不該重試的狂重試)。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -227,6 +293,7 @@ search_error = {
   <div class="key"><b>重點:</b>存取失敗(可重試)≠ 合法空結果(查成功就是空)。回報時要分清楚。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;籠統的錯誤狀態會把寶貴 context 藏起來</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Subagent 統一回傳 "search unavailable" 作為所有錯誤的通用狀態，coordinator 面對這個訊息完全不知道是逾時、被限流、還是查詢本身有問題，只能盲目重試或放棄，無法做出有依據的恢復決策。</div>
   <p>回一句 <code>"search unavailable"</code> 看似簡潔,實則把所有有用資訊都<b>藏起來</b>了——是逾時還是限流?試過哪個查詢?有沒有拿到一半?coordinator 什麼都不知道,只能放棄或盲目重試。籠統狀態 = 把恢復所需的線索全砍掉。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -244,7 +311,8 @@ search_error = {
   </div>
   <div class="key"><b>重點:</b>「search unavailable」這類籠統狀態藏掉 context;要揭露失敗細節。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;兩個反模式:默默吞錯 與 單一失敗就終止整個流程</h2>
+  <h2><span class="num">知識 4</span> &nbsp;兩個 anti-pattern（反模式）:默默吞錯 與 單一失敗就終止整個流程</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>研究系統中，專利資料庫 subagent 逾時後用 except: return [] 默默回傳空結果，最終報告完全沒有提及專利分布，但讀者以為這個部分已被研究，實際上是一個隱藏的資料缺口。</div>
   <p>兩個極端都錯。<b>默默吞錯</b>:把錯誤當空結果回成「成功」——coordinator 以為這塊查過了沒東西,最終報告就缺了一塊還不自知。<b>單一失敗終止全流程</b>:一個 subagent 逾時就讓整個研究崩潰——其他 subagent 明明成功了,成果全丟。正解在兩者之間:回報錯誤、但讓流程帶著缺口繼續。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -264,7 +332,8 @@ search_error = {
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;回傳含失敗類型/嘗試/部分結果/替代方案的結構化錯誤</h2>
+  <h2><span class="num">技能 1</span> &nbsp;回傳含失敗類型/嘗試/部分結果/替代方案的結構化 error propagation（錯誤傳播）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>文件分析 subagent 在只讀取部分頁面後失敗，若只回傳 error，coordinator 不知道已解析的段落可以被利用，也不知道可以改派 web 搜尋補齊缺漏，導致整個研究任務無謂地重來。</div>
   <p>知識 1 的實作。把 subagent 的錯誤回傳統一成一個結構,四項齊全,coordinator 接到就能恢復。下面是文件分析 subagent 的範例。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -283,6 +352,7 @@ search_error = {
   <div class="key"><b>重點:</b>錯誤回傳四件套:failure_type / attempted / partial_results / alternatives。</div>
 
   <h2><span class="num">技能 2</span> &nbsp;在錯誤回報中區分存取失敗與合法空結果</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Coordinator 的重試邏輯錯誤地對「查無相符」的結果進行三次重試，浪費了 API 配額，同時對真正的逾時失敗沒有重試，導致研究報告在可恢復的情況下出現不必要的缺口。</div>
   <p>知識 2 的實作。讓回報明確標出是哪一種,coordinator 才能對「逾時」決定重試、對「查無相符」直接接受。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -296,7 +366,8 @@ search_error = {
   </div>
   <div class="key"><b>重點:</b>回報要讓 coordinator 一眼分清:空結果→接受標注,存取失敗→考慮重試。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;subagent 先本地恢復暫時性失敗,只把解決不了的往上拋</h2>
+  <h2><span class="num">技能 3</span> &nbsp;subagent 先本地恢復 transient failure（暫時性失敗）,只把解決不了的往上拋</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Web 搜尋 subagent 遇到短暫限流（HTTP 429）後立即回報錯誤給 coordinator，coordinator 因此啟動複雜的備援流程，但其實等待 30 秒後直接重試就能成功，讓不必要的複雜度進入了整個研究系統。</div>
   <p>暫時性失敗(短暫逾時、限流)應該由 subagent <b>自己先試著恢復</b>(重試幾次、退避),別一遇到就丟給 coordinator。只有<b>本地真的救不回來</b>時,才往上傳——而且要附上「試過什麼」與「部分結果」,coordinator 才能接手。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -314,6 +385,7 @@ search_error = {
   <div class="key"><b>重點:</b>暫時性失敗 subagent 先本地恢復;救不回才上拋,並帶 attempted + partial。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;綜合輸出加「coverage 註記」,標明哪些有充分支持、哪些有缺口</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>研究報告因專利資料庫逾時而缺少專利分布章節，但最終報告呈現得像一份完整研究，讀者沒有任何方式知道哪些部分的結論是基於不完整的資料，導致決策者基於有缺口的資訊做出判斷。</div>
   <p>當部分來源失敗、研究帶著缺口完成,synthesis subagent 的報告不能假裝完整。要加上 <b>coverage 註記</b>:哪些結論有充分來源支持、哪些主題因來源不可用而有缺口。讓最終讀者知道報告的可信邊界在哪。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -334,6 +406,77 @@ search_error = {
     <h2>整個 Task 5.3 的記憶骨架</h2>
     <p>多代理研究裡,subagent 出錯要回<span class="num">結構化錯誤</span>(失敗類型/試過什麼/部分結果/替代方案),讓 coordinator 能聰明恢復;要分清<span class="num">存取失敗</span>(可重試)與<span class="num">合法空結果</span>(查成功就是空)。<span class="num">籠統狀態</span>(「search unavailable」)會藏掉 context。兩大反模式:<span class="num">默默吞錯</span>(藏缺口)與<span class="num">單點失敗炸全流程</span>(丟成果)都要避免。暫時性失敗 subagent <span class="num">先本地恢復</span>、救不回才上拋;最後 synthesis 報告加 <span class="num">coverage 註記</span>,誠實標明哪些有支持、哪些有缺口。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A web search subagent in a multi-agent research system returns <code>{"status": "error"}</code> after timing out on a query about solid-state battery production. The coordinator receives this response and has no way to determine whether it should retry, switch to a different source, or use partial data. As a result, it abandons the entire battery research task. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The coordinator's retry logic has a bug that prevents it from handling error states</li>
+        <li>The subagent returned a generic error status without structured context — no failure type, no attempted query, no partial results, no alternative approaches</li>
+        <li>The coordinator needs a larger context window to process error states from multiple subagents</li>
+        <li>The web search API's timeout value is too low and should be increased to prevent the error</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：問題的根源在於 subagent 回傳了籠統的錯誤狀態，沒有提供 coordinator 做決策所需的資訊。正確的結構化錯誤應包含：failure_type（逾時）、attempted_query（試過的查詢）、partial_results（已取得的部分結果）、alternatives（替代方案）。有了這些，coordinator 才能做出聰明的恢復決策。</p>
+          <p>A 錯在哪：coordinator 的重試邏輯問題是次要的，即使有完善的重試邏輯，若 subagent 不提供結構化錯誤資訊，coordinator 仍無法判斷是否值得重試。C 錯在哪：context window 大小與處理錯誤狀態的能力無關，問題在於錯誤資訊本身的品質不足，而非無法容納更多資訊。D 錯在哪：調整 timeout 值可以減少逾時發生，但沒有解決「逾時發生時要如何優雅地回報並恢復」的核心問題。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A research system's coordinator receives two different responses from the same web search subagent on different queries: Query A returns <code>{"status": "ok", "results": []}</code> and Query B returns <code>{"status": "ok", "results": []}</code>. For Query A, no patents exist for this specific niche technology (a true empty result). For Query B, the search API timed out internally and silently returned empty. The coordinator treats both identically and does not retry Query B. What is the most effective change to address this?</p>
+      <ol class="q-options" type="A">
+        <li>Always retry every empty result three times before accepting it as a valid empty result</li>
+        <li>Change the subagent to distinguish access failures (timeout, connection error) from valid empty results in its return format, so the coordinator can make appropriate retry decisions</li>
+        <li>Have the coordinator check the results length and retry any query that returns fewer than 5 results</li>
+        <li>Implement a global retry policy at the coordinator level that retries all subagent calls with exponential backoff</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：問題的根源是 subagent 沒有區分「存取失敗」和「合法空結果」。修改 subagent 讓它在存取失敗時回傳 {"status": "error", "failure_type": "timeout"}，在合法空結果時回傳 {"status": "ok", "results": []}，coordinator 就能對逾時失敗決定是否重試，對真正的空結果直接接受並標注缺口。</p>
+          <p>A 錯在哪：對所有空結果都重試是浪費 API 資源，且可能導致對真正查無資料的查詢進行不必要的重複呼叫，同時在高負載情況下加重系統壓力。C 錯在哪：用結果數量少於 5 筆作為重試觸發條件完全不合理，有些合法的研究結果就是只有 1-2 筆，這個條件會產生大量無效重試。D 錯在哪：在 coordinator 層做全局重試無法解決「無法區分兩種空回應」的根本問題，反而會對合法空結果也進行不必要的重試。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A multi-agent research system completes a report on battery market trends. The patent database subagent timed out during the run, so the coordinator continued with three other successful subagents. The final synthesis report presents findings as complete without any indication that patent data is missing. A reader later acts on the report's conclusion about competitive positioning, unaware that the patent landscape section is entirely absent. What change best addresses this issue?</p>
+      <ol class="q-options" type="A">
+        <li>Halt the entire research workflow whenever any subagent fails to ensure only complete reports are delivered</li>
+        <li>Add a retry mechanism that blocks report generation until all subagents succeed</li>
+        <li>Have the synthesis subagent include coverage annotations in its output — marking which findings are well-supported versus which topic areas have gaps due to unavailable sources</li>
+        <li>Log the subagent failure in a separate monitoring system so engineers can manually add the missing section later</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：當部分來源失敗時，研究系統應帶著缺口繼續完成，但 synthesis 報告必須加上 coverage 註記，明確標示哪些發現有充分來源支持（well-supported），哪些主題因來源不可用而有缺口（gaps）。這讓讀者能理解報告的可信邊界，做出正確的資訊解讀。</p>
+          <p>A 錯在哪：在任一 subagent 失敗時終止整個流程，會讓其他已成功 subagent 的成果完全白費，這正是「單一失敗炸全流程」的 anti-pattern（反模式），應該避免。B 錯在哪：阻塞式等待所有 subagent 成功會讓研究流程的完成時間無法預期，且當某個資料來源長期不可用時，研究工作將永遠無法完成。D 錯在哪：記錄在監控系統並依賴人工後補，在時效要求高的情境下不可行，且讀者在工程師補上缺口前仍可能基於不完整報告做出決策。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability

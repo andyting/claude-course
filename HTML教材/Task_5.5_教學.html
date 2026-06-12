@@ -143,6 +143,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -192,6 +256,7 @@
   <p class="section-kicker">Knowledge of · 知識點</p>
 
   <h2><span class="num">知識 1</span> &nbsp;整體準確率(如 97%)會掩蓋特定文件類型或欄位的爛表現</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>系統整體準確率達 97% 而開啟全自動化抽取，但隨後發現手寫表單的「到期日」欄位準確率只有 70%，每天產生數百筆錯誤記錄，卻在整體指標中被高量的電子發票成功案例所掩蓋。</div>
   <p>最危險的陷阱:看到「整體 97%」就放心自動化。但這個平均可能藏著:發票抽得很準(99%)、但<b>手寫表單只有 70%</b>;或「金額」欄很準、但<b>「到期日」欄常錯</b>。平均把局部的災難稀釋掉了。自動化前必須<b>拆開看</b>。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -205,7 +270,8 @@
   </div>
   <div class="key"><b>考點重點:</b>整體準確率是平均,會掩蓋特定文件類型/欄位的低表現。自動化前要拆開驗。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;分層隨機抽樣:量測高信心抽取的錯誤率、偵測新型錯誤</h2>
+  <h2><span class="num">知識 2</span> &nbsp;分層隨機抽樣:量測高 confidence calibration（信心校準）抽取的錯誤率、偵測新型錯誤</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>系統在一個月內開始出現新型供應商發票格式的抽取錯誤率上升，但因為這類文件在總量中佔比很小，整體指標沒有觸發警報；若有分層抽樣機制，這個新格式的問題可以在早期被偵測到。</div>
   <p>就算抽取被標為「高信心」,也不能完全不查。用<b>分層隨機抽樣</b>(按文件類型/欄位分層,各層隨機抽幾筆)持續量測高信心抽取的真實錯誤率,並<b>偵測新型錯誤模式</b>(例如新格式的供應商發票開始出錯)。分層的重點是:每一層都被抽到,不會因為樣本都集中在某類而漏看其他類。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -218,7 +284,8 @@
   </div>
   <div class="key"><b>重點:</b>分層隨機抽樣 → 每層都覆蓋,持續量錯誤率 + 抓新型錯誤,不被高信心標籤蒙蔽。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;欄位級信心分數,用標註驗證集校準,以分配複核注意力</h2>
+  <h2><span class="num">知識 3</span> &nbsp;欄位級 confidence calibration（信心校準）分數,用標註驗證集校準,以分配 human review（人工審查）注意力</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>系統以整份文件的信心分數路由複核，導致金額欄位信心低（實際準確）與合約條款信心高（實際常錯）的情況被錯誤路由，需要欄位級的信心分數才能準確分配複核資源。</div>
   <p>信心分數要做到<b>欄位級</b>(每個抽出欄位各一個分數),而不是整份文件一個分數。而且這個分數要用<b>標註驗證集校準</b>——所謂校準是指:「模型說 0.9 信心」的那批,實際正確率真的接近 90%。校準好的分數才能可靠地拿來<b>路由複核注意力</b>(分數低的優先給人看)。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -232,6 +299,7 @@
   <div class="key"><b>重點:</b>欄位級信心 + 用標註集校準(0.9 那批實際也要 ≈90%)→ 才能可靠路由複核。</div>
 
   <h2><span class="num">知識 4</span> &nbsp;自動化高信心抽取前,先按文件類型與欄位區段驗證準確度</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>財務部門要求將抽取系統擴展到涵蓋手寫採購單，在驗證階段若沒有按文件類型 × 欄位區段逐格驗證，可能直接將表現不佳的子集納入自動化，造成財務數字系統性錯誤。</div>
   <p>承知識 1:在「減少人工複核 / 開啟高信心自動化」<b>之前</b>,必須先確認<b>每一個文件類型、每一個欄位區段</b>的準確度都達標。只要有一個區段不及格(例如手寫表單的金額欄),那個區段就<b>不能</b>納入自動化,要保留人工複核。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -248,6 +316,7 @@
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;對高信心抽取做分層隨機抽樣,持續量錯誤率、偵測新模式</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>抽取系統上線後沒有持續監控，三個月後才發現一種新格式的合約文件抽取錯誤率持續偏高；若有每日分層抽樣 QA 管線，這個問題在第一週就應該被偵測到並觸發告警。</div>
   <p>知識 2 的實作。建立一條<b>持續</b>的分層抽樣管線:即使抽取已標高信心,仍按層抽樣送人工比對真值,長期監看錯誤率與新冒出的錯誤型態。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -260,7 +329,8 @@
   </div>
   <div class="key"><b>重點:</b>持續性分層抽樣 QA：量錯誤率 + 抓 drift/新型錯誤。</div>
 
-  <h2><span class="num">技能 2</span> &nbsp;按文件類型與欄位分析準確度,確認各區段一致後才減少人工複核</h2>
+  <h2><span class="num">技能 2</span> &nbsp;按文件類型與欄位分析準確度,確認各區段一致後才減少 human review（人工審查）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>管理層要求在整體準確率達 97% 後立即將人工複核比例從 100% 降至 20%，工程師需要先用 (doc_type × field) 分層準確度分析來說明某些區段還未達標，不能全面降低複核比例。</div>
   <p>知識 1/4 的實作。在<b>減少人工複核之前</b>,把準確度<b>按文件類型 × 欄位</b>拆開算,確認<b>每個區段</b>都穩定達標,而不是只看總平均。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -275,6 +345,7 @@
   <div class="key"><b>重點:</b>按 (文件類型 × 欄位) 拆算準確度,各區段一致達標才放手減人工。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;讓 model 輸出欄位級信心分數,用標註驗證集校準複核門檻</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>抽取系統以 0.8 作為全域複核門檻，但實際上模型宣稱 0.8 的那批發票，「到期日」欄位的真實準確率只有 72%，需要用標註驗證集重新校準各欄位的門檻，確保高信心標籤與實際準確率相符。</div>
   <p>知識 3 的實作。在抽取的 JSON schema 裡<b>讓每個欄位都帶一個 confidence</b>,再用<b>標註驗證集</b>找出一個能可靠分流的<b>複核門檻</b>(例如校準後 < 0.92 才送人工)。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -292,7 +363,8 @@ THRESHOLD = <span class="tok-fn">calibrate_threshold</span>(validation_set, targ
   </div>
   <div class="key"><b>重點:</b>欄位級 confidence 寫進 schema；用標註集校準出複核門檻來分流。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;把「低信心」或「來源矛盾/模糊」的抽取送人工,優先分配有限的複核量能</h2>
+  <h2><span class="num">技能 4</span> &nbsp;把「低信心」或「來源矛盾/模糊」的抽取送 human review（人工審查）,優先分配有限的複核量能</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>複核團隊每天只能審查 500 份文件，但系統每天產生 5,000 份抽取結果，需要一個智慧路由機制，把有限的人力集中在真正有風險的案件（低信心 + 來源矛盾）上，而非均勻抽樣。</div>
   <p>人工複核量能有限,要花在刀口上。兩類最該送人工:<b>(1)</b> model 信心低的;<b>(2)</b> 來源文件本身<b>模糊或自相矛盾</b>的(例如發票上金額與小計對不起來)。其餘高信心又來源清楚的就走自動化,把寶貴的人力集中在真正風險高的那些。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -309,6 +381,77 @@ THRESHOLD = <span class="tok-fn">calibrate_threshold</span>(validation_set, targ
     <h2>整個 Task 5.5 的記憶骨架</h2>
     <p>結構化抽取別被<span class="num">整體 97%</span> 騙了——平均會掩蓋某些文件類型/欄位的爛表現,自動化前要<span class="num">按文件類型 × 欄位</span>逐區段驗證。用<span class="num">分層隨機抽樣</span>持續量高信心抽取的真實錯誤率、抓新型錯誤。讓 model 輸出<span class="num">欄位級信心分數</span>,用<span class="num">標註驗證集校準</span>(宣稱 0.9 那批實際也要 ≈90%)出複核門檻。最後把<span class="num">低信心</span>與<span class="num">來源矛盾/模糊</span>的抽取送人工,把有限複核量能用在刀口上。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 6 · Structured Data Extraction</span>
+      </div>
+      <p class="q-text">A document extraction system reports an overall accuracy of 97.3% across all document types and fields. Based on this metric, the engineering team enables full automation and eliminates human review. Three weeks later, finance reports that hundreds of handwritten purchase orders have incorrect "due date" values. A post-mortem analysis reveals handwritten form accuracy was 68% for the due_date field. What is the most likely root cause of the monitoring failure?</p>
+      <ol class="q-options" type="A">
+        <li>The model was not fine-tuned on handwritten documents before deployment</li>
+        <li>The overall accuracy metric masked poor performance on specific document type and field combinations — the high volume of accurately processed digital invoices diluted the handwritten form errors in the aggregate score</li>
+        <li>The human review team was understaffed and could not catch all errors during the transition period</li>
+        <li>The due_date field requires a different prompt template that was not configured for handwritten forms</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：整體準確率 97.3% 是一個加權平均值，被高量的電子發票（準確率 99%）所稀釋。手寫表單佔整體量很小，其 68% 的 due_date 準確率對總體指標影響微小，因此問題被「藏起來」了。自動化前應按 (doc_type × field) 逐區段驗證，任一區段不達標就不能納入自動化。</p>
+          <p>A 錯在哪：fine-tuning 可以改善表現，但問題的根源是「沒有在自動化前按文件類型拆開驗證準確度」，即使有 fine-tuning，這個監控設計問題仍然存在。C 錯在哪：問題發生在全自動化後，已沒有人工複核；且即使有人力，根本問題是監控指標設計不當，讓管理層基於錯誤的信心決策啟用全自動化。D 錯在哪：prompt 模板問題是潛在的技術因素，但題目問的是「監控失敗的根因」，監控失敗的原因是整體準確率指標設計不足以揭露分層問題。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 6 · Structured Data Extraction</span>
+      </div>
+      <p class="q-text">An extraction system outputs a confidence score of 0.91 for the "total_amount" field on invoice extractions. The team uses 0.90 as the threshold for routing to automated processing. A labeled validation set of 500 invoices reveals that extractions with model confidence between 0.88 and 0.94 have an actual accuracy of only 74%. What does this indicate, and what is the most effective response?</p>
+      <ol class="q-options" type="A">
+        <li>The validation set is too small to be statistically reliable; collect more labeled data before changing thresholds</li>
+        <li>The model's confidence scores are poorly calibrated — scores in the 0.88–0.94 bucket do not correspond to 88–94% actual accuracy; recalibrate the review threshold using the labeled validation set to find a score that reliably predicts 97%+ accuracy</li>
+        <li>Lower the automation threshold from 0.90 to 0.85 to allow more extractions through without human review</li>
+        <li>The issue is specific to the total_amount field; apply a separate extraction model for amounts to improve confidence score reliability</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：這是信心分數未校準（uncalibrated）的典型問題——模型宣稱 0.91 信心，但那一批的實際準確率只有 74%，表示信心被嚴重高估。正確做法是用標註驗證集做 confidence calibration（信心校準），找出在驗證集上實際準確率達 97%+ 的信心分數閾值，用校準後的門檻替換原本隨意設定的 0.90。</p>
+          <p>A 錯在哪：500 筆對於識別信心校準問題已足夠，且問題非常明顯（74% vs 宣稱 88-94%）；等待更多數據只是拖延解決已確認的問題。C 錯在哪：降低閾值到 0.85 讓更多未達標的抽取通過自動化，完全是反向操作，會讓問題更嚴重。D 錯在哪：換一個欄位專用模型是技術上的過度反應，根本問題是信心分數的校準，不是模型本身的能力問題。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 6 · Structured Data Extraction</span>
+      </div>
+      <p class="q-text">A document extraction pipeline processes 8,000 documents per day. The human review team can only review 400 documents daily. The current system routes documents for review using random sampling — 5% of all extractions go to human review regardless of confidence score or document characteristics. Recent audits show that 90% of actual errors occur in just 15% of documents: those with low model confidence or contradictory source values (e.g., subtotal + tax ≠ stated total). What change best addresses the allocation of limited review capacity?</p>
+      <ol class="q-options" type="A">
+        <li>Increase the human review team size to handle a larger random sample of documents</li>
+        <li>Switch from random sampling to prioritized routing — send extractions with low model confidence or contradictory source documents to human review first, reserving random sampling as a secondary check on high-confidence extractions</li>
+        <li>Reduce the daily processing volume to match what the human review team can fully verify</li>
+        <li>Implement a second-pass extraction model that re-processes all documents to reduce error rates before human review</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：有限的複核量能應集中在高風險案件上。將低信心抽取和來源矛盾的文件（佔 15% 但含 90% 錯誤）優先路由給人工複核，可以讓相同的 400 份複核量能發現更多實際錯誤。對高信心且來源清楚的文件，用隨機抽樣做持續監控（stratified sampling for QA）即可。</p>
+          <p>A 錯在哪：增加人力是資源層面的解決方案，但問題根本是路由策略設計不當，即使增加人力，隨機抽樣仍然低效，大量人力會浪費在低風險的高信心案件上。C 錯在哪：降低處理量是業務上不可接受的，且沒有解決核心問題——如何讓有限的複核量能發揮最大價值。D 錯在哪：第二次抽取可能改善部分案件，但增加了系統複雜度和成本，且沒有解決「如何把有限複核量能用在刀口上」的資源分配問題。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability

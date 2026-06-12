@@ -212,6 +212,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -264,25 +328,30 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;Message Batches API:省 50% 成本、最長 24 小時窗口、不保證延遲 SLA</h2>
-  <p>批次 API 的三個核心數字務必記牢:<b>成本省 50%</b>、處理窗口<b>最長 24 小時</b>、<b>沒有延遲保證(no latency SLA)</b>。你把一大堆請求一次丟進去,Anthropic 在 24 小時內某個時間點處理完——可能 20 分鐘,也可能 23 小時,不保證。換來的是半價。</p>
+  <h2><span class="num">知識 1</span> &nbsp;Message Batches API:省 50% 成本、最長 24 小時窗口、不保證 latency（延遲）SLA</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 CTO 問：「批次 API 有什麼代價和好處？」你需要說清楚三個關鍵數字，讓他判斷哪些工作適合走批次、哪些不行。</div>
+  <p>批次 API 的三個核心數字務必記牢:<b>成本省 50%</b>、處理窗口<b>最長 24 小時</b>、<b>沒有 latency（延遲）保證(no latency SLA)</b>。你把一大堆請求一次丟進去,Anthropic 在 24 小時內某個時間點處理完——可能 20 分鐘,也可能 23 小時,不保證。換來的是半價。</p>
   <div class="key"><b>考點重點:</b>50% cost savings、up to 24-hour window、no guaranteed latency SLA,三件一組。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;批次適合「不擋路、能等」的工作,不適合「擋路」的工作</h2>
-  <p>判斷的關鍵是這份工作<b>會不會擋住別人</b>。在 CI 場景:nightly 報表、weekly 程式碼稽核、夜間自動產測試——這些是<b>non-blocking、latency-tolerant</b>,完美適合批次。反過來,<b>pre-merge check</b>(開發者按下 merge、要等結果才能合併)是 <b>blocking</b>,不能等批次跑一整天,必須走同步 API。</p>
+  <h2><span class="num">知識 2</span> &nbsp;batch processing（批次處理）適合「不擋路、能等」的工作,不適合「擋路」的工作</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你在規劃 CI 系統的成本最佳化方案，需要判斷哪些 Claude 呼叫可以改走批次 API 省錢，哪些必須保持同步以避免阻塞開發流程。</div>
+  <p>判斷的關鍵是這份工作<b>會不會擋住別人</b>。在 CI 場景:nightly 報表、weekly 程式碼稽核、夜間自動產測試——這些是<b>non-blocking、latency-tolerant（延遲容忍）</b>,完美適合 batch processing（批次處理）。反過來,<b>pre-merge check</b>(開發者按下 merge、要等結果才能合併)是 <b>blocking</b>,不能等批次跑一整天,必須走同步 API。</p>
   <div class="key"><b>重點:</b>overnight reports / weekly audits / nightly test generation → 批次;pre-merge checks → 同步。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;批次 API 不支援「單一請求內」的多輪 tool calling</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你計畫用批次 API 處理客服 agent 工作流（需要邊查訂單、邊回應客戶），但上線後發現 tool calling 無法正常運作，你需要了解為什麼並找到替代方案。</div>
   <p>很常被忽略的限制。批次是「丟進去、跑完拿回來」的單程任務,<b>無法在請求進行中執行工具、拿到結果、再繼續</b>。所以需要 agent 來回呼叫工具的工作流(例如客服 agent 邊查訂單邊回應)<b>不能用批次</b>。批次只適合「一次輸入 → 一次輸出」的單程抽取/分析。</p>
   <div class="key"><b>重點:</b>batch 不支援 mid-request 的多輪 tool calling;要邊跑邊用工具請走同步。</div>
 
   <h2><span class="num">知識 4</span> &nbsp;custom_id:對應批次請求與回應的「身分證」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>批次回傳了 500 筆結果，但順序不是你送入的順序，你需要把每筆結果對應回原始的 PR 或文件，以及識別哪些請求失敗了需要重送。</div>
   <p>批次回來是一大包、順序不保證,你要靠每筆請求自帶的 <code>custom_id</code> 把<b>回應對回原始請求</b>。所以送出前一定要給每筆一個唯一的 <code>custom_id</code>(例如 <code>"pr-1042-fileA"</code>),回來才知道哪筆對應哪個檔。它也是後面「只重送失敗那幾筆」的關鍵。</p>
   <div class="key"><b>重點:</b>custom_id = 請求/回應配對的唯一鍵,也是失敗重送時定位的依據。</div>
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;按延遲需求選 API:pre-merge 走同步、夜間/每週分析走批次</h2>
+  <h2><span class="num">技能 1</span> &nbsp;按 latency（延遲）需求選 API:pre-merge 走同步、夜間/每週分析走批次</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要在同一個 CI 系統裡處理兩種截然不同的工作：merge 前的 code review 和週末產測試，需要為這兩種工作選擇不同的 API 路徑並在程式碼中實作判斷邏輯。</div>
   <p>把「會不會擋路」變成程式決策。CI pipeline 裡:<code>pre-merge review</code> 必須<b>立刻</b>回結果,走同步 <code>messages.create</code>;<code>nightly test generation</code> 整晚都能跑,走 <code>messages.batches.create</code> 省一半。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -305,6 +374,7 @@ client = anthropic.<span class="tok-fn">Anthropic</span>()
   <div class="key"><b>重點:</b>blocking → synchronous;latency-tolerant → batch。判準是「會不會擋住開發者」。</div>
 
   <h2><span class="num">技能 2</span> &nbsp;依 SLA 反推批次「提交頻率」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你對客戶承諾了 30 小時的 SLA，但批次 API 最長可能跑 24 小時，你需要計算出多久送一次批次才能確保最壞情況下也守得住承諾。</div>
   <p>常考的計算題型。批次處理最長 24 小時,若你對下游承諾 <b>30 小時 SLA</b>,那就有 <code>30 − 24 = 6</code> 小時的緩衝;為了保險,改用 <b>4 小時提交一次</b>,等於最壞情況 <code>4(等湊批)+ 24(處理)= 28 小時 &lt; 30</code>,SLA 守得住。核心公式:<b>提交間隔 + 24h 處理 ≤ 承諾 SLA</b>。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -323,6 +393,7 @@ submit_interval_hours = <span class="tok-num">4</span>
   <div class="key"><b>重點:</b>提交間隔 + 24h(批次處理上限)≤ 承諾 SLA;4h 窗口可守 30h SLA。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;處理批次失敗:用 custom_id 只重送「失敗那幾筆」並修正</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 nightly test generation 批次回來後有 12 筆失敗，其中幾筆是因為文件太大超過 context 上限，你需要針對這些失敗做最小成本的修正和重送，而不是整批重跑。</div>
   <p>批次裡有少數請求失敗(例如某個檔超過 context 上限),<b>不要整批重跑</b>。用 <code>custom_id</code> 找出失敗的那幾筆,只<b>針對它們</b>做修正(例如把過大的文件切塊 chunking),再重送這一小批。省成本、也省時間。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -346,6 +417,7 @@ retry = []
   <div class="key"><b>重點:</b>失敗只重送、靠 custom_id 定位;超 context 的就 chunking 後再送。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;大量批次前,先在「樣本集」上精修 prompt,拉高首次成功率</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要對 3,000 個 repo 跑 weekly audit，但 prompt 還沒有完整測試，如果直接送全量批次而 prompt 有問題，失敗重送的成本會讓 50% 的省錢優勢消失殆盡。</div>
   <p>成本優化的關鍵心法。批次量很大時,若 prompt 沒調好,失敗率高 → 一直重送 → 成本反而暴增。正確流程:<b>先抽一小撮樣本</b>同步試跑、精修 prompt,把 first-pass 成功率拉到夠高,<b>再</b>把調好的 prompt 套到整個大批次。先小後大,降低反覆重送的代價。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -367,6 +439,77 @@ client.messages.batches.<span class="tok-fn">create</span>(requests=requests)</c
     <h2>整個 Task 4.5 的記憶骨架</h2>
     <p>批次的取捨是「<span class="num">用延遲換成本</span>」:Message Batches API 省 <span class="num">50%</span>、窗口最長 <span class="num">24h</span>、<span class="num">不保證延遲</span>。判準是「會不會擋路」——<span class="num">pre-merge</span> 擋路走同步;<span class="num">overnight / weekly / nightly</span> 不擋路走批次。批次<span class="num">不支援單請求內多輪 tool calling</span>。每筆帶 <span class="num">custom_id</span> 做配對,失敗就<span class="num">只重送那幾筆</span>(超長則 chunking)。算提交頻率:<span class="num">提交間隔 + 24h ≤ SLA</span>(4h 守 30h)。跑大量前先在<span class="num">樣本上精修 prompt</span>,拉高首次成功率、省重送錢。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">Your CI system uses Claude for three distinct tasks: (1) blocking pre-merge code review that developers wait on before merging, (2) nightly test case generation that runs overnight, and (3) a weekly security audit that aggregates findings across all repositories. You want to minimize API costs while maintaining developer workflow speed. Which approach is most appropriate?</p>
+      <ol class="q-options" type="A">
+        <li>Use the batch API for all three tasks — cost savings benefit the entire team.</li>
+        <li>Use the synchronous API for all three tasks to guarantee fast results and avoid the 24-hour batch window.</li>
+        <li>Use the synchronous API for the pre-merge review, and the batch API for the nightly test generation and weekly security audit.</li>
+        <li>Use the batch API for the pre-merge review and the synchronous API for the nightly and weekly tasks, since audit results need to be reliable.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：pre-merge review 是 blocking 工作——開發者必須等結果才能合併，走批次最壞情況要等 24 小時，完全不可接受。nightly test generation 和 weekly audit 都是 non-blocking、latency-tolerant（延遲容忍）的工作，走批次 API 可以節省 50% 成本，同時不影響任何人的工作流程。</p>
+          <p>A 錯在哪：pre-merge review 是 blocking 工作，不能等批次 API 的 24 小時窗口。把它放進批次會讓開發者在等待合併時被卡住最多一整天，嚴重阻礙開發流程。B 錯在哪：全部走同步 API 忽略了批次 API 的 50% 成本優勢；nightly 和 weekly 工作不需要即時回應，放棄這個節省機會毫無必要。D 錯在哪：pre-merge review 是最需要同步的工作，反而放進批次是錯的；nightly/weekly 結果「可靠與否」和走哪條 API 無關，批次 API 的結果同樣可靠。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">Your weekly security audit uses the batch API. You have committed to stakeholders that audit results will be available within 30 hours of submission. The batch API documentation states a maximum 24-hour processing window. To guarantee the SLA, what is the maximum interval at which you should submit new batches?</p>
+      <ol class="q-options" type="A">
+        <li>Every 30 hours — submit a new batch immediately when the SLA window opens.</li>
+        <li>Every 24 hours — align submission frequency with the batch processing maximum.</li>
+        <li>Every 6 hours — leaving a buffer of (30h SLA − 24h processing) to account for submission wait time.</li>
+        <li>Every 1 hour — minimize risk by submitting as frequently as possible.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：公式是「提交間隔 + 批次處理上限 ≤ 承諾 SLA」。若 SLA = 30h、批次最長 = 24h，則提交間隔上限 = 30 − 24 = 6h。取 6h（或更保守的 4h）作為提交間隔，最壞情況下 6 + 24 = 30h，剛好守住 SLA。</p>
+          <p>A 錯在哪：每 30h 提交一次，最壞情況下批次等到第 30h 才開始送，再跑 24h 就是 54h，遠超 30h SLA。B 錯在哪：每 24h 提交一次，但批次本身就可能跑 24h，再加上等待提交的時間，最壞情況超過 SLA。D 錯在哪：每 1h 提交是過度保守、會產生大量小批次，增加管理複雜度和可能的成本，遠超需要；SLA 分析已經給出最大可接受間隔，更頻繁沒有必要。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">Your nightly test generation batch of 800 repository files returns with 15 failures. Examining the results, you find that 12 of the failures are "context_length_exceeded" errors for large monorepo files, and 3 are "invalid_request" errors. What is the most efficient approach to handle these failures?</p>
+      <ol class="q-options" type="A">
+        <li>Resubmit the entire 800-file batch with a higher context limit to handle the large files.</li>
+        <li>Use the custom_id of the 15 failed requests to resubmit only those files — chunking the 12 context-length failures into smaller pieces before resubmitting.</li>
+        <li>Skip the 15 failed files and accept partial test coverage for this nightly run.</li>
+        <li>Switch all 800 files to the synchronous API for the retry to guarantee completion within this nightly window.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：用 custom_id 定位失敗的那 15 筆，只重送這 15 筆（不重送成功的 785 筆）。對 12 筆 context_length_exceeded 的檔案，做 chunking（切塊）後重送；對 3 筆 invalid_request，診斷原因後重送或標記。這樣只花 15 筆的成本，而不是 800 筆。</p>
+          <p>A 錯在哪：整批 800 筆重送意味著已成功的 785 筆也重跑，浪費 785 份 API 成本；況且「更高 context limit」是誤解，context 限制是 API 的模型上限，不能靠設定調高。C 錯在哪：放棄 15 筆的測試覆蓋是不可接受的，而且問題是可以修復的（chunking），沒有理由放棄。D 錯在哪：切換到同步 API 只是換了通道，沒有解決根本問題（context 超長）；而且只有 15 筆需要處理，批次重送已足夠，不需要改走同步。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output

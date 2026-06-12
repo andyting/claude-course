@@ -212,6 +212,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -265,7 +329,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;CLAUDE.md 的三層階層:使用者層、專案層、目錄層</h2>
+  <h2><span class="num">知識 1</span> &nbsp;CLAUDE.md file（CLAUDE.md 檔）的三層階層:使用者層、專案層、目錄層</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>新團隊成員加入後發現 Claude Code 的行為與資深工程師機器上不一樣，你需要了解設定如何跨層級疊加，才能診斷規範究竟在哪一層生效。</div>
   <p>Claude Code 會從三個層級讀 CLAUDE.md,範圍由大到小:<br>
   <b>使用者層</b> <code>~/.claude/CLAUDE.md</code>——你所有專案都生效的個人偏好。<br>
   <b>專案層</b> <code>.claude/CLAUDE.md</code> 或 repo 根目錄的 <code>CLAUDE.md</code>——這個專案全隊共用。<br>
@@ -283,6 +348,7 @@ my-monorepo/packages/web/CLAUDE.md      <span class="tok-com"># 目錄層:只管
   <div class="key"><b>考點重點:</b>三層 = 使用者(<code>~/.claude</code>)、專案(repo 根 / <code>.claude</code>)、目錄(子資料夾)。範圍由大到小、疊加生效。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;使用者層設定只對你生效,不會經版控分享給隊友</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的機器上 Claude 會套用某條編碼規範，但新同事 clone 同一個 repo 後卻完全沒有這條規範，你需要理解使用者層與專案層的根本差異才能找出根因。</div>
   <p>關鍵差別:寫在 <code>~/.claude/CLAUDE.md</code> 的東西<b>只在你自己的機器上生效</b>。它不在專案 repo 裡,所以不會被 commit、不會經版控傳給隊友。隊友 clone 專案,拿到的只有<b>專案層</b>的 CLAUDE.md,完全看不到你使用者層寫了什麼。這正是下面那個「新同事沒套到規範」bug 的根源。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -297,6 +363,7 @@ my-monorepo/packages/web/CLAUDE.md      <span class="tok-com"># 目錄層:只管
   <div class="key"><b>考點重點:</b>使用者層 = 私人、不進版控、不分享;團隊規範必須放專案層。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;@import 語法:引用外部檔案,讓 CLAUDE.md 保持模組化</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>monorepo 中不同 package 各有不同技術棧，你的 CLAUDE.md 越來越龐雜，各 package 維護者抱怨載入了許多與自己無關的規範，你需要 @import 來讓每個 package 只引入相關標準。</div>
   <p>當規範越長越雜,別把所有東西塞進一個巨大的 CLAUDE.md。用 <code>@import</code> 把外部標準檔<b>引用進來</b>——每個 package 的 CLAUDE.md 只 import 它真正相關的標準。這樣維護者可以依自己 package 的領域知識,挑要引哪些規範,而不是被迫吞下全部。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -314,7 +381,8 @@ my-monorepo/packages/web/CLAUDE.md      <span class="tok-com"># 目錄層:只管
   </div>
   <div class="key"><b>考點重點:</b><code>@import</code> = 把外部標準檔引進來,讓每個 package 各取所需、避免單檔肥大。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;.claude/rules/ 目錄:把規範拆成主題檔,取代單一巨檔</h2>
+  <h2><span class="num">知識 4</span> &nbsp;.claude/rules/ 目錄:把規範拆成主題檔（rules file），取代單一巨檔</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 CLAUDE.md 已超過 1500 行，測試規範、API 約定、部署流程全混在一起，每次要修改某塊都要全文搜尋，而且 PR review 時 reviewer 完全看不清楚改了什麼，你需要按主題拆檔來解決。</div>
   <p>另一種模組化做法:不用一個塞爆的 CLAUDE.md,而是建 <code>.claude/rules/</code> 目錄,把規範按<b>主題</b>拆成多個檔——<code>testing.md</code>、<code>api-conventions.md</code>、<code>deployment.md</code> 各管一塊。好處是好找、好維護、改一塊不會動到別塊,review 也清楚。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -331,6 +399,7 @@ my-monorepo/packages/web/CLAUDE.md      <span class="tok-com"># 目錄層:只管
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;診斷階層問題:新同事沒收到規範,因為規範被放在使用者層</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>onboarding 後新工程師回報 Claude 產出的 API 回應格式不符合規範，但你和其他舊成員都沒問題，你需要診斷這是哪一層設定的問題並修正。</div>
   <p>最經典的考題場景:某條重要規範「在你機器上有效,新同事卻完全沒套到」。直覺反應是「設定壞了」,但真正原因常是——這條規範被寫在<b>使用者層</b> <code>~/.claude/CLAUDE.md</code>,只對你生效,沒進版控,新同事 clone 專案根本拿不到。修法:把它<b>搬到專案層</b>,commit 進 repo,規範才會跟著程式碼一起傳給每個人。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -346,6 +415,7 @@ my-monorepo/packages/web/CLAUDE.md      <span class="tok-com"># 目錄層:只管
   <div class="key"><b>重點:</b>「只有我有、別人沒有」的規範 → 八成被放在使用者層,搬到專案層並 commit。</div>
 
   <h2><span class="num">技能 2</span> &nbsp;用 @import 依維護者領域知識,選擇性引入各 package 的標準</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>金流 package 的維護者抱怨 Claude 產出的程式碼沒套用 PCI 安全規範，而前端 package 的人卻說塞了一堆不相關的後端規則，你需要用 @import 讓各 package 各取所需。</div>
   <p>技能版的知識 3。每個 package 的維護者最清楚自己這塊該套哪些規範,就用 <code>@import</code> 只引那些。共用標準(如 <code>security.md</code>)集中一處維護,各 package 按需引入,不重複、不錯漏。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -360,6 +430,7 @@ my-monorepo/packages/web/CLAUDE.md      <span class="tok-com"># 目錄層:只管
   </div>
 
   <h2><span class="num">技能 3</span> &nbsp;把大 CLAUDE.md 拆成 .claude/rules/ 下的主題檔</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>在做 code review 時發現有人修改了測試規範卻順手動到部署規範，因為它們全在同一份 CLAUDE.md，你需要把規範按主題切開讓每個人只改自己負責的那一塊。</div>
   <p>技能版的知識 4。當單一 CLAUDE.md 長到難維護,動手拆:依主題切成 <code>testing.md</code>、<code>api-conventions.md</code>、<code>deployment.md</code> 放進 <code>.claude/rules/</code>。每塊聚焦單一主題,要找測試規範就開 <code>testing.md</code>,清楚明確。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -374,7 +445,8 @@ CLAUDE.md   <span class="tok-com"># 測試、API、部署、風格…全混在�
   </div>
   <div class="key"><b>重點:</b>巨檔難維護 → 按主題拆進 <code>.claude/rules/</code>,單檔聚焦、改動隔離。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;用 /memory 指令確認「載入了哪些 memory 檔」,診斷跨 session 行為不一致</h2>
+  <h2><span class="num">技能 4</span> &nbsp;用 /memory 指令（slash command）確認「載入了哪些 memory 檔」,診斷跨 session 行為不一致</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Claude Code 今天早上套用了 API 命名規範，但下午換了 session 之後產出的程式碼又不套了，你需要查清楚到底哪些 CLAUDE.md 檔在目前 session 裡被載入了。</div>
   <p>有時 Claude Code 在不同 session「行為飄忽」——同一個專案,這次套到某規範、下次又沒套。要查為什麼,用 <code>/memory</code> 指令:它會列出<b>目前實際載入了哪些 memory / CLAUDE.md 檔</b>。對照清單就能看出是不是某層的檔沒被讀到、或某個 <code>@import</code> 路徑壞了,把「規範沒生效」這種隱形 bug 攤在眼前。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -394,6 +466,77 @@ CLAUDE.md   <span class="tok-com"># 測試、API、部署、風格…全混在�
     <h2>整個 Task 3.1 的記憶骨架</h2>
     <p>CLAUDE.md 是給 Claude 的常駐說明書,分<span class="num">三層</span>:使用者層(<code>~/.claude</code>,私人不分享)、專案層(repo 根 / <code>.claude</code>,進版控全隊共用)、目錄層(子資料夾,只管那塊)。最常考的 bug:團隊規範誤放<span class="num">使用者層</span> → 新同事收不到,修法是搬到<span class="num">專案層並 commit</span>。說明書太長就模組化——用 <span class="num">@import</span> 讓各 package 各取所需,或用 <span class="num">.claude/rules/</span> 按主題(testing / api-conventions / deployment)拆檔。行為跨 session 不一致時,用 <span class="num">/memory</span> 查實際載入了哪些檔,揪出沒讀到的那份。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A senior engineer notices that Claude Code consistently applies the team's snake_case API naming rule on her machine, but a new hire who cloned the same repository two days ago reports that Claude never applies that rule. The new hire's Claude Code is the same version, and the project's root <code>CLAUDE.md</code> contains only general style notes. Where is the snake_case rule most likely stored, and what is the correct fix?</p>
+      <ol class="q-options" type="A">
+        <li>The rule is in the project-level <code>.claude/CLAUDE.md</code>; fix by moving it to the root <code>CLAUDE.md</code> so both files are read.</li>
+        <li>The rule is in the senior engineer's user-level <code>~/.claude/CLAUDE.md</code>; fix by moving it to the project-level <code>CLAUDE.md</code> and committing it to version control.</li>
+        <li>The rule is missing from the new hire's directory-level CLAUDE.md; fix by creating a subdirectory CLAUDE.md for each package the new hire works in.</li>
+        <li>The rule is blocked by the new hire's local Git configuration; fix by resetting the new hire's <code>.gitconfig</code> to match the senior engineer's settings.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>使用者層 <code>~/.claude/CLAUDE.md</code> 只存在於個人機器，不進版控，新同事 clone repo 後完全拿不到這份設定。把規範移到專案層並 commit，才能讓所有人共享。</p>
+          <p>A 錯在哪：<code>.claude/CLAUDE.md</code> 屬於專案層，進版控後全隊都能讀到，若規範真的放這裡新同事也應有效，不符合題目症狀。C 錯在哪：目錄層 CLAUDE.md 只影響特定子資料夾，且要在每個資料夾各放一份，無法解釋「同一個 rule 只有資深工程師有」的現象。D 錯在哪：Git 設定與 Claude Code 的 CLAUDE.md 讀取完全無關。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A team's monorepo has grown to 2,400 lines in a single root <code>CLAUDE.md</code> mixing testing, deployment, and API conventions. Engineers report that pull request reviews are painful because any CLAUDE.md change touches unrelated sections. The tech lead wants to reorganize so each concern can be changed independently. Which approach best addresses this?</p>
+      <ol class="q-options" type="A">
+        <li>Split the CLAUDE.md into three separate files under <code>.claude/rules/</code> named <code>testing.md</code>, <code>deployment.md</code>, and <code>api-conventions.md</code>.</li>
+        <li>Create a separate <code>CLAUDE.md</code> in every subdirectory of the monorepo to distribute the content.</li>
+        <li>Move all content to the user-level <code>~/.claude/CLAUDE.md</code> so it does not appear in version control.</li>
+        <li>Use <code>@import</code> to pull the entire monolithic CLAUDE.md into each package's local CLAUDE.md file.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: A</p>
+          <p><code>.claude/rules/</code> 正是為了解決「巨型單檔難維護」而設計：按主題拆成獨立檔，每塊聚焦一個關注點，改部署規範只動 <code>deployment.md</code>，不會碰到測試或 API 那塊，PR review 一目了然。</p>
+          <p>B 錯在哪：在每個子目錄各放一份 CLAUDE.md 會造成大量重複內容，維護成本更高、更容易不一致。C 錯在哪：移到使用者層會讓設定離開版控，隊友完全看不到，是更嚴重的問題。D 錯在哪：把整份巨檔 import 進各 package 並沒有解決「內容混雜」的問題，只是複製了同樣的混亂。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">An engineer using Claude Code finds that on Monday the session applied the <code>api-conventions.md</code> rule correctly, but on Wednesday a new session silently ignored the same rule even though no files were deleted. The engineer wants to quickly verify which memory files are actually loaded in the current session. What is the most effective first diagnostic step?</p>
+      <ol class="q-options" type="A">
+        <li>Run <code>git log -- .claude/rules/api-conventions.md</code> to check whether the file was accidentally deleted in a recent commit.</li>
+        <li>Run the <code>/memory</code> command to list all memory and CLAUDE.md files currently loaded in the session.</li>
+        <li>Restart the machine and re-open Claude Code to force a full reload of all configuration files.</li>
+        <li>Add a duplicate copy of <code>api-conventions.md</code> to the project root to ensure it is always picked up.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p><code>/memory</code> 指令會列出目前 session 實際載入的所有 memory / CLAUDE.md 檔，讓你立刻對照「預期應該在、但實際不在」的那份——通常就是路徑錯誤或 <code>@import</code> 寫錯導致的，是診斷跨 session 行為不一致最直接的方法。</p>
+          <p>A 錯在哪：git log 能查歷史是否有刪除，但題目說「沒刪檔」，這步不能告訴你目前 session 有沒有載入這份設定。C 錯在哪：重開機不能解決路徑設定錯誤，只是繞過診斷而非找到根因。D 錯在哪：複製一份到根目錄可能暫時解決問題，但沒有診斷為何原本那份沒被載入，問題仍會再次出現。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows

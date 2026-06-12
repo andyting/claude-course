@@ -115,6 +115,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -159,13 +223,14 @@
   </div>
 
   <div class="lead">
-    一句話抓住主軸:<b>不要靠「再講清楚一點」的散文,要靠範例、測試、與提問來逼近正確。</b>四個技巧:具體 I/O 範例、test-driven 迭代、interview pattern、以及「互相牽動的問題一次講、獨立的問題分次修」。
+    一句話抓住主軸:<b>不要靠「再講清楚一點」的散文（prose），要靠範例、測試、與提問來逼近正確。</b>四個技巧:具體 I/O 範例（few-shot 少樣本）、test-driven（測試驅動）迭代、interview pattern（訪談模式）、以及「互相牽動的問題一次講、獨立的問題分次修」（iterative refinement 迭代精煉）。
   </div>
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
   <h2><span class="num">知識 1</span> &nbsp;具體 input/output 範例,是溝通「期望轉換」最有效的方式</h2>
-  <p>當你用<b>散文(prose)</b>描述「我要把這個轉成那個」,Claude 常會<b>各次解讀不一致</b>——因為自然語言本身有歧義。最有效的解法不是把描述寫得更長,而是<b>直接給 2~3 組具體的 input → output 範例</b>,讓期望的轉換「演」給它看。</p>
+  <div class="trigger"><b>遇到這個問題時用到</b>你請 Claude 寫一個「把各種格式日期字串正規化」的函式，但每次產出的目標格式都不一樣——有時輸出 MM/DD/YYYY，有時輸出 YYYY-MM-DD，你需要一個更精確的方式來釘死期望的轉換規則。</div>
+  <p>當你用<b>散文（prose）</b>描述「我要把這個轉成那個」,Claude 常會<b>各次解讀不一致</b>——因為自然語言本身有歧義。最有效的解法不是把描述寫得更長,而是<b>直接給 2~3 組具體的 input → output 範例</b>,讓期望的轉換「演」給它看。</p>
   <p>Scenario 2 的例子:你要 Claude 寫一個把雜亂日期字串正規化的函式,光說「正規化日期」會做出五花八門的結果。給範例就一目了然。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -182,11 +247,13 @@ claude -p <span class="tok-str">"寫 normalize_date(s),依下列範例對應:
   </div>
   <div class="key"><b>考點重點:</b>prose 解讀不一致時,改用具體 input/output 範例溝通期望轉換。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;test-driven 迭代:先寫測試,再用「失敗」引導逐步改善</h2>
+  <h2><span class="num">知識 2</span> &nbsp;test-driven（測試驅動）迭代:先寫測試,再用「失敗」引導逐步改善</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 CSV parser 實作已經是第三次重寫，每次 Claude 的版本都能通過你描述的 case 但遺漏邊界情況，你需要一個方法讓每次迭代都有明確的通過/失敗依據而不是靠文字描述。</div>
   <p>另一個強力技巧:<b>先把測試套件寫出來</b>(描述期望行為),讓 Claude 實作;若沒過,就<b>把測試失敗的訊息餵回去</b>當下一輪的引導。失敗訊息是極精準的回饋——它告訴 Claude 「哪個 case 錯、錯成什麼」,比你再用散文解釋有效得多。一輪輪 share failures,產出逐步收斂。</p>
   <div class="key"><b>重點:</b>test suite 先行 → 跑失敗 → 把 failure 餵回 → 收斂。失敗訊息是最精準的迭代回饋。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;interview pattern:讓 Claude 先發問,挖出你沒想到的考量</h2>
+  <h2><span class="num">知識 3</span> &nbsp;interview pattern（訪談模式）:讓 Claude 先發問,挖出你沒想到的考量</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要實作一個分散式快取層但對這個領域不熟，擔心 Claude 直接下手時會遺漏 cache invalidation 策略或 fail-open/fail-closed 等關鍵設計決策，你需要讓 Claude 先問清楚再寫。</div>
   <p>進入<b>陌生領域</b>時,你常常不知道自己漏了什麼。interview pattern 是:在開始實作前,<b>先請 Claude 對你提問</b>,把你沒預期到的設計考量(例如 cache 失效策略、各種 failure mode)逼出來。先問清楚再寫,勝過寫完才發現缺角。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -200,12 +267,14 @@ claude -p <span class="tok-str">"在動手實作這個快取層之前,先問我 
   <div class="key"><b>重點:</b>陌生領域先讓 Claude 提問(cache 失效、failure mode...),把隱藏考量攤開再實作。</div>
 
   <h2><span class="num">知識 4</span> &nbsp;何時「一次講完」vs「分次修」:看問題彼此是否牽動</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你發現系統同時有重試邏輯 bug 和訊息去重邏輯 bug，你不確定是否該分兩次修：你需要判斷這兩個問題是否互相牽動，因為分開修可能讓修重試的那次把去重搞壞。</div>
   <p>修多個問題時要分流:若幾個問題<b>互相牽動</b>(改 A 會影響 B 的修法),要<b>在同一則詳細訊息裡一次講完</b>,讓 Claude 通盤考量、一起解;若幾個問題<b>彼此獨立</b>,則<b>逐一分次修</b>,每次聚焦一個、回饋更乾淨。誤把牽動的問題拆開修,常會出現「修了 A 又弄壞 B」的來回。</p>
   <div class="key"><b>考點重點:</b>interacting(互相牽動)→ 一則訊息一起講;independent(獨立)→ 分次依序修。</div>
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;產出不穩時,給 2~3 組具體 input/output 範例</h2>
+  <h2><span class="num">技能 1</span> &nbsp;產出不穩時,給 2~3 組具體 input/output 範例（few-shot 少樣本）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Claude 寫的貨幣轉換函式有時把 "$12.50" 轉成 12.50（浮點數）有時轉成 1250（整數分），每次重試結果都不穩定，你需要用具體的 I/O 範例把期望行為釘死。</div>
   <p>知識 1 的落點。當自然語言描述產生不一致結果,別再加形容詞,直接補範例。2~3 組通常就足以把轉換規則釘死。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -218,7 +287,8 @@ claude -p <span class="tok-str">"實作 to_cents(s),依範例:
 這些範例就是規格,不一致時以範例為準。"</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 2</span> &nbsp;先寫涵蓋行為/邊界/效能的測試,再餵失敗迭代</h2>
+  <h2><span class="num">技能 2</span> &nbsp;先寫涵蓋行為/邊界/效能的測試（test-driven 測試驅動）,再餵失敗迭代</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你讓 Claude 實作一個 CSV parser，但需要確保它能正確處理空字串、空欄位、以及大檔效能，你需要先把這三類期望都用測試描述清楚，再讓 Claude 實作並靠失敗訊息迭代。</div>
   <p>知識 2 的實作。測試要涵蓋三類:<b>預期行為、邊界 case、效能要求</b>。先寫好讓 Claude 實作,跑出失敗就把 failure 貼回。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -234,7 +304,8 @@ got ['a','c'],expected ['a','','c']。修正 parse 保留空欄。"</span></code
   </div>
   <div class="key"><b>重點:</b>測試先行,涵蓋行為/邊界/效能;迭代靠 share failures,不靠重講。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;用 interview pattern 在陌生領域先攤開設計考量</h2>
+  <h2><span class="num">技能 3</span> &nbsp;用 interview pattern（訪談模式）在陌生領域先攤開設計考量</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要建一個訊息重試佇列（message retry queue）但不熟悉這個領域，擔心遺漏冪等性、順序保證、重試上限等設計要點，你需要讓 Claude 先對你提問而不是直接開始寫程式。</div>
   <p>知識 3 的落點。官方點名範例:cache invalidation 策略、各種 failure mode——這類「你不問就不會浮現」的決策,讓 Claude 先訪談你。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -245,7 +316,8 @@ claude -p <span class="tok-str">"我要做訊息重試佇列,但這領域我不�
 逐一釐清後再寫程式。"</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 4</span> &nbsp;用具體測試案例修邊界(如 migration script 的 null 值)</h2>
+  <h2><span class="num">技能 4</span> &nbsp;用具體測試案例修邊界（iterative refinement 迭代精煉）—如 migration script 的 null 值</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的資料庫 migration script 在 email 欄位為 null 的記錄上崩潰，你需要告訴 Claude 確切的輸入資料和期望的輸出結果，讓它精確修正而不影響其他正常的 non-null 記錄。</div>
   <p>知識 1 與 2 的合體用法:修 edge case 時,給<b>具體的 input 與 expected output</b>。官方範例就是 migration script 遇到 <code>null</code> 值的處理。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -257,7 +329,8 @@ claude -p <span class="tok-str">"migrate() 在 email 欄為 null 時崩潰。
 其他非 null 行為不變,並補一個 null 的測試。"</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 5</span> &nbsp;判斷:互相牽動的問題一則訊息講完,獨立的問題分次修</h2>
+  <h2><span class="num">技能 5</span> &nbsp;判斷:互相牽動的問題一則訊息講完（iterative refinement 迭代精煉）,獨立的問題分次修</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 message queue 同時有重試 bug 和去重 bug，上次分兩次修的結果是修了重試卻弄壞了去重，你需要判斷這次要不要把兩個問題放在同一個訊息裡一起解決。</div>
   <p>知識 4 的實戰。下面兩種錯誤示範與正解,直接對照。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -278,6 +351,77 @@ claude -p <span class="tok-str">"重試與去重會互相影響:重試不可重�
     <h2>整個 Task 3.5 的記憶骨架</h2>
     <p>在 Scenario 2 改善 Claude Code 產出,不靠「再講清楚的散文」,而靠四招逐步精煉:① 產出不一致時給 <span class="num">2~3 組具體 input/output 範例</span>,讓轉換規則被範例釘死;② <span class="num">test-driven 迭代</span>——先寫涵蓋行為/邊界/效能的測試,再把 <span class="num">test failure 餵回</span>引導收斂;③ 陌生領域先用 <span class="num">interview pattern</span> 讓 Claude 提問,攤開 cache 失效、failure mode 等隱藏考量;④ 修多個問題看牽動關係:<span class="num">互相牽動 → 一則訊息一起講,獨立 → 分次依序修</span>。修 edge case(如 migration 的 null)同樣用具體 input/expected 來釘。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A developer asks Claude Code to write a <code>normalize_date(s)</code> function. The prompt says: "Convert date strings to a standard format." Claude produces code that sometimes returns <code>YYYY-MM-DD</code>, sometimes <code>MM/DD/YYYY</code>, and sometimes a Unix timestamp, depending on the session. The developer rewrites the prompt three times with more adjectives but the inconsistency persists. What is the most effective change to fix this?</p>
+      <ol class="q-options" type="A">
+        <li>Switch to plan mode first, so Claude produces a design document specifying the output format before writing any code.</li>
+        <li>Add 2–3 concrete input/output examples to the prompt (e.g., <code>'Jun 9 2026' → '2026-06-09'</code>) to unambiguously specify the expected transformation.</li>
+        <li>Use the interview pattern and ask Claude to clarify which date format it prefers before implementing the function.</li>
+        <li>Write the function signature with type hints and a docstring specifying "ISO 8601 format" to constrain Claude's output.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>當散文（prose）描述產生不一致解讀時，根本原因是自然語言本身有歧義。具體的 input/output 範例直接示範期望的轉換，不留任何詮釋空間，2-3 組通常就足以釘死規則，是教材明確指出最有效的做法。</p>
+          <p>A 錯在哪：plan mode 適合有架構決策或多檔修改的複雜任務，一個格式轉換函式不需要規劃階段，而且規劃文件本身也可能對「標準格式」有歧義解讀。C 錯在哪：interview pattern 是讓 Claude 向你提問以攤開設計考量，在這個場景中問「你偏好哪種格式」是反向的——你才是有答案的人，應該直接給 Claude 範例而不是讓它發問。D 錯在哪：「ISO 8601」是較好的描述，但比起具體範例仍然有歧義（ISO 8601 有多種有效表示方式），是比 B 弱的解法。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A team is building a distributed message retry queue and asks Claude Code to implement it. The engineer is unfamiliar with this domain and worries about missing critical design decisions. After Claude produces an initial implementation, the team discovers it fails to handle idempotency and has no maximum retry limit. Which technique, applied BEFORE the initial implementation, would have most effectively surfaced these missing considerations?</p>
+      <ol class="q-options" type="A">
+        <li>Write a test suite covering expected behavior and edge cases, then share test failures to guide Claude's implementation iteratively.</li>
+        <li>Use the interview pattern: ask Claude to pose 5–8 questions about retry limits, idempotency, message ordering, and failure modes before writing any code.</li>
+        <li>Provide 2–3 concrete input/output examples of the retry queue's expected behavior to constrain Claude's implementation choices.</li>
+        <li>Address retry logic and idempotency in a single detailed message after the initial implementation to fix both issues simultaneously.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>interview pattern（訪談模式）正是為「陌生領域、擔心遺漏隱藏考量」的情境設計的：先讓 Claude 問你問題，把冪等性、重試上限、訊息順序、failure mode 這類「你不問就不會浮現」的決策攤開，等你回答完再實作，大幅減少事後補救。</p>
+          <p>A 錯在哪：test-driven 迭代是很好的技巧，但「先寫測試」需要你已知道該測什麼——在你不熟悉這個領域的前提下，你可能不知道冪等性測試是必要的，因此無法在一開始就寫出完整的測試套件。C 錯在哪：I/O 範例適合解決「轉換格式解讀不一致」的問題，但 message queue 的核心挑戰是設計決策而非輸入輸出格式，用範例無法迫使你思考 retry 上限等問題。D 錯在哪：事後在一則訊息修兩個互相牽動的問題，雖然比分次修好，但這是亡羊補牢，遠不如在實作前用 interview pattern 把問題預防掉。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">An engineer is debugging a message queue system and identifies two issues: (1) the retry counter increments even when the message was already successfully processed (a deduplication bug), and (2) there is a typo in a log message. The engineer asks Claude to fix both issues. In the first attempt, Claude fixes the retry counter but the deduplication logic breaks. What is the root cause, and what approach should be used instead?</p>
+      <ol class="q-options" type="A">
+        <li>The root cause is insufficient context; the engineer should use plan mode to let Claude analyze both issues before attempting any fix.</li>
+        <li>The root cause is that the retry and deduplication logic interact; both interacting issues should be described together in a single detailed message so Claude can address them holistically.</li>
+        <li>The root cause is that the issues are independent; they should be fixed sequentially, one per message, to get cleaner feedback on each.</li>
+        <li>The root cause is ambiguous prose descriptions; the engineer should provide input/output examples for both bugs to clarify the expected behavior.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>重試計數器與去重邏輯彼此牽動（interacting problems）——修重試邏輯時必然影響去重邏輯的運作。對於互相牽動的問題，應該在同一則詳細訊息裡一起說明，讓 Claude 能通盤設計、一次解決兩者間的協調問題，而不是分次各修各的導致來回返工。</p>
+          <p>C 錯在哪：「分次修、各修各的」適合彼此獨立的問題，但重試與去重互相牽動，拆開修正是造成這次失敗的直接原因，不是解法。A 錯在哪：plan mode 適合有架構決策或大規模多檔修改的任務，修兩個有關聯的 bug 不需要規劃階段，正確的工具是在一則訊息裡說清楚兩者的牽動關係。D 錯在哪：I/O 範例適合解決「輸出格式不一致」的問題，而這個情境的核心問題是兩個邏輯互相影響，需要通盤設計而非格式說明。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows

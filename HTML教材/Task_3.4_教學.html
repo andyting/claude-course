@@ -115,6 +115,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -163,7 +227,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;plan mode 適合:大規模、多種解法、架構決策、多檔修改</h2>
+  <h2><span class="num">知識 1</span> &nbsp;plan mode（計畫模式）適合:大規模、多種解法、架構決策、多檔修改</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你需要把 monolith 的 payments 模組拆成獨立 microservice，這個改動牽涉 API 邊界重新設計、資料庫 schema 遷移、以及數十個呼叫端的修改，你需要知道是否應該先讓 Claude 規劃再動手。</div>
   <p>plan mode 是為<b>複雜任務</b>設計的。判斷特徵:改動規模大、有<b>多個都說得通的做法</b>(需要先選)、牽涉<b>架構決策</b>、要動<b>很多個檔案</b>。這類任務一旦貿然下手,做錯方向就要大幅重來。</p>
   <p>Scenario 2 的例子:把一個 monolith 拆成 microservice、或把某個 library 換掉(影響 45+ 個檔)——這些都該先 plan。</p>
   <div class="codeblock">
@@ -181,6 +246,7 @@ claude --permission-mode plan
   <div class="key"><b>考點重點:</b>大規模 / 多解法 / 架構抉擇 / 多檔 → plan mode。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;direct execution 適合:簡單、範圍清楚的小改動</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>oncall 工程師收到 stack trace 顯示 cart.py:42 有 KeyError，根因很明確是缺少 default value 處理，你需要判斷這個修正是否值得先跑 plan mode 還是直接執行。</div>
   <p>反過來,如果任務<b>簡單、範圍很清楚</b>,規劃只是徒增延遲,直接做就好。官方例子:在某個 function 加<b>一個驗證檢查</b>。沒有方向之爭,沒有架構問題,單檔搞定。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -197,11 +263,13 @@ claude --permission-mode plan
   </div>
   <div class="key"><b>一句話記住:</b>單檔、scope 清楚、無架構含意 → 直接執行,別過度規劃。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;plan mode 讓你先安全探索與設計,避免昂貴的重做</h2>
+  <h2><span class="num">知識 3</span> &nbsp;plan mode（計畫模式）讓你先安全探索與設計,避免昂貴的重做</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>上次團隊讓 Claude 直接改了三個 service 的整合方式，做到一半才發現原本選的方案需要額外的基礎設施，整個重做花了兩天，你需要了解如何避免這種昂貴的 rework。</div>
   <p>plan mode 的價值在於:<b>在真的動手改之前,先安全地探索 codebase、把設計想清楚</b>。它不會直接改檔,而是先產出計畫讓你檢視。這樣若方向錯了,你在「計畫」階段就能攔下,而不是等程式碼改了一半才發現要全部重來——那種重做(rework)成本很高。</p>
   <div class="key"><b>重點:</b>plan mode = 先想清楚再動手 → 把錯誤擋在計畫階段,省下昂貴 rework。</div>
 
   <h2><span class="num">知識 4</span> &nbsp;Explore subagent:隔離吵雜的探索輸出,只回摘要保住主 context</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你請 Claude 分析一個龐大的 legacy 認證系統，它翻了 80 個檔案並把所有原始內容倒進主對話，等到要開始重構時 context window 已幾乎耗盡，後續的實作階段沒有足夠空間，你需要一個方法隔離探索過程的雜訊。</div>
   <p>複雜任務的「探索/發現」階段(discovery)常常很吵——翻一堆檔、grep 一堆結果。如果這些全進主對話,主 context window 很快被洗爆。<b>Explore subagent</b> 的作用:把這段 verbose 的探索放到子代理裡跑,主對話只收到<b>精煉的摘要</b>。</p>
   <p>這跟 Task 3.2 的 <code>context: fork</code>、Task 1.3 的 subagent 觀念一脈相承——都是「把雜訊隔離、只帶結論回來」。</p>
   <div class="codeblock">
@@ -218,7 +286,8 @@ claude --permission-mode plan
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;為有架構含意的任務選 plan mode</h2>
+  <h2><span class="num">技能 1</span> &nbsp;為有架構含意的任務選 plan mode（計畫模式）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你接到任務要把現有系統從 REST API 整合換成 message queue 架構，這兩種方案有不同的基礎設施需求和 rollback 策略，你需要在動手前先讓 Claude 評估不同方向的取捨。</div>
   <p>知識 1 的實戰落點。官方點名的情境:microservice 重構、library migration 影響 45+ 檔、在「不同基礎設施需求的整合方案」之間做選擇——這些都先 plan。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -231,6 +300,7 @@ claude --permission-mode plan \
   </div>
 
   <h2><span class="num">技能 2</span> &nbsp;為範圍清楚的小改動選 direct execution</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Sentry 告警顯示 validate_date() 函式沒有拒絕未來日期，你有明確的錯誤訊息與預期行為，你需要判斷這是否需要先規劃，還是直接讓 Claude 修。</div>
   <p>知識 2 的落點。官方例子:有明確 stack trace 的單檔 bug fix、加一個日期驗證條件——直接做。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -243,6 +313,7 @@ claude -p <span class="tok-str">"修正 cart.py:42 的 KeyError:
   <div class="key"><b>重點:</b>有清楚 stack trace 的單檔修、加一個條件 → direct execution。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;在 verbose 探索階段用 Explore subagent 防 context 爆掉</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你在做多階段重構任務，每次在第一個「探索 legacy 程式碼」階段就把 context 耗盡，導致後續的「實作重構」階段沒有足夠空間，你需要把探索過程隔離出去。</div>
   <p>知識 4 的實作。多階段任務最怕在「發現階段」就把 context 用光,後面的實作階段沒空間。把探索丟給 Explore subagent。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -253,7 +324,8 @@ claude -p <span class="tok-str">"修正 cart.py:42 的 KeyError:
 <span class="tok-com">#   → 後續重構階段仍有充足 context 可用</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 4</span> &nbsp;組合:plan mode 調查 + direct execution 實作</h2>
+  <h2><span class="num">技能 4</span> &nbsp;組合:plan mode（計畫模式）調查 + direct execution 實作</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要把所有 HTTP library 從 requests 換成 httpx，這影響 50 個檔案，但每個檔案的改法相對機械化，你需要先讓 Claude 規劃出完整的遷移步驟，確認沒有遺漏後再逐步執行。</div>
   <p>兩者不是二選一,可以接力。官方例子:先用 plan mode 把 library migration 規劃好,確認方案後,<b>再用 direct execution 照計畫執行</b>。前段用規劃降風險,後段用直接執行求效率。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -271,6 +343,77 @@ claude -p <span class="tok-str">"依先前計畫,把第 1~3 步的檔案改成 h
     <h2>整個 Task 3.4 的記憶骨架</h2>
     <p>在 Scenario 2 接到任務先分流:<span class="num">大規模 / 多種解法 / 架構決策 / 多檔修改</span> → 用 <span class="num">plan mode</span> 先安全探索與設計,把錯誤擋在計畫階段、省下昂貴 rework;<span class="num">簡單、範圍清楚的單檔小改</span>(有 stack trace 的 bug fix、加一個驗證)→ <span class="num">direct execution</span>,別過度規劃。探索階段吵雜時用 <span class="num">Explore subagent</span> 隔離輸出、只回摘要,保住主 context。兩者可接力:<span class="num">plan mode 調查 → direct execution 實作</span>。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A team needs to migrate their HTTP client library from <code>requests</code> to <code>httpx</code> across 47 files in their codebase. Initial analysis shows at least three different integration patterns exist, each requiring a different migration approach, and the change also affects how the test suite mocks HTTP calls. The tech lead is deciding how to proceed with Claude Code. What is the most effective approach?</p>
+      <ol class="q-options" type="A">
+        <li>Use direct execution immediately, since the migration is purely mechanical and does not require architectural decisions.</li>
+        <li>Use plan mode first to explore the codebase, identify all three integration patterns, and produce a step-by-step migration plan before making any changes.</li>
+        <li>Assign the task to the Explore subagent to scan all 47 files and generate the complete migration automatically without a planning phase.</li>
+        <li>Use direct execution on the largest files first, then switch to plan mode if conflicts arise during the migration.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>任務符合 plan mode 的所有判斷特徵：多個可行做法（三種整合 pattern）、影響 47 個檔案（multi-file）、牽涉測試策略變化（有架構含意）。先 plan 讓 Claude 探索並出方案，確認方向對了再執行，避免做到一半才發現某個 pattern 漏了。</p>
+          <p>A 錯在哪：「有三種不同整合 pattern 各需不同遷移方法」表示這不是純機械性任務，存在選擇點和架構含意，直接執行風險高。C 錯在哪：Explore subagent 的用途是隔離 verbose 的探索輸出保住主 context，它不是自動完成整個遷移任務的執行器。D 錯在哪：先動最大的檔案再回頭規劃會造成先做的那些與後來規劃出的方案不一致，增加 rework 成本。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">An on-call engineer receives a Sentry alert showing <code>cart.py line 87: KeyError 'discount_code'</code>. The stack trace clearly identifies the root cause: the code does not handle missing optional keys in the cart object. The fix requires adding a <code>.get('discount_code', None)</code> call in one function. What is the most appropriate execution strategy?</p>
+      <ol class="q-options" type="A">
+        <li>Use plan mode to analyze all potential places in the codebase where similar KeyError patterns might exist before applying the fix.</li>
+        <li>Use the Explore subagent to scan the entire codebase for related cart handling logic before making any changes.</li>
+        <li>Use direct execution, as the fix is a well-scoped single-file change with a clear stack trace and no architectural implications.</li>
+        <li>Use plan mode because the production incident requires a thorough root cause analysis across multiple files to prevent recurrence.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>這是教材明確點名的 direct execution 場景：有明確 stack trace、單一檔案修改、無架構含意、範圍完全清楚。規劃只是增加不必要的延遲，直接執行是最有效率的做法。</p>
+          <p>A 錯在哪：掃描整個 codebase 找相似 pattern 超出了問題的 scope，目前的任務只是修一個已知的 bug，過度規劃浪費時間。B 錯在哪：Explore subagent 用於探索階段的 verbose 輸出隔離，在這個範圍清楚的單點修復場景中完全不需要。D 錯在哪：這個問題的根因已經非常清楚（缺少 .get 處理），用 plan mode 做「徹底根因分析」是過度工程化。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A team is conducting a multi-phase refactoring of a legacy authentication system. During the first phase — exploring the existing codebase to understand the auth flow — Claude Code scans 80+ files and fills the main conversation context with raw file contents. By the time the exploration completes, there is insufficient context remaining for the second phase (implementing the refactored architecture). What should the team have done differently?</p>
+      <ol class="q-options" type="A">
+        <li>Used plan mode for the exploration phase so Claude would generate a plan document instead of loading file contents into context.</li>
+        <li>Used the Explore subagent for the verbose discovery phase, so that raw file contents stay in the subagent context and only a refined summary is returned to the main conversation.</li>
+        <li>Broken the exploration into smaller chunks by exploring one directory at a time to avoid filling the context.</li>
+        <li>Started with direct execution on the most critical auth files, then used the Explore subagent only for the remaining files.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>Explore subagent 正是為這個情境設計的：把 verbose 的探索/發現階段放到隔離的子代理執行，中間大量的原始檔內容留在子代理，主對話只收到精煉的摘要。這讓後續的實作階段有充足的 context 空間可用。</p>
+          <p>A 錯在哪：plan mode 讓 Claude 在動手前先出規劃方案，但規劃本身也需要探索 codebase，如果不用 Explore subagent，探索時產生的 verbose 輸出仍會進入主 context，問題依然存在。C 錯在哪：分小批探索可以稍微緩解問題，但治標不治本，多次探索累積起來仍會消耗大量 context，而且每批之間可能遺漏跨目錄的關聯。D 錯在哪：先對重要檔案直接執行再探索其他的，在不了解整體架構前就開始修改，可能造成後來發現方向錯誤的 rework。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows

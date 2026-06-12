@@ -153,6 +153,70 @@
   }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -194,12 +258,13 @@
 
 
   <div class="lead">
-    一句話抓住主軸:<b>把大任務拆小有兩種路——「固定流水線」(prompt chaining,步驟事先排好)和「動態適應拆解」(走一步看一步,依發現生成下一步)。</b> 整個 Task 就在教你「什麼時候用哪一種」。
+    一句話抓住主軸:<b>把大任務拆小有兩種路——「固定流水線（pipeline）」(prompt chaining，提示串接,步驟事先排好)和「動態適應拆解（dynamic decomposition）」(走一步看一步,依發現生成下一步)。</b> 整個 Task 就在教你「什麼時候用哪一種」。
   </div>
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;固定流水線(prompt chaining) vs 動態適應拆解</h2>
+  <h2><span class="num">知識 1</span> &nbsp;固定流水線（pipeline，管線）(prompt chaining) vs 動態適應拆解</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你在設計一個新任務的執行策略，需要判斷應該預先排好固定步驟，還是讓系統根據執行過程中的發現動態生成下一步，而這個判斷取決於任務的可預測程度。</div>
   <p>這是 Task 1.6 的主軸對比。<br>
   <b>固定流水線</b>:步驟在開始前就排定,一步接一步固定走,適合<b>可預測</b>的任務(我事先就知道要做哪幾步)。<br>
   <b>動態適應拆解</b>:下一步要做什麼,<b>取決於上一步發現了什麼</b>,適合<b>開放式</b>、事前無法把步驟列完的任務。</p>
@@ -220,7 +285,8 @@
   </div>
   <div class="key"><b>考點重點:</b>可預測 → 固定流水線;開放/未知 → 動態適應拆解。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;Prompt chaining:把審查拆成「逐步」的序列</h2>
+  <h2><span class="num">知識 2</span> &nbsp;Prompt chaining（提示串接）:把審查拆成「逐步」的序列</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>大型 PR 的 code review 一次把所有變更檔塞進同一個 context，模型對每個檔案的分析都很淺，跨檔依賴問題更是完全漏看，你需要一個能保持分析深度的拆解策略。</div>
   <p>prompt chaining 的經典用法是把一個複雜審查切成幾個固定步驟,前一步的輸出餵給後一步。官方例子:<b>先逐一分析每個檔案,再跑一個跨檔整合(cross-file integration)pass</b>。先個別、再整體,兩階段串起來。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -234,7 +300,8 @@
   </div>
   <div class="key"><b>考點重點:</b>典型 chain = 逐檔 local 分析 →(串)→ 跨檔 integration pass。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;適應式調查計畫的價值:依「每步的發現」長出子任務</h2>
+  <h2><span class="num">知識 3</span> &nbsp;適應式調查計畫的價值:依「每步的發現」長出子任務（dynamic decomposition，動態拆解）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你接到一個開放式任務（如「找出系統的效能瓶頸」），事前無法列出完整步驟，需要一種在調查過程中根據發現動態生成下一步的機制。</div>
   <p>開放式任務的價值在於:你<b>事前不可能列完所有步驟</b>。適應式計畫讓系統在每一步根據實際發現,動態生成接下來該做什麼。發現了相依性、發現了高風險區,計畫就跟著長出對應的新子任務。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -254,8 +321,9 @@
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;為工作流挑對拆解模式</h2>
-  <p>這是知識 1 的實作判斷。看到任務先分類:<b>可預測的多面向審查</b>(我知道要查哪幾項)→ 用 <b>prompt chaining</b>;<b>開放式調查</b>(終點不明、得邊查邊定方向)→ 用 <b>動態拆解</b>。挑錯模式的代價:用固定流水線做開放任務會卡住,用動態拆解做可預測任務則徒增複雜度。</p>
+  <h2><span class="num">技能 1</span> &nbsp;為工作流（workflow，工作流程）挑對拆解模式</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要為不同類型的任務選擇合適的拆解策略——多面向的標準安全審查使用 prompt chaining，而開放式的舊系統漏洞調查則使用動態拆解，兩者不能混用。</div>
+  <p>這是知識 1 的實作判斷。看到任務先分類:<b>可預測的多面向審查</b>(我知道要查哪幾項)→ 用 <b>prompt chaining（提示串接）</b>;<b>開放式調查</b>(終點不明、得邊查邊定方向)→ 用 <b>動態拆解（dynamic decomposition）</b>。挑錯模式的代價:用固定流水線做開放任務會卡住,用動態拆解做可預測任務則徒增複雜度。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-kw">def</span> <span class="tok-fn">choose_decomposition</span>(task):
@@ -266,8 +334,9 @@
   </div>
   <div class="key"><b>重點:</b>可預測多面向審查 → chaining;開放式調查 → 動態拆解。</div>
 
-  <h2><span class="num">技能 2</span> &nbsp;大型 code review 拆成「逐檔 local + 跨檔 integration」避免注意力稀釋</h2>
-  <p>為什麼要拆?因為一次把所有檔案塞進同一個 context,模型的注意力會被<b>稀釋(attention dilution)</b>——看了太多東西,每個都看不細。解法:每個檔案<b>單獨</b>跑一個 local 分析 pass(注意力集中在一個檔),再用一個<b>獨立</b>的 pass 處理跨檔關係。</p>
+  <h2><span class="num">技能 2</span> &nbsp;大型 code review 拆成「逐檔 local + 跨檔 integration」避免注意力稀釋（attention dilution）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>CI pipeline 中的自動 code review 對包含 15 個變更檔的 PR 分析品質極差，每個檔案的問題都被忽略了，因為模型的注意力被稀釋在太多檔案上。</div>
+  <p>為什麼要拆?因為一次把所有檔案塞進同一個 context（對話歷史），模型的注意力會被<b>稀釋（attention dilution，注意力稀釋）</b>——看了太多東西,每個都看不細。解法:每個檔案<b>單獨</b>跑一個 local 分析 pass(注意力集中在一個檔),再用一個<b>獨立</b>的 pass 處理跨檔關係。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ 全部塞一起 → 注意力稀釋,每個檔都看不深</span>
@@ -282,7 +351,8 @@
   </div>
   <div class="key"><b>重點:</b>逐檔 local + 獨立跨檔 integration → 避免 attention dilution。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;拆開放式任務:先測繪結構 → 找高影響區 → 建可調整的優先計畫</h2>
+  <h2><span class="num">技能 3</span> &nbsp;拆開放式任務:先測繪結構 → 找高影響區 → 建可調整的優先計畫（adaptive plan）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你被要求為一個多年未維護的舊程式庫補充完整的測試覆蓋率，面對幾萬行程式碼無從下手，需要一個系統化的拆解方法讓任務可以落地執行。</div>
   <p>官方例子是「為老舊程式庫補上完整測試」。這種沒有現成步驟的任務,正確拆法是三段:<b>(1) 先 map 結構</b>(摸清整體長相)→ <b>(2) 找出高影響區</b>(哪些地方最該先測)→ <b>(3) 排出優先順序的計畫,並隨著發現相依性而調整</b>。重點在最後一句:計畫不是死的,發現新相依性就更新。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -303,6 +373,77 @@
     <h2>整個 Task 1.6 的記憶骨架</h2>
     <p>任務拆解有兩條路:<span class="num">固定流水線(prompt chaining)</span>給可預測任務(例:逐檔分析 → 跨檔整合),<span class="num">動態適應拆解</span>給開放式任務(子任務由<span class="num">中途發現</span>長出)。挑模式看任務可不可預測。大型 review 要拆成<span class="num">逐檔 local + 獨立跨檔 pass</span> 以免<span class="num">注意力稀釋</span>;開放式任務(如補測試)則<span class="num">先測繪結構 → 找高影響區 → 排優先序</span>,並隨相依性發現持續調整。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">A CI pipeline uses Claude Code to review pull requests. For a PR with 18 changed files, the automated review flags only 2 low-severity issues and misses a critical API contract violation that spans multiple files. Engineers manually reviewing the same PR easily spotted the issue. What is the most likely root cause of the automated review's poor performance?</p>
+      <ol class="q-options" type="A">
+        <li>Claude Code lacks access to the external API documentation needed to detect contract violations.</li>
+        <li>All 18 files were processed in a single context window, causing attention dilution that prevented deep analysis of any individual file or cross-file relationship.</li>
+        <li>The CI pipeline did not provide Claude Code with the full git diff, so it only saw partial changes.</li>
+        <li>Claude Code requires interactive mode to detect complex multi-file issues and cannot run effectively in non-interactive CI environments.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>Attention dilution（注意力稀釋）是把大型 code review 一次全部塞進 context 的核心問題：模型面對大量內容，每個部分的分析深度都被稀釋，跨檔關係更是難以追蹤。正確做法是把 review 拆成兩個階段——先對每個變更檔各自跑獨立的 local pass（注意力集中在一個檔），再跑一個專門的跨檔 integration pass。</p>
+          <p>A 錯在哪：外部 API 文件存取問題與 attention dilution 無關；即使有外部文件，若注意力被 18 個檔稀釋，也無法做深入分析。C 錯在哪：git diff 完整性是前置條件問題，但題目描述的症狀（淺層分析、漏掉跨檔關係）是典型的 attention dilution 表現，而非資料缺失。D 錯在哪：<code>claude -p</code>（非互動模式）正是專為 CI 設計的執行方式，可以對每個檔案獨立呼叫；非互動模式不是導致品質差的原因。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">A team is designing an automated task: "Add comprehensive test coverage to a legacy Python codebase with 50,000 lines of code." They propose two approaches: (A) Define fixed sequential steps upfront: scan all files → generate tests → run tests → report. (B) Start by mapping the codebase structure, identify high-impact areas, then generate a prioritized plan that adapts as dependencies are discovered. Which approach is most appropriate and why?</p>
+      <ol class="q-options" type="A">
+        <li>Approach A, because fixed sequential pipelines are always more reliable and predictable in CI environments.</li>
+        <li>Approach A, because the steps (scan, generate, run, report) are well-defined and can be executed in a deterministic order.</li>
+        <li>Approach B, because this is an open-ended task where the structure, dependencies, and high-impact areas cannot be known upfront and must be discovered during execution.</li>
+        <li>Approach B, because adaptive decomposition is always superior to fixed pipelines regardless of task type.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>「為舊程式庫補完整測試」是典型的開放式任務：你事前不知道哪些模組最重要、哪些有複雜的相依性、哪些已有部分測試。正確的動態適應拆解方法是：先 map 結構（摸清整體）→ 找高影響區（哪裡最值得先測）→ 建立可調整的優先計畫，並隨著發現新相依性不斷更新計畫。這種方法能應對「邊查邊發現新資訊」的開放式任務本質。</p>
+          <p>A 錯在哪：固定流水線適合可預測的任務，但「為未知的舊程式庫補測試」步驟無法事先完全定義；用固定流水線可能在發現複雜相依性時卡住。B 錯在哪：雖然「scan → generate → run → report」看似有步驟，但這個框架太粗糙，無法處理「哪些地方先測」「如何應對發現的相依性」等關鍵決策；表面上有步驟不代表適合固定流水線。D 錯在哪：動態適應拆解並非萬用最優解——對可預測的多面向審查（如標準安全 checklist）用動態拆解反而會徒增複雜度和不確定性。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">A CI job uses Claude Code to review a pull request with 12 changed files. The per-file analysis is thorough, but the final report misses a breaking change where a function signature modified in <code>utils.py</code> is called with the old signature in three other files. Which change best addresses this gap?</p>
+      <ol class="q-options" type="A">
+        <li>Increase the context window size so all 12 files can be analyzed together in a single pass.</li>
+        <li>Run a separate cross-file integration pass after all per-file local analyses are complete, specifically to detect inter-file dependencies and interface consistency issues.</li>
+        <li>Add a static analysis linter to the CI pipeline to catch signature mismatches before Claude Code runs.</li>
+        <li>Ask Claude Code to re-analyze the files in reverse order to ensure it does not miss later-occurring changes.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>這道題描述的問題正是「逐檔 local pass + 跨檔 integration pass」架構的設計初衷。逐檔分析能確保每個檔案被深入審查（已做到），但跨檔關係（函式簽名變更、介面一致性）需要一個獨立的 integration pass 專門處理。在所有 local pass 完成後，用各檔的摘要跑一次跨檔整合分析，能有效捕捉此類跨越多個檔案的介面問題。</p>
+          <p>A 錯在哪：加大 context window 讓所有檔案塞進同一個 context，會重新引入 attention dilution 問題——單一 pass 容量雖然更大，但注意力仍然被分散；兩階段架構（逐檔 + 跨檔）才是正確解法。C 錯在哪：靜態分析工具確實能捕捉簽名不符，但這個問題問的是 task decomposition 策略，且靜態工具無法替代語意層面的 code review；兩者互補但選項 B 更直接回答了如何在現有架構中解決跨檔問題。D 錯在哪：改變分析順序不能解決跨檔依賴問題——無論正序還是逆序，逐檔分析的設計就是每次只看一個檔，無法在同一個 pass 中偵測跨檔關係。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration

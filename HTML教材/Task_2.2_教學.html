@@ -224,6 +224,70 @@
   }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -277,7 +341,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;MCP 的 isError 旗標:把「工具失敗」回報給 agent</h2>
+  <h2><span class="num">知識 1</span> &nbsp;MCP 的 <code>isError</code> 旗標：把「工具失敗」回報給 agent</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的客服 agent 在後端服務斷線時繼續把錯誤訊息當成正常回應處理，導致錯誤的退款狀態被呈現給使用者，你需要理解 MCP 如何用標準旗標區分「成功結果」與「工具失敗」。</div>
   <p>MCP 工具回傳結果時,有一個 <code>isError</code> 旗標。它就是工具對 agent 說「這次我失敗了」的標準訊號。<code>isError: true</code> 代表這次呼叫沒成功,agent 看到就知道要走錯誤處理,而不是把錯誤內容當成正常結果。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -294,12 +359,13 @@ failure = {  <span class="tok-com"># process_refund 打後端時失敗</span>
   </div>
   <div class="key"><b>考點重點:</b><code>isError</code> 是 MCP 標準的失敗回報旗標。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;四種錯誤類型要分清楚</h2>
-  <p>不是所有錯誤都一樣。官方分四類,因為<b>各類的處理方式完全不同</b>:</p>
-  <p><b>transient(暫時性):</b>逾時、服務暫時不可用 → 通常<b>等一下重試</b>就好。<br>
-  <b>validation(驗證):</b>輸入不合法(如 order_id 格式錯) → <b>重試沒用,要修輸入</b>。<br>
-  <b>business(業務規則):</b>違反政策(如超過退款期限) → <b>不能重試,要照規則溝通</b>。<br>
-  <b>permission(權限):</b>沒有授權 → <b>重試也沒用,要走授權流程</b>。</p>
+  <h2><span class="num">知識 2</span> &nbsp;四種 error category（錯誤類別）要分清楚</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 在遇到退款金額超限（業務規則違規）時反覆重試，浪費大量 API 呼叫且始終無法成功，你需要了解不同錯誤類型各自應該採取什麼處置，而不是對所有錯誤一律重試。</div>
+  <p>不是所有錯誤都一樣。官方分四類，因為<b>各類的處理方式完全不同</b>：</p>
+  <p><b>transient（暫時性錯誤）：</b>逾時、服務暫時不可用 → 通常<b>等一下重試</b>就好。<br>
+  <b>validation（驗證錯誤）：</b>輸入不合法（如 order_id 格式錯）→ <b>重試沒用，要修輸入</b>。<br>
+  <b>business（商業邏輯錯誤）：</b>違反政策（如超過退款期限）→ <b>不能重試，要照規則溝通</b>。<br>
+  <b>permission（權限錯誤）：</b>沒有授權 → <b>重試也沒用，要走授權流程</b>。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-com"># 四類錯誤,各自對應不同處置</span>
@@ -313,6 +379,7 @@ ERROR_HANDLING = {
   <div class="key"><b>重點:</b>transient / validation / business / permission，四類處置全不同。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;為什麼「統一的籠統錯誤」是壞事</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的工具在各種失敗情況下都只回傳 "Operation failed"，導致 agent 無法判斷要重試、修正輸入還是直接向使用者道歉，你需要理解為何 uniform error response（統一錯誤回應）會癱瘓 agent 的自主恢復能力。</div>
   <p>如果每種錯誤都只回一句 <code>"Operation failed"</code>,agent 就<b>無從判斷該怎麼救</b>。是該重試?還是修輸入?還是放棄?它看不出來,只能瞎猜——很可能做出錯誤的恢復決定(例如對一個不可重試的業務錯誤一直重試,白費功夫)。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -329,8 +396,9 @@ good = {
   </div>
   <div class="key"><b>重點:</b>籠統錯誤剝奪了 agent 做正確恢復決策的能力。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;可重試 vs 不可重試:用 metadata 避免白費重試</h2>
-  <p>關鍵分野:這個錯<b>重試會不會有用</b>?暫時性逾時 → 重試可能成功;輸入錯誤、違反業務規則、權限不足 → 重試一萬次也一樣失敗。回傳結構化的 <code>isRetryable</code> metadata,就能讓 agent<b>不去做注定失敗的重試</b>,省下時間與成本。</p>
+  <h2><span class="num">知識 4</span> &nbsp;retryable（可重試）vs 不可重試：用 metadata 避免白費重試</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>監控顯示你的 agent 對驗證錯誤（輸入格式不合法）執行了數十次重試，消耗了大量成本且最終仍然失敗，你需要了解如何透過結構化 metadata 讓 agent 在嘗試之前就知道這個錯誤是否值得重試。</div>
+  <p>關鍵分野：這個錯<b>重試會不會有用</b>？暫時性逾時 → 重試可能成功；輸入錯誤、違反業務規則、權限不足 → 重試一萬次也一樣失敗。回傳結構化的 <code>isRetryable</code> metadata，就能讓 agent <b>不去做注定失敗的重試</b>，省下時間與成本。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code>retryable     = {<span class="tok-str">"errorCategory"</span>: <span class="tok-str">"transient"</span>,  <span class="tok-str">"isRetryable"</span>: <span class="tok-good">True</span>}
@@ -346,7 +414,8 @@ non_retryable = {<span class="tok-str">"errorCategory"</span>: <span class="tok-
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;回傳含 errorCategory、isRetryable、人類可讀說明的結構化錯誤</h2>
+  <h2><span class="num">技能 1</span> &nbsp;回傳含 <code>errorCategory</code>、<code>isRetryable</code>、人類可讀說明的 structured error（結構化錯誤）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你需要為 <code>lookup_order</code> 和 <code>process_refund</code> 工具設計標準錯誤回應格式，讓 agent 在遇到後端逾時、輸入格式錯誤或退款被拒時，能夠自動採取正確的下一步。</div>
   <p>把知識落地成標準回應格式。三件套缺一不可:<code>errorCategory</code>(哪一類)、<code>isRetryable</code>(能不能重試)、人看得懂的 description(出了什麼事)。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -362,7 +431,8 @@ non_retryable = {<span class="tok-str">"errorCategory"</span>: <span class="tok-
 <span class="tok-kw">return</span> <span class="tok-fn">error_response</span>(<span class="tok-str">"transient"</span>, <span class="tok-good">True</span>, <span class="tok-str">"訂單服務逾時,請稍後重試。"</span>)</code></pre>
   </div>
 
-  <h2><span class="num">技能 2</span> &nbsp;業務規則違規:加 retriable:false + 對客戶友善的說明</h2>
+  <h2><span class="num">技能 2</span> &nbsp;business error（商業邏輯錯誤）違規：加 <code>retriable: false</code> + 對客戶友善的說明</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客服 agent 在退款超過期限時回覆了含有系統內部術語的錯誤訊息（如「ERR_REFUND_POLICY_VIOLATION」），使用者看不懂且感到困惑，你需要設計讓 agent 能直接轉述的客戶友善錯誤格式。</div>
   <p>業務錯誤(如超過退款期限)永遠不該重試。回應裡標明 <code>retriable: false</code>,並附上<b>客戶能聽懂、不帶內部術語</b>的說明,讓 agent 可以直接、得體地轉述給使用者。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -378,7 +448,8 @@ non_retryable = {<span class="tok-str">"errorCategory"</span>: <span class="tok-
   </div>
   <div class="key"><b>重點:</b>business 錯誤要 <code>retriable: false</code> + 客戶友善說明,讓 agent 好溝通。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;agent 就地恢復暫時性錯誤,只把救不了的往上 escalate</h2>
+  <h2><span class="num">技能 3</span> &nbsp;agent 就地恢復 transient error（暫時性錯誤），只把救不了的往上 escalate</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的客服系統在後端暫時斷線時馬上升級給人工客服，造成人工客服被大量可自動恢復的暫時性故障淹沒，你需要設計 local recovery（就地恢復）邏輯，只在真正無法自動修復時才 escalate。</div>
   <p>好的分層處理:客服 agent 呼叫 <code>lookup_order</code> 遇到<b>暫時性</b>錯誤(後端逾時)時,自己先就地重試恢復(local recovery),不要一有閃失就丟給人工。只有<b>本地解決不了</b>的錯誤才 <code>escalate_to_human</code>,而且要<b>連同已知資訊與「我試過什麼」</b>一起交接,真人才能無縫接手。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -397,7 +468,8 @@ non_retryable = {<span class="tok-str">"errorCategory"</span>: <span class="tok-
   </div>
   <div class="key"><b>重點:</b>暫時性錯誤 agent 就地恢復;救不了才 escalate_to_human,並附已知資訊與嘗試紀錄。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;分清「存取失敗」與「查無結果(空但成功)」</h2>
+  <h2><span class="num">技能 4</span> &nbsp;分清「存取失敗（access failure）」與「查無結果（空但成功）」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 在查詢訂單回傳空陣列時觸發了重試邏輯，導致同一個不存在的訂單被查詢三次，你需要明確區分「查詢成功但無資料」與「查詢本身失敗」這兩種完全不同的情況。</div>
   <p>容易踩的坑:查詢成功但<b>沒有符合的資料</b>,這不是錯誤!空結果代表「查詢成功,只是沒命中」,應回正常成功 + 空集合。把它誤判成 access failure(存取失敗)去重試,就是浪費——存取失敗才需要重試決策。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -415,6 +487,77 @@ access_fail = {<span class="tok-str">"isError"</span>: <span class="tok-good">Tr
     <h2>整個 Task 2.2 的記憶骨架</h2>
     <p>工具失敗用 MCP 的 <span class="num">isError</span> 旗標回報,但別只丟「失敗了」。要回<span class="num">結構化錯誤</span>:標明 <span class="num">errorCategory</span>(transient / validation / business / permission)、<span class="num">isRetryable</span>、人類可讀說明。業務違規加 <span class="num">retriable: false</span> + 客戶友善文字;subagent <span class="num">就地恢復</span>暫時性錯誤、救不了才連同部分結果上拋;最後別把<span class="num">空結果</span>誤當存取失敗去重試。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A customer support agent calls <code>process_refund</code>. The tool returns <code>{"isError": true, "content": [{"text": "Operation failed"}]}</code>. The agent retries the call five more times, all failing, before giving up. Monitoring later reveals the failures were caused by a business rule violation — the order was outside the 30-day refund window. What is the most likely root cause of the unnecessary retries?</p>
+      <ol class="q-options" type="A">
+        <li>The agent's retry logic was too aggressive and should have used exponential backoff.</li>
+        <li>The error response lacked structured metadata (<code>errorCategory</code> and <code>isRetryable</code>), so the agent had no signal that this error was non-retryable.</li>
+        <li>The <code>isError</code> flag was not set correctly in the MCP response.</li>
+        <li>The agent should have called <code>escalate_to_human</code> after the first failure instead of retrying.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>工具只回了 "Operation failed" 這句籠統訊息，沒有 <code>errorCategory: "business"</code> 和 <code>isRetryable: false</code>。Agent 看不到這些 metadata，只能假設這是暫時性問題並重試。結構化錯誤的核心價值就是讓 agent 在嘗試前就知道「這個錯誤重試有沒有用」。</p>
+          <p>A 錯在哪：exponential backoff 是處理 transient error 的好做法，但問題在 agent 根本不知道這是 non-retryable 的 business error，調整 backoff 策略無濟於事。C 錯在哪：題目說 <code>isError: true</code> 已正確設定，這不是根本問題；缺的是 category 和 retryable 欄位。D 錯在哪：一次失敗就 escalate_to_human 是過度設計，transient error 應該先就地恢復，只有無法本地解決的才 escalate。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A <code>lookup_order</code> MCP tool returns the following when a customer queries an order that doesn't exist: <code>{"isError": true, "errorCategory": "transient", "isRetryable": true, "content": [{"text": "No order found"}]}</code>. The agent retries three times and eventually fails. What is wrong with this error response design?</p>
+      <ol class="q-options" type="A">
+        <li>The <code>isError</code> flag should be <code>false</code> for empty results — a successful query with no matches is not an error.</li>
+        <li>The <code>errorCategory</code> should be "validation" because the order ID format may be invalid.</li>
+        <li>The response is missing a human-readable description field for the customer.</li>
+        <li>The tool should return an HTTP 404 status code instead of using the <code>isError</code> flag.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: A</p>
+          <p>「查無訂單」是查詢成功但無資料的情況（empty result），不是存取失敗。應該回傳 <code>isError: false</code> 並附上空的 results 陣列，讓 agent 知道「查詢成功，只是沒有符合的結果」。把它標記為 <code>isError: true, isRetryable: true</code> 讓 agent 誤以為是暫時性存取失敗而浪費重試。</p>
+          <p>B 錯在哪：validation error 是「輸入不合法」，但「找不到訂單」並不代表輸入格式有問題，用戶可能查了一個合法但不存在的訂單號碼。C 錯在哪：加人類可讀說明是好習慣，但這不是這個錯誤設計的核心問題——根本問題是把「空結果」誤設為「錯誤」。D 錯在哪：MCP 工具不使用 HTTP 狀態碼，而是用 <code>isError</code> 旗標；這個選項混淆了 HTTP API 和 MCP 協議的概念。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A subagent handling order lookups encounters a transient database timeout. The agent is part of a multi-agent customer support system with a coordinator and a human escalation path. According to structured error handling best practices, what is the most effective approach?</p>
+      <ol class="q-options" type="A">
+        <li>Immediately return <code>isError: true</code> to the coordinator with full error details so it can decide whether to retry.</li>
+        <li>Attempt local recovery with retries (e.g., exponential backoff), and only propagate to the coordinator if all local retries fail — including what was attempted and any partial results.</li>
+        <li>Escalate directly to a human agent with the error details since database timeouts require human intervention.</li>
+        <li>Suppress the error and return an empty result set to avoid interrupting the coordinator's workflow.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>Transient error（暫時性錯誤）的處理原則：subagent 先就地恢復（local recovery），用 exponential backoff 重試幾次。只有本地解決不了才往上 escalate 給 coordinator，而且要附上「已嘗試的動作」與「部分結果」，讓 coordinator 和後續接手者能夠無縫繼續，避免重複工作。</p>
+          <p>A 錯在哪：對於 transient error，立刻往上拋讓 coordinator 決定是不必要的負擔；subagent 有能力自己重試，應先嘗試本地恢復。C 錯在哪：database timeout 是 transient error，不需要人工介入；只有本地多次重試都失敗、且是 non-retryable error 才考慮 escalate_to_human。D 錯在哪：壓制錯誤並回傳空結果會讓 coordinator 以為查詢成功但無資料，做出錯誤的決策，是最危險的做法。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 2: Tool Design &amp; MCP Integration

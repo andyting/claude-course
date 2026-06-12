@@ -143,6 +143,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -193,7 +257,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;漸進式摘要的風險:數字、百分比、日期、客戶期望被壓成模糊摘要</h2>
+  <h2><span class="num">知識 1</span> &nbsp;progressive summarization（漸進式摘要）的風險:數字、百分比、日期、客戶期望被壓成模糊摘要</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客服 agent 在第 20 輪對話時突然忘記客戶在第 1 輪講的退款金額與期望日期，只剩一句「客戶想退款」，導致必須重新詢問已確認過的資訊，客戶體驗大幅下滑。</div>
   <p>對話一長,常見做法是把舊歷史「摘要」成短文字以省 token。問題是:摘要會把<b>精確的數值</b>磨成模糊的形容詞。客戶說「我要退 <b>$129.99</b>,訂單 <b>A-77214</b>,希望<b>本週五</b>前到帳」,被摘成「客戶想退一筆款項」——金額、訂單、日期全沒了,後面 agent 只能瞎猜或重問。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -210,7 +275,8 @@ case_facts = {
   </div>
   <div class="key"><b>考點重點:</b>摘要可省 token,但<b>絕不能</b>把數字、百分比、日期、客戶明講的期望摘進去——這些要原值保留。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;「迷失在中間」(lost in the middle):模型對頭尾可靠、中段容易漏</h2>
+  <h2><span class="num">知識 2</span> &nbsp;lost in the middle（中段遺失）:模型對頭尾可靠、中段容易漏</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Agent 彙整 10 筆訂單查詢結果送入一個長 prompt，第 5 筆訂單的關鍵退款資訊位於中段，最終報告中該筆資訊被遺漏，造成客戶投訴未被處理。</div>
   <p>把一大堆內容塞進一個長 prompt 時,模型對<b>開頭</b>和<b>結尾</b>的資訊處理得很穩,但<b>中段</b>的內容常被忽略。所以關鍵事實(case facts、最重要的工具結果)應該放在開頭或結尾,而不是埋在中間第 17 段。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -229,6 +295,7 @@ prompt = <span class="tok-str">f"""[CASE FACTS]
   <div class="key"><b>重點:</b>關鍵摘要放<b>開頭</b>、細節用明確 section header 組織,以對抗位置效應。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;工具結果會累積、且佔 token 與其相關性不成比例</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>每輪呼叫 lookup_order 帶入 40+ 個欄位，對話進行到第 15 輪時 context 已滿，模型開始截斷回應，退貨處理流程因 token 耗盡而中斷。</div>
   <p>每次呼叫 <code>lookup_order</code> 可能回傳 <b>40+ 個欄位</b>(運費試算、行銷標籤、倉庫代碼…),但對「處理退貨」真正有用的可能只有 5 個。這些臃腫輸出會一輪一輪累積在 context 裡,把 token 預算吃光,還稀釋了真正重要的資訊。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -243,8 +310,9 @@ relevant = {k: raw[k] <span class="tok-kw">for</span> k <span class="tok-kw">in<
   </div>
   <div class="key"><b>重點:</b>工具輸出進 context 前先裁;不裁,token 會被無關欄位耗光。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;後續 API 請求要帶「完整對話歷史」以維持連貫</h2>
-  <p>Claude API 是<b>無狀態</b>的——它不會自己記得上一輪。每次發請求,你都要把完整對話歷史(messages 陣列)帶上,模型才能保持連貫。注意這跟知識 3 不衝突:「帶完整歷史」指的是訊息序列要完整,但<b>每則訊息內</b>的臃腫工具輸出仍應先裁乾淨。</p>
+  <h2><span class="num">知識 4</span> &nbsp;後續 API 請求要帶「完整 conversation history（對話歷史）」以維持連貫</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客服系統每次 API 呼叫只送最新一則訊息，導致 agent 忘記前幾輪已確認的訂單編號，每輪都要客戶重新確認身分，造成嚴重的使用體驗問題。</div>
+  <p>Claude API 是<b>無狀態</b>的——它不會自己記得上一輪。每次發請求,你都要把完整 conversation history（對話歷史）(messages 陣列)帶上,模型才能保持連貫。注意這跟知識 3 不衝突:「帶完整歷史」指的是訊息序列要完整,但<b>每則訊息內</b>的臃腫工具輸出仍應先裁乾淨。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-good"># ✅ 每次請求帶上完整 messages,維持連貫</span>
@@ -260,6 +328,7 @@ resp = client.messages.<span class="tok-fn">create</span>(model=<span class="tok
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;把交易事實抽成持久的 "case facts" 區塊,放在摘要歷史之外</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客服 agent 在對話進行到第 25 輪後開始錯誤引用退款金額，因為原始數字已被漸進式摘要稀釋，需要一個獨立的「不可摘要」事實區塊來確保準確性。</div>
   <p>金額、日期、訂單號、狀態這類交易事實,抽出來做成一個獨立的 <b>case facts 區塊</b>,每個 prompt 都原樣帶上。它<b>不參與摘要</b>——歷史可以被壓縮,但 case facts 永遠是原值。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -286,6 +355,7 @@ resp = client.messages.<span class="tok-fn">create</span>(model=<span class="tok
   <div class="key"><b>重點:</b>case facts = 交易事實的單一可信來源,獨立於可被摘要的歷史。</div>
 
   <h2><span class="num">技能 2</span> &nbsp;多議題對話:把結構化 issue 資料抽到獨立的 context 層</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客戶在同一通對話中同時處理兩筆不同訂單的退款，agent 將 A 訂單的金額 $129.99 誤用到 B 訂單的處理流程，導致退款金額錯誤且需要人工修正。</div>
   <p>同一通對話,客戶可能同時抱怨「兩筆訂單」。若混在一起,agent 很容易把 A 訂單的金額套到 B 訂單。做法:每個 issue 各自結構化(order ID / 金額 / 狀態),存到一個獨立的 context 層,彼此不混。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -299,6 +369,7 @@ issues = [
   <div class="key"><b>重點:</b>多議題 → 每個 issue 獨立結構化 → 金額/狀態不會互相污染。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;在工具輸出累積進 context 前,先裁成只剩相關欄位</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>生產環境中，每次 lookup_order 的完整 JSON 回應（含運費試算、行銷標籤等 40+ 欄位）直接進入 context，10 輪對話後 token 耗盡，退貨處理流程強迫中斷。</div>
   <p>這是知識 3 的實作。<code>lookup_order</code> 回 40+ 欄位,但對退貨只需要少數幾個。在它進 context <b>之前</b>就裁掉,而不是讓整包原始 JSON 一輪一輪堆積。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -315,6 +386,7 @@ context.<span class="tok-fn">add_tool_result</span>(<span class="tok-fn">trim_or
   <div class="key"><b>重點:</b>裁在「進 context 之前」,避免無關欄位一輪輪累積。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;關鍵摘要放開頭、用明確 section header 組織細節,以抗位置效應</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Agent 將多筆訂單查詢結果直接拼接成長 prompt，關鍵的退款決策事實埋在第 7 段，模型在綜合回應時遺漏該段資訊，導致最終建議不完整。</div>
   <p>這是知識 2 的實作。把多筆來源彙總成一個輸入時,<b>關鍵發現的摘要放最前面</b>,後面的細節用清楚的標題分段(=== 訂單 A-77214 ===),別讓重要結論埋在中段。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -327,6 +399,7 @@ context.<span class="tok-fn">add_tool_result</span>(<span class="tok-fn">trim_or
   <div class="key"><b>重點:</b>摘要置頂 + 明確 section header = 對抗「lost in the middle」。</div>
 
   <h2><span class="num">技能 5</span> &nbsp;要求 subagent 在結構化輸出中帶上 metadata,以支援下游正確綜合</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>保固政策查詢 subagent 的輸出沒有附上政策生效日期，下游綜合 agent 將舊版政策（2024-06 前）與新版（2026-01 後）混為一談，給客戶錯誤的退款資格判斷。</div>
   <p>當客服系統背後也用多 agent(例如一個 agent 查保固政策、一個查訂單),要求每個 subagent 的輸出都帶上 <b>metadata</b>(日期、來源出處、方法論脈絡)。下游做綜合時才能正確判讀,而不是把不同時間點的資料當成矛盾。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -342,6 +415,7 @@ policy_finding = {
   <div class="key"><b>重點:</b>結構化輸出 + metadata(日期/來源)→ 下游綜合不誤判。</div>
 
   <h2><span class="num">技能 6</span> &nbsp;讓上游 agent 回「結構化資料」而非冗長內容,以省下游 context 預算</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>訂單查詢 subagent 將整段推理過程（數千字）回傳給下游綜合 agent，下游 context 預算耗盡、無法完成最終回覆，需要改造上游只回傳結構化精華。</div>
   <p>當下游 agent 的 context 預算很緊時,改造上游:讓它回<b>結構化的 key facts / 引用 / 相關性分數</b>,而不是把整段推理鏈與冗長內文倒給下游。下游只需要「事實 + 出處 + 重要度」,不需要上游的思考過程。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -361,6 +435,77 @@ upstream_out = {
     <h2>整個 Task 5.1 的記憶骨架</h2>
     <p>客服長對話最怕<span class="num">數字與事實流失</span>:漸進摘要會把金額/日期/期望磨糊,中段資訊會<span class="num">迷失在中間</span>,而 <code>lookup_order</code> 的 <span class="num">40+ 欄位</span>會把 token 吃光。對策三件套:把交易事實抽成<span class="num">case facts</span> 釘在 prompt 開頭(不參與摘要)、工具輸出<span class="num">進 context 前先裁</span>成相關欄位、彙總時<span class="num">摘要置頂 + 明確 header</span>。多議題各自結構化、上下游用<span class="num">結構化 + metadata</span> 傳遞;同時記得 API 無狀態,訊息序列要帶完整。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A customer support agent is handling a 30-turn conversation about a return. After summarizing earlier turns to save tokens, the agent in turn 28 quotes the refund amount as "a few dollars" — but the customer originally stated $129.99. The root cause is that the summarization step converted the exact dollar figure into a vague description. What is the most effective approach to prevent this?</p>
+      <ol class="q-options" type="A">
+        <li>Increase the context window size so summarization is never triggered</li>
+        <li>Extract transactional facts (amounts, dates, order IDs) into a separate case facts block that is passed verbatim in every prompt, outside the summarized history</li>
+        <li>Instruct the model to always repeat the refund amount at the start of every response</li>
+        <li>Disable summarization entirely and keep the full raw conversation history in every request</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：交易事實（金額、日期、訂單號）抽成獨立的 case facts 區塊，每個 prompt 原值帶上，完全不參與摘要流程。這樣即使歷史被壓縮，數字也不會被磨糊。</p>
+          <p>A 錯在哪：擴大 context window 只是推遲問題，最終仍會觸發摘要，無法從根本解決數字流失的問題。C 錯在哪：要求模型重複金額是事後補救，不能防止摘要步驟本身把數字磨掉。D 錯在哪：完全禁止摘要會讓 context 快速爆滿，在長對話中不可行，且同樣無法解決工具輸出累積的問題。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">An agent calls <code>lookup_order</code> on every turn of a multi-issue support session. After 12 turns, the model starts producing truncated responses. Inspection reveals the context is full of raw tool output containing 45 fields per order, including warehouse zone codes, promotional tags, and loyalty point balances — none of which are relevant to return processing. What is the most effective change to address this?</p>
+      <ol class="q-options" type="A">
+        <li>Switch to a model with a larger context window to accommodate the full tool outputs</li>
+        <li>Call <code>lookup_order</code> only once per session and cache the raw result</li>
+        <li>Trim tool output to only return-relevant fields before adding it to context, so irrelevant fields never accumulate</li>
+        <li>Summarize tool outputs into prose before adding them to context to reduce token usage</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：在工具輸出進 context 之前先裁剪（trim），只保留退貨相關的少數欄位（如 order_id、amount、status、purchase_date、return_window），讓 token 預算不被無關欄位耗光。這是「進 context 前瘦身」的根本解法。</p>
+          <p>A 錯在哪：換更大 context window 只是治標，無關欄位仍然存在，在更長的對話中問題還是會重現。B 錯在哪：只呼叫一次可能導致後續狀態不同步，而且沒有解決單次回傳 45 個欄位的 token 浪費問題。D 錯在哪：把工具輸出摘要成散文會把精確的數值（金額、日期）磨糊，重蹈漸進式摘要的風險，適得其反。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A multi-agent customer support system uses a coordinator agent and two subagents: one for warranty policy lookup and one for order status. The coordinator's synthesized response incorrectly states the return policy as "30 days" when the actual policy changed to "60 days" on 2026-01-01. Investigation shows both subagents returned correct data, but neither included a policy effective date in their structured output. What change best addresses this issue?</p>
+      <ol class="q-options" type="A">
+        <li>Add validation logic in the coordinator to cross-check subagent outputs against a hardcoded policy table</li>
+        <li>Require subagents to include metadata (source document name and effective date) in their structured outputs so the coordinator can correctly interpret policy applicability</li>
+        <li>Have the coordinator re-query the policy subagent with an explicit date parameter on every turn</li>
+        <li>Store the current policy in the system prompt so the coordinator always has the latest version without relying on subagents</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：要求 subagent 在結構化輸出中附上 metadata（來源文件、生效日期），coordinator 收到後才能判斷哪個版本的政策適用於當前情境，避免將舊版政策誤用於新版已生效的案件。</p>
+          <p>A 錯在哪：在 coordinator 硬編碼政策表會造成維護問題，且無法解決根本原因——subagent 沒有提供足夠的時效資訊讓 coordinator 做正確判斷。C 錯在哪：每輪重新查詢會增加不必要的 API 呼叫，且若 subagent 仍不附日期，問題依然存在。D 錯在哪：把政策寫進 system prompt 會造成過時問題，且限制了系統的靈活性，每次政策更新都需要修改 system prompt。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability

@@ -153,6 +153,70 @@
   }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -194,12 +258,13 @@
 
 
   <div class="lead">
-    一句話抓住主軸:<b>Hook 是「掛」在工具呼叫前後的攔截器,讓你用程式碼(而非靠 prompt 拜託模型)強制做兩件事——把回傳資料洗乾淨、把違規動作擋下來。</b> 核心對比始終是:<b>hook = 確定性保證(deterministic);prompt = 機率性遵守(probabilistic)。</b>
+    一句話抓住主軸:<b>Hook（鉤子）是「掛」在工具呼叫前後的攔截器（interceptor），讓你用程式碼(而非靠 prompt 拜託模型)強制做兩件事——把回傳資料洗乾淨（正規化）、把違規動作擋下來。</b> 核心對比始終是:<b>hook = 確定性保證(deterministic);prompt = 機率性遵守(probabilistic)。</b>
   </div>
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
   <h2><span class="num">知識 1</span> &nbsp;PostToolUse:在模型「看到」工具結果前先轉換它</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>整合了三個不同廠商的 MCP 工具後，模型對時間欄位的理解出現混亂，有的是 Unix timestamp、有的是 ISO 格式，模型花了大量 token 猜測格式，偶爾還解讀錯誤。</div>
   <p>工具(例如某個 MCP API)回傳結果後,結果<b>不會直接</b>送進模型。<code>PostToolUse</code> hook 卡在中間,先攔下這份結果,讓你做轉換、清洗、補欄位,再把處理過的版本交給模型。模型看到的是你整理好的乾淨資料。</p>
   <p>想像成郵件分檢:包裹(工具結果)送到你手上前,先經過一個分檢站(hook),貼好標籤、整理格式,你才收到。</p>
   <div class="codeblock">
@@ -213,6 +278,7 @@
   <div class="key"><b>考點重點:</b>PostToolUse = 工具結果進模型「之前」的轉換點。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;攔截「送出去的」工具呼叫,強制 compliance 規則</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客服代理被發現嘗試核准了一筆 $800 的退款，超過了公司設定的 $500 上限，但模型仍然呼叫了退款工具，因為沒有在執行前進行攔截檢查。</div>
   <p>另一個方向:在工具呼叫<b>實際執行之前</b>攔下來,檢查它合不合規。典型例子是退款——模型想呼叫「退款 $800」這個動作時,hook 先檢查金額,超過門檻就<b>擋下</b>,不讓它真的執行。這是用程式碼把業務規則變成硬性關卡。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -224,9 +290,10 @@
   </div>
   <div class="key"><b>考點重點:</b>攔「outgoing tool call」= 在動作執行前把違規擋住。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;最核心對比:hook(確定性) vs prompt(機率性)</h2>
+  <h2><span class="num">知識 3</span> &nbsp;最核心對比:hook（確定性 / deterministic）vs prompt（機率性 / probabilistic）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>安全審查要求所有超過金額上限的退款請求「零例外」必須被攔截，你需要評估現有的 prompt 指令是否足夠，還是必須改用 hook 來達到確定性保證。</div>
   <p>這是整個 Task 1.5 最常考、最該記牢的一條。</p>
-  <p>你可以在 prompt 裡寫「請不要核准超過 $500 的退款」——但這是<b>拜託</b>模型,模型<b>大多數時候</b>會聽,卻無法 100% 保證(機率性遵守)。改用 hook,則是用程式碼<b>硬性攔截</b>,只要金額超標就一定擋下,不依賴模型的判斷(確定性保證)。當規則「不容許出錯」時,選 hook。</p>
+  <p>你可以在 prompt 裡寫「請不要核准超過 $500 的退款」——但這是<b>拜託</b>模型,模型<b>大多數時候</b>會聽,卻無法 100% 保證（機率性遵守，probabilistic compliance）。改用 hook,則是用程式碼<b>硬性攔截</b>,只要金額超標就一定擋下,不依賴模型的判斷（確定性保證，deterministic guarantee）。當規則「不容許出錯」時,選 hook。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ prompt 強制:只是「拜託」模型,機率性,可能被繞過</span>
@@ -241,7 +308,8 @@ system_prompt = <span class="tok-str">"絕對不要核准超過 $500 的退款�
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;用 PostToolUse 正規化各家工具的異質資料格式</h2>
+  <h2><span class="num">技能 1</span> &nbsp;用 PostToolUse 正規化（normalize）各家工具的異質資料格式</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你整合了多個 MCP 工具，它們各自回傳不同格式的時間戳和狀態碼，需要在資料進入模型前統一格式，以避免模型誤判或花費過多 token 處理格式差異。</div>
   <p>不同 MCP 工具回傳的格式五花八門:有的時間是 Unix timestamp(<code>1700000000</code>),有的是 ISO 8601(<code>2024-01-01T00:00:00Z</code>);狀態有的給數字代碼(<code>0/1/2</code>),有的給文字。直接丟給模型,它要花力氣猜、還容易錯。用 <code>PostToolUse</code> 把全部<b>統一</b>成同一種格式,模型處理起來既準又省。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -261,7 +329,8 @@ system_prompt = <span class="tok-str">"絕對不要核准超過 $500 的退款�
   </div>
   <div class="key"><b>重點:</b>異質格式(Unix / ISO / 數字碼)在 PostToolUse 統一,再交給模型。</div>
 
-  <h2><span class="num">技能 2</span> &nbsp;攔截違規動作並改導到替代流程(如人工升級)</h2>
+  <h2><span class="num">技能 2</span> &nbsp;攔截違規動作並改導（redirect）到替代流程（如人工升級）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>退款請求超過 $500 上限時，系統不應只是拒絕，而是要把案件自動轉給人工審核流程；你需要設計一個 hook，讓它在攔截違規動作的同時也觸發正確的升級路徑。</div>
   <p>光擋下還不夠好——擋下之後要<b>給出路</b>。退款超過 $500 不只是拒絕,而是把它<b>改導(redirect)</b>到人工升級流程,讓真人來處理。hook 不只是個「不」,也是個「轉接」。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -277,7 +346,8 @@ system_prompt = <span class="tok-str">"絕對不要核准超過 $500 的退款�
   </div>
   <div class="key"><b>重點:</b>block 違規動作 + redirect 到替代流程(human escalation),不是單純拒絕。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;當規則「必須保證」時,選 hook 而非 prompt</h2>
+  <h2><span class="num">技能 3</span> &nbsp;當規則「必須保證」時,選 hook（鉤子）而非 prompt</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你在設計一條業務規則的執行方式，需要判斷這條規則應該寫進 system prompt 還是實作成 hook，判準是「違反的代價是否無法承受」。</div>
   <p>這是知識 3 的決策版。面對一條業務規則,你要會判斷:它是「最好遵守」還是「不容違反」?若是後者(法遵、財務上限、安全紅線),就<b>不能</b>把它交給 prompt 碰運氣,必須用 hook 在程式碼層保證。判斷準則:出錯的代價是否無法承受。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -297,6 +367,77 @@ system_prompt = <span class="tok-str">"絕對不要核准超過 $500 的退款�
     <h2>整個 Task 1.5 的記憶骨架</h2>
     <p>Hook 是掛在工具呼叫前後的<span class="num">攔截器</span>:<span class="num">PostToolUse</span> 在結果進模型前做<span class="num">正規化</span>(Unix/ISO/數字碼統一);攔截 outgoing 呼叫可在動作執行前<span class="num">擋下違規</span>(退款 &gt; $500)並<span class="num">改導到人工升級</span>。最核心的一條對比:<span class="num">hook = 確定性保證</span>,<span class="num">prompt = 機率性遵守</span>——規則不容違反就用 hook,軟性偏好才交給 prompt。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A customer support agent integrates three MCP tools from different vendors. After deployment, engineers notice that the model frequently misinterprets timestamps — one tool returns Unix epoch integers, another returns ISO 8601 strings, and a third returns locale-formatted dates. The model spends extra tokens converting formats and occasionally makes errors. What is the most effective approach to fix this?</p>
+      <ol class="q-options" type="A">
+        <li>Update the system prompt to instruct the model to normalize all timestamps to ISO 8601 format before processing them.</li>
+        <li>Implement a <code>PostToolUse</code> hook that intercepts each tool result and normalizes all timestamp formats to ISO 8601 before the model processes them.</li>
+        <li>Replace the three MCP tools with a single unified tool that returns a consistent format.</li>
+        <li>Add retry logic so the model can re-invoke tools when it detects an unexpected timestamp format.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p><code>PostToolUse</code> hook 的設計目的正是在工具回傳結果後、模型處理前，對資料進行轉換和正規化。用 hook 統一所有時間戳格式，模型收到的永遠是乾淨一致的 ISO 8601，完全消除格式混亂的問題，不依賴模型的自行判斷。</p>
+          <p>A 錯在哪：要求模型「自己去轉換」是機率性做法，轉換本身會消耗 token、且無法保證正確；hook 是在資料進入模型前就已轉換好，才是確定性解法。C 錯在哪：換工具是不切實際的重大架構改動，且未來整合更多工具時同樣問題會重現；hook 是更通用的解決方案。D 錯在哪：重試不解決格式問題——模型每次讀到同一個 Unix timestamp，無論重試幾次格式都不會自動變成 ISO 8601。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A compliance team requires that no automated refund above $500 should ever be approved without human review. The current implementation adds this rule to the agent's system prompt. A weekly audit finds that approximately 0.4% of refunds above $500 are still being approved automatically. What is the most effective change to achieve guaranteed compliance?</p>
+      <ol class="q-options" type="A">
+        <li>Rewrite the system prompt instruction using stronger language such as "you must NEVER approve refunds over $500 under any circumstances."</li>
+        <li>Implement a pre-tool-use hook that intercepts all <code>issue_refund</code> calls, blocks those where the amount exceeds $500, and redirects them to the human escalation workflow.</li>
+        <li>Add a separate validation agent that reviews each refund decision before it is executed.</li>
+        <li>Log all refund amounts and trigger an alert when the $500 threshold is exceeded so a human can intervene.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>0.4% 的違規率正是「prompt = 機率性遵守」的體現。對於「零例外」的合規要求，必須從 prompt 換成程式碼層的 hook。Pre-tool-use hook 在工具執行前攔截請求，金額超標時 100% 擋下並轉到人工升級流程，達到確定性保證，而不依賴模型每次都遵守指示。</p>
+          <p>A 錯在哪：強化 prompt 措辭只是程度上的改進，無法從根本上消除 LLM 的機率性本質；模型仍然有非零機率跳過指示，0.4% 可能降低但不會歸零。C 錯在哪：加入驗證代理增加了系統複雜度和延遲，且驗證代理本身也是 LLM，同樣存在機率性失誤；hook 是更輕量且確定性更高的解法。D 錯在哪：事後告警屬於偵測性控制，無法防止違規發生；題目要求的是預防性的「保證合規」，而非事後通知。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">An engineering team is reviewing two business rules for a customer support agent: (1) "Response tone should be professional and empathetic" and (2) "Identity verification must be completed before any financial transaction is processed." They are deciding whether to implement each rule as a hook or as a prompt instruction. Which approach is correct?</p>
+      <ol class="q-options" type="A">
+        <li>Implement both as hooks to ensure consistent enforcement across all interactions.</li>
+        <li>Implement both as prompt instructions since the model is generally reliable at following instructions.</li>
+        <li>Implement rule 1 as a prompt instruction (tone is a soft preference) and rule 2 as a programmatic hook (financial compliance is non-negotiable).</li>
+        <li>Implement rule 1 as a hook (to prevent brand risk) and rule 2 as a prompt instruction (since the model understands financial workflows).</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>判準是「這條規則違反的代價是否無法承受」。語氣和語調屬於「偏好」，偶爾偏差可以接受，用 prompt 提示就夠了。身分驗證是金融合規的硬性要求，任何一次失敗都可能導致財務損失或法律責任，屬於「絕不能錯」的類別，必須用 hook 在程式層強制保證。</p>
+          <p>A 錯在哪：把語氣規則也實作成 hook 是過度工程，增加不必要的複雜度；軟性偏好用 prompt 就足夠，hook 應留給真正不容違反的規則。B 錯在哪：把財務合規規則交給 prompt 是本 Task 的反模式，LLM 的機率性本質確保了無論 prompt 多麼明確，仍有非零失敗率，在財務場景下完全不可接受。D 錯在哪：顛倒了兩條規則的優先級——語氣用 hook 是大材小用，財務合規用 prompt 是以輕敵重，兩者都選錯了工具。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration

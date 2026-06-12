@@ -212,6 +212,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -265,24 +329,29 @@
   <p class="section-kicker">Knowledge of · 知識點</p>
 
   <h2><span class="num">知識 1</span> &nbsp;Retry-with-error-feedback:把「具體驗證錯誤」附回 prompt 引導修正</h2>
-  <p>重試的正確姿勢不是「再跑一次,祈禱這次對」,而是<b>把這次到底錯在哪寫清楚,連同原文一起餵回去</b>。例如「line items 加總 1,180 但 stated_total 是 1,240,差 60」——模型拿到具體誤差,才知道往哪修。空泛地說「請再檢查」效果差很多。</p>
+  <div class="trigger"><b>遇到這個問題時用到</b>發票抽取後 validation 發現 line items 加總 1,180 但 stated_total 是 1,240，你需要讓模型自我修正這個不一致，而不是直接棄掉這筆資料或永遠轉人工。</div>
+  <p>重試的正確姿勢不是「再跑一次,祈禱這次對」,而是<b>把這次到底錯在哪寫清楚,連同原文一起餵回去</b>。例如「line items 加總 1,180 但 stated_total 是 1,240,差 60」——模型拿到具體誤差，才知道往哪修。空泛地說「請再檢查」效果差很多。這就是 retry-with-error-feedback（帶錯誤回饋的重試）的核心。</p>
   <div class="key"><b>考點重點:</b>retry 時 append specific validation errors → 引導模型修正,而非盲目重跑。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;Retry 的極限:資訊「根本不在文件裡」時,重試無效</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的管線對每筆抽取錯誤都自動 retry 三次，但 po_number 為 null 的記錄不管 retry 幾次都還是 null，系統白白浪費了 API 呼叫和時間，你需要判斷哪些錯誤值得 retry、哪些不值得。</div>
   <p>非常重要的判斷力。retry 能救的是<b>格式錯、結構錯</b>(模型有資訊只是排錯)。但如果某欄位的資訊<b>壓根不在這份文件裡</b>(例如要 PO 號,但 PO 在另一份沒給的文件),那無論重試幾次,模型只會一直瞎編或一直 null——retry 解決不了「資訊缺席」。</p>
   <div class="key"><b>重點:</b>retry 治 format/structural 錯;治不了「required 資訊不存在於來源」。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;回饋迴圈設計:用 detected_pattern 追蹤「哪種寫法觸發了 finding」</h2>
+  <h2><span class="num">知識 3</span> &nbsp;feedback loop（回饋迴圈）設計:用 detected_pattern 追蹤「哪種寫法觸發了 finding」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 CI reviewer 在過去一個月產生了 2,000 個 findings，但你不知道哪些 patterns 最常被工程師 dismiss，需要一個系統性的方法找出真正的 false positive 大戶。</div>
   <p>這條跨到 Scenario 5(CI review)的回饋設計。當 review 產生一個 finding,順便記下<b>是哪種 code 構造觸發的</b>(<code>detected_pattern</code>)。日後若開發者一直「駁回(dismiss)」某種 pattern 的 finding,你就能系統性地分析:這個 pattern 是不是高 false positive,該調整 prompt。</p>
   <div class="key"><b>重點:</b>detected_pattern 欄位 → 系統性分析 dismissal(駁回)模式、抓 false positive 來源。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;語意驗證錯誤 vs schema 語法錯誤</h2>
-  <p>把 4.3 的警語講透:<b>schema 語法錯誤</b>(漏引號、型別錯)已被 tool use 消滅;但<b>語意驗證錯誤</b>(數字不加總、值放到錯欄)schema 抓不到,要靠你自己寫驗證邏輯。這兩類錯誤的處理方式不同——語法靠 tool use 預防,語意靠驗證+retry 補救。</p>
+  <h2><span class="num">知識 4</span> &nbsp;semantic error（語意驗證錯誤）vs schema syntax error（語法錯誤）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 PM 問：「已經用 tool use 了，為什麼 total 還是不對？」你需要解釋 schema 能保證什麼、不能保證什麼，以及如何設計兩層防護機制。</div>
+  <p>把 4.3 的警語講透:<b>syntax error（語法錯誤）</b>(漏引號、型別錯)已被 tool use 消滅;但<b>semantic error（語意驗證錯誤）</b>(數字不加總、值放到錯欄)schema 抓不到,要靠你自己寫 validation（驗證）邏輯。這兩類錯誤的處理方式不同——語法靠 tool use 預防,語意靠驗證+retry（重試）補救。</p>
   <div class="key"><b>重點:</b>semantic errors(不加總/放錯欄)≠ syntax errors(tool use 已解決);前者需自寫驗證。</div>
 
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;Follow-up 請求:把原文 + 失敗的抽取 + 具體驗證錯誤一起餵回,讓模型自我修正</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要實作 retry-with-feedback 流程，需要決定 retry prompt 該包含哪些內容，以及如何組裝才能讓模型有足夠資訊做出正確修正。</div>
   <p>實作 retry-with-feedback。重試的那一輪,prompt 要包含三樣:<b>原始文件、上次抽錯的結果、這次驗出的具體錯誤</b>。三者齊備,模型才能對照修正。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -308,7 +377,8 @@
   </div>
   <div class="key"><b>重點:</b>retry prompt = 原文 + 失敗抽取 + 具體錯誤,三者缺一不可。</div>
 
-  <h2><span class="num">技能 2</span> &nbsp;判斷 retry 會不會有效:資訊缺席 vs 格式/結構錯</h2>
+  <h2><span class="num">技能 2</span> &nbsp;判斷 retry（重試）會不會有效:資訊缺席 vs 格式/結構錯</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 retry 邏輯對所有錯誤一視同仁，造成無效的 API 呼叫和成本浪費，你需要建立一個分類機制讓系統只對「有救」的錯誤執行 retry。</div>
   <p>retry 不是無腦重跑。先分類錯誤:<b>格式/結構錯 → retry 有救</b>;<b>required 資訊不在來源 → retry 無用,該走別的路</b>(標 needs_external_source、轉人工、或回報缺漏)。亂 retry 只是浪費 token 與時間。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -326,6 +396,7 @@
   <div class="key"><b>重點:</b>先分類:format/structural → retry;info_absent → 別 retry,改走人工或標缺漏。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;在 findings 加 detected_pattern,分析開發者駁回的 false positive 模式</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要建立一個長期改善 CI reviewer 品質的機制，讓系統能自動從工程師的 dismiss 行為中學習，找出需要調整的 prompt 類別。</div>
   <p>承接知識 3。每筆 finding 帶上 <code>detected_pattern</code>,記錄它是被哪種寫法觸發的。累積一陣子後,統計「哪些 pattern 最常被開發者 dismiss」——那多半就是 false positive 大戶,可據此回頭修 prompt(呼應 Task 4.1 暫時停用高誤報類別)。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -347,6 +418,7 @@ finding_schema = {
   <div class="key"><b>重點:</b>detected_pattern 讓你量化哪種 pattern 是 false positive 大戶。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;設計自我校驗流程:抽 calculated_total 對照 stated_total、加 conflict_detected</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要設計一個不依賴外部 validation 服務的「內建語意驗證」機制，讓 schema 本身就能暴露 line items 加總不符 total 的問題，並標記來源資料本身互相矛盾的情況。</div>
   <p>這是抓<b>語意錯誤</b>的關鍵技巧。與其只抽一個 total,不如同時抽<b>文件上寫的 stated_total</b>與<b>由 line items 自己加總出的 calculated_total</b>,兩者一比就能驗出「不加總」的問題;再加一個 <code>conflict_detected</code> 布林,標記來源資料本身互相矛盾的情況。讓驗證內建在 schema 裡。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -377,6 +449,77 @@ extract_invoice = {
     <h2>整個 Task 4.4 的記憶骨架</h2>
     <p>tool_use 消滅<span class="num">語法錯誤</span>,但<span class="num">語意錯誤</span>(不加總、放錯欄)要自己驗。驗到錯就走 <span class="num">retry-with-error-feedback</span>:把<span class="num">原文 + 失敗抽取 + 具體錯誤</span>一起餵回讓模型自我修正。但要先判斷——<span class="num">格式/結構錯</span> retry 有救,<span class="num">資訊根本不在文件</span>裡時 retry 無用,該轉人工或標缺漏。回饋迴圈用 <span class="num">detected_pattern</span> 追蹤駁回模式抓 false positive;語意驗證的招牌做法是同時抽 <span class="num">calculated_total 對照 stated_total</span>,並加 <span class="num">conflict_detected</span> 標記來源矛盾。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 6 · Structured Data Extraction</span>
+      </div>
+      <p class="q-text">Your invoice extraction pipeline uses tool use with a JSON schema, eliminating syntax errors. However, validation shows that 8% of extracted invoices have stated_total values that don't match the sum of their line_items. You implement a retry: the pipeline simply re-runs the same extraction request on the failed document. After three retries, 90% of these records still show the same discrepancy. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The JSON schema is incorrectly defined — line_items and total fields have incompatible types.</li>
+        <li>The retry is not providing the specific validation error back to the model, so the model repeats the same mistake.</li>
+        <li>The model's context window is too small to process large invoices correctly.</li>
+        <li>The tool_choice setting is "auto" instead of forced, so the model sometimes skips the tool call.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：retry 時沒有把「具體驗證錯誤」附回去，模型看不到「加總 1,180 但 stated_total 是 1,240，差 60」這樣的具體資訊，所以每次重跑都會產生相同的結果。retry-with-error-feedback 的關鍵是把「錯在哪」明確告知模型，而不是盲目重跑。</p>
+          <p>A 錯在哪：如果是 schema 型別問題，tool use 本身就會阻止不符合型別的回傳，而不是讓不一致的值通過 schema validation。題目說「不一致」是內容問題（semantic error），不是格式問題。C 錯在哪：context window 問題通常表現為截斷或錯誤，而不是固定讓 total 不加總；而且題目是 8% 的特定問題，不是普遍性的抽取失敗。D 錯在哪：tool_choice 問題會表現為某些請求回傳純文字（進而被 schema 拒絕），不會表現為「數字加總不一致」的 semantic error。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 6 · Structured Data Extraction</span>
+      </div>
+      <p class="q-text">Your extraction pipeline receives various supplier invoices. For invoices from large enterprises, PO numbers are always present and critical for routing. For consumer vendor invoices, PO numbers never exist in the source document. After implementing retry-with-feedback for po_number null values from consumer vendors, the retry consistently returns fabricated values like "PO-NA" or "N/A-001". What is the correct approach?</p>
+      <ol class="q-options" type="A">
+        <li>Add "if po_number is not in the document, output the string 'NOT_FOUND'" to the retry prompt.</li>
+        <li>Classify the error as info_absent — the information doesn't exist in the source — and route to a human review queue instead of retrying.</li>
+        <li>Increase the retry limit from 3 to 10 attempts to give the model more chances to find the correct value.</li>
+        <li>Change the retry prompt to emphasize "you must not fabricate po_number values."</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：這是「資訊根本不在文件裡（info_absent）」的典型案例。消費者供應商的發票從來沒有 PO 號，retry 再多次都解決不了資訊缺席的問題。正確做法是分類為 unfixable 錯誤，停止 retry，轉給人工處理或標記為缺漏。這是 retry 極限判斷的核心知識點。</p>
+          <p>A 錯在哪：輸出 "NOT_FOUND" 字串是把「無值」偽裝成一個值，下游系統接收到 "NOT_FOUND" 會誤以為這是有效的 PO 號，造成更嚴重的資料品質問題。C 錯在哪：retry 次數多少與「資訊不存在」的根本原因無關；無論重試 10 次還是 100 次，無中生有是不可能的，只會浪費 API 呼叫成本。D 錯在哪：強調「不要捏造」是文字指令，對模型被強迫（po_number 在 required 裡）填值的情境效果有限；根本解法是讓 po_number 成為 optional/nullable，同時停止對 info_absent 錯誤執行 retry。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">Your CI review system has been running for three months. Developers dismiss 15% of all findings. You want to systematically improve prompt quality by identifying which code patterns generate the most false positives. Your current finding schema includes location, issue, and severity fields. What schema addition best enables this analysis?</p>
+      <ol class="q-options" type="A">
+        <li>Add a "dismissed_by" field that records the developer's username when they dismiss a finding.</li>
+        <li>Add a "detected_pattern" field that records the specific code construct that triggered each finding, then analyze dismissal rates per pattern.</li>
+        <li>Add a "confidence" field (0–1) and filter out findings below 0.7 confidence to reduce false positives.</li>
+        <li>Add a "category" field (bug/security/style) and track dismissal rates per category.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：detected_pattern 欄位記錄觸發 finding 的具體程式碼構造，累積一段時間後就能統計「哪種 pattern 最常被 dismiss」——這些就是 false positive 大戶。找到之後可以針對那些 pattern 回頭修 prompt（例如暫時停用），這就是 feedback loop（回饋迴圈）的完整設計。</p>
+          <p>A 錯在哪：記錄 dismissed_by 可以知道誰在 dismiss，但無法系統性地分析「什麼程式碼觸發了問題」，無法指引 prompt 改善方向。C 錯在哪：confidence 過濾可以減少噪音，但題目問的是「如何識別哪些 pattern 造成 false positive」，confidence 欄位分析不出 pattern 層級的問題來源。D 錯在哪：category 層級的追蹤太粗，Task 4.1 已提到「category 層級的停用」；這題的目標是 pattern 層級的分析，能讓你在 category 內部找出具體哪種寫法是問題，粒度更細、更有指向性。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output

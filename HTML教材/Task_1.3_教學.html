@@ -214,6 +214,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -262,12 +326,13 @@
 
 
   <div class="lead">
-    一句話抓住主軸:<b>Coordinator(協調者)要叫出 subagent(子代理)幫忙時,有幾件事系統不會幫你自動做——你必須親手做。</b> 這個 Task 的所有考點,都繞著「哪些事不會自動發生」轉。
+    一句話抓住主軸:<b>Coordinator（coordinator，協調者）要叫出 subagent（子代理）幫忙時,有幾件事系統不會幫你自動做——你必須親手做。</b> 這個 Task 的所有考點,都繞著「哪些事不會自動發生」轉。
   </div>
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;Task 工具是 spawn subagent 的機制,且 allowedTools 必須含 "Task"</h2>
+  <h2><span class="num">知識 1</span> &nbsp;Task 工具是 spawn（衍生）subagent（子代理）的機制,且 allowedTools 必須含 "Task"</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 coordinator agent 在程式碼中呼叫了 Task 工具，但執行時卻報錯說無法呼叫 subagent，排查後發現 coordinator 的設定中根本沒有授予 Task 工具的使用權限。</div>
   <p>subagent 不是用特別的 API 生出來的,而是 coordinator <b>呼叫一個叫 <code>Task</code> 的工具</b>把它叫出來。關鍵卡關點:如果你沒有在 coordinator 的 <code>allowedTools</code> 裡放 <code>"Task"</code>,coordinator 就<b>沒有權限</b>呼叫 subagent——它連叫人幫忙的能力都沒有。</p>
   <p>這跟現實很像:你想找助理,但公司沒給你「召喚助理」這個權限,你再聰明也叫不動人。</p>
   <div class="codeblock">
@@ -288,6 +353,7 @@ broken_config = {
   <div class="key"><b>考點重點:</b>spawn 的機制 = Task 工具;前提 = allowedTools 要有 "Task"。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;subagent 的 context 必須在 prompt 裡明白給</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>綜合 subagent 被呼叫後回傳了毫無針對性的通用摘要，因為 prompt 只寫了「請根據前面的搜尋結果做總結」，而 subagent 根本看不到「前面的結果」是什麼。</div>
   <p>這是整個 Task 1.3 最重要、最常考的一條。</p>
   <p>subagent 被叫出來時,<b>腦袋是空的</b>。它看不到 coordinator 之前的對話、看不到別的 subagent 找到的資料、兩次呼叫之間也不會記得彼此。你想讓它知道什麼,就得寫進它的 prompt 裡。</p>
   <div class="codeblock">
@@ -314,6 +380,7 @@ broken_config = {
   <div class="key"><b>一句話記住:</b>subagent 是「失憶的」,context 要用手餵。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;AgentDefinition:每種 subagent 的 description、system prompt、工具限制</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>搜尋 subagent 被發現嘗試呼叫了寫檔工具，導致資料被意外覆蓋；事後檢查發現所有 subagent 都共用同一份 AgentDefinition，沒有按職責限制各自的工具存取權。</div>
   <p>每一種 subagent 你都先「定義」好它是誰、能做什麼。三個欄位:</p>
   <p><b>description</b>:這個 agent 做什麼的(coordinator 靠它判斷該不該派任務給它)。<br>
   <b>system prompt</b>:它的角色與行為規範。<br>
@@ -340,7 +407,8 @@ broken_config = {
   </div>
   <div class="key"><b>重點:</b>不同 subagent 用不同 AgentDefinition,並按需要限制工具。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;Fork-based session:從同一基線分岔,探索不同方向</h2>
+  <h2><span class="num">知識 4</span> &nbsp;Fork-based session:從同一基線 fork（分岔）,探索不同方向</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你想比較兩種程式碼重構方案的優劣，但每次要切換方案就得重新分析整份程式碼基線，浪費大量時間；你需要一種機制從同一份分析出發、獨立往兩個方向走。</div>
   <p>有時你想「從同一個起點,試兩三條不同的路」。Fork 就是把目前的 session 狀態<b>複製分岔</b>,各自獨立往下走,互不干擾。共用前面的基線,但後面各走各的。</p>
   <p>例如:程式碼已經分析到一半(基線),你想分別試「重構方案 A」「重構方案 B」——fork 出兩條,各自探索,最後比較。</p>
   <div class="codeblock">
@@ -361,6 +429,7 @@ branch_b.<span class="tok-fn">run</span>(<span class="tok-str">"用工廠模式�
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;把前面 agent 的完整 findings 直接寫進 subagent 的 prompt</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>綜合 subagent 產出的報告只引用了部分搜尋結果，遺漏了文件分析的重要發現，因為呼叫時只傳入了搜尋結果而沒有把文件分析輸出一起塞進 prompt。</div>
   <p>這是知識 2 的實作版。把搜尋結果、文件分析結果<b>整包</b>交給 synthesis subagent。注意是「完整」findings,不是摘要——你截斷了,它就少看到那些資訊。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -381,7 +450,8 @@ branch_b.<span class="tok-fn">run</span>(<span class="tok-str">"用工廠模式�
   </div>
 
   <h2><span class="num">技能 2</span> &nbsp;用結構化格式分開「內容」與「metadata」,保住出處</h2>
-  <p>傳 context 時,別把來源網址、文件名、頁碼跟內文混成一坨純文字。用結構化格式(像 dict / JSON),內容歸內容、出處歸出處。這樣 synthesis agent 才能在最後正確標註「這句話出自哪裡」。</p>
+  <div class="trigger"><b>遇到這個問題時用到</b>最終報告中的引用標註錯誤，synthesis subagent 把來自不同來源的數據混在一起標了錯誤的 URL，因為傳入時所有資料都是純文字，出處和內容沒有分離。</div>
+  <p>傳 context（對話歷史）時,別把來源網址、文件名、頁碼跟內文混成一坨純文字。用結構化格式(像 dict / JSON),內容歸內容、出處歸出處（attribution，可追溯出處）。這樣 synthesis agent 才能在最後正確標註「這句話出自哪裡」。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ 內容和出處混成一團,synthesis 無法可靠標來源</span>
@@ -404,6 +474,7 @@ synthesis_prompt = <span class="tok-str">f"資料如下(含出處):\n{json.dumps
   <div class="key"><b>重點:</b>content 與 metadata 分開 → 保住 attribution(可追溯出處)。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;平行 spawn:在「同一個 coordinator response」裡發出多個 Task</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>研究系統需要並行搜尋五個子題，但實作後發現執行時間是單一搜尋的五倍，排查後發現 coordinator 是一輪一輪地發 Task，每次等回來才發下一個，退化成了序列執行。</div>
   <p>這條的細節很重要,常考。要平行跑多個 subagent,做法是<b>在同一次 coordinator 的回應裡,一口氣發出多個 Task 工具呼叫</b>——而不是分成好幾輪(turn),一輪叫一個。同一回應發多個 = 平行;分好幾輪 = 變成序列(慢)。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -424,6 +495,7 @@ synthesis_prompt = <span class="tok-str">f"資料如下(含出處):\n{json.dumps
   <div class="key"><b>重點:</b>平行 = 一個 response 內發多個 Task;分多輪 = 退化成序列。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;coordinator prompt 給「目標與品質標準」,而非「逐步指令」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>搜尋 subagent 在面對非預期的搜尋結果時完全卡住，因為 prompt 的逐步指令規定了「取前 5 筆、抓第一段」，但這次結果格式不同，它不知道怎麼應對。</div>
   <p>最後一條是設計哲學。寫給 subagent 的 coordinator prompt,應該說「我要達成什麼、好的標準長怎樣」,而<b>不是</b>手把手規定「第一步做 X、第二步做 Y」。給目標,subagent 才能依現場狀況自己調整(adaptability);給死步驟,它就只會照本宣科,遇到意外就卡住。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -451,6 +523,77 @@ goal_based = <span class="tok-str">"""
     <h2>整個 Task 1.3 的記憶骨架</h2>
     <p>Coordinator 用 <span class="num">Task 工具</span>(allowedTools 要有 "Task")叫出 subagent;subagent 是<span class="num">失憶的</span>,所有 context 都要手動寫進 prompt(完整 findings、結構化保住出處);要平行就在<span class="num">同一 response</span> 發多個 Task;prompt 給<span class="num">目標而非死步驟</span>;需要比較不同方向時用 <span class="num">fork</span> 從共同基線分岔。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A coordinator agent is configured with <code>allowedTools: ["Read", "WebSearch"]</code>. When it attempts to invoke a synthesis subagent using the Task tool, the invocation fails at runtime. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The synthesis subagent's <code>AgentDefinition</code> does not include a <code>description</code> field, so the coordinator cannot determine when to invoke it.</li>
+        <li>The coordinator's <code>allowedTools</code> list does not include <code>"Task"</code>, so it lacks permission to spawn subagents.</li>
+        <li>The synthesis subagent's prompt does not contain the required context from prior agents, causing a validation error.</li>
+        <li>The coordinator is attempting to invoke the subagent from a separate turn rather than a single response, which is not supported.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>在 Claude Agent SDK 中，coordinator 呼叫 subagent 的唯一機制是 Task 工具。如果 coordinator 的 <code>allowedTools</code> 設定中沒有包含 <code>"Task"</code>，它就沒有「召喚 subagent」的權限，任何 Task 工具呼叫都會在執行時失敗。這是最直接、最典型的設定錯誤。</p>
+          <p>A 錯在哪：AgentDefinition 的 description 欄位協助 coordinator 判斷何時派任務，缺少它可能影響路由邏輯，但不會導致呼叫機制本身在 runtime 失敗。C 錯在哪：prompt 缺少 context 會讓 subagent 回傳不佳的結果，但不會造成呼叫本身失敗——subagent 還是會被執行，只是輸出品質差。D 錯在哪：要實現平行執行才需要在同一 response 發多個 Task；從不同 turn 發 Task 只是變成序列而非平行，並不會導致失敗。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A research pipeline spawns three search subagents for different subtopics and measures total latency. Despite running on high-capacity infrastructure, the pipeline takes three times longer than a single subagent call. Code review shows the coordinator issues each Task call only after receiving the previous subagent's result. What is the most effective change to reduce latency?</p>
+      <ol class="q-options" type="A">
+        <li>Increase the timeout setting for each subagent call to allow more processing time per task.</li>
+        <li>Reduce the amount of context passed to each subagent to decrease token processing overhead.</li>
+        <li>Emit all three Task tool calls within a single coordinator response so they execute in parallel rather than sequentially.</li>
+        <li>Merge the three subtopics into a single comprehensive prompt sent to one subagent to eliminate coordination overhead.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>要讓多個 subagent 並行執行，做法是在 coordinator 的「同一次回應」中一口氣發出多個 Task 工具呼叫。系統會同時執行它們，總延遲接近單一呼叫的時間。目前的問題是 coordinator 每輪只發一個 Task 並等待回傳，這讓三個本可並行的任務退化成序列，總延遲變成三倍。</p>
+          <p>A 錯在哪：增加 timeout 不解決序列執行的根本問題，只是讓每個步驟允許更長時間，總延遲不會縮短反而可能更長。B 錯在哪：減少 context 是 token 最佳化的考量，與序列 vs. 並行的架構問題無關，無法改善延遲三倍的根本原因。D 錯在哪：把三個子題塞給一個 subagent 會導致 attention dilution（注意力稀釋），且放棄了專業分工的好處；問題是並行化架構，不應該用合併任務來解決。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A synthesis subagent produces a report with incorrect citations — source URLs are attributed to the wrong data points. Reviewing the coordinator code shows that search results were passed to the synthesis subagent as a single plain-text string with sources mixed inline. What change best addresses this attribution failure?</p>
+      <ol class="q-options" type="A">
+        <li>Instruct the synthesis subagent via system prompt to be more careful about matching citations to content.</li>
+        <li>Pass context using a structured format (e.g., a list of dicts) that separates content from metadata such as source URL, document name, and page number.</li>
+        <li>Limit the synthesis subagent's tools so it cannot access external URLs and must rely only on provided text.</li>
+        <li>Run the synthesis subagent twice and compare outputs to detect inconsistent citations.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>當內容和出處混成純文字時，synthesis subagent 需要靠語義推斷來判斷哪段文字對應哪個來源，這種機率性的比對極易出錯。改用結構化格式（如 dict / JSON list），讓每一筆資料的 <code>content</code> 和 <code>metadata</code>（source_url、document_name、page）明確對應，subagent 可以精確保留並標註出處，attribution 問題從根本上被解決。</p>
+          <p>A 錯在哪：在 system prompt 叮嚀 subagent「要小心」是機率性做法，無法保證它正確識別混在純文字中的出處歸屬；根本問題在資料傳遞格式，不在 subagent 的謹慎程度。C 錯在哪：限制工具存取與引用標註的準確性毫無關係；subagent 引用的是傳入的資料，不是它主動去抓取的外部資源。D 錯在哪：跑兩次只能發現不一致，無法修復根本的格式問題；如果格式有歧義，兩次跑出來可能各自有不同的錯誤引用。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 1: Agentic Architecture &amp; Orchestration

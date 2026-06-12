@@ -212,6 +212,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -262,21 +326,25 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;自我審查的天生限制:同一 session 不容易質疑自己</h2>
-  <p>核心觀念。當同一個模型實例在<b>同一個 session</b> 裡先寫了 code、再被要求審查,它<b>還留著生成時的推理脈絡</b>——它已經「說服過自己」這段邏輯是對的,於是<b>較不會去質疑自己的決定</b>。這就是為什麼「請你再檢查一下自己的程式」效果有限。</p>
+  <h2><span class="num">知識 1</span> &nbsp;self-review（自我審查）的天生限制:同一 session 不容易質疑自己</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你讓 Claude 先產生 code、再要求它「再檢查一下自己的程式是否有 bug」，但上線後仍然發現了原本應該被抓到的邏輯錯誤，你需要解釋這個架構的根本缺陷。</div>
+  <p>核心觀念。當同一個模型實例在<b>同一個 session</b> 裡先寫了 code、再被要求審查,它<b>還留著生成時的推理脈絡</b>——它已經「說服過自己」這段邏輯是對的,於是<b>較不會去質疑自己的決定</b>。這就是 self-review（自我審查）效果有限的根本原因。</p>
   <div class="key"><b>考點重點:</b>self-review 會保留 generation 的 reasoning context → 不易質疑自己。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;獨立實例 > 自我審查指令或 extended thinking</h2>
-  <p>關鍵比較。要抓<b>細微問題(subtle issues)</b>,「換一個<b>沒有先前推理脈絡</b>的獨立實例」來審,比「叫同一實例自我審查」或「開 extended thinking 多想一下」<b>更有效</b>。因為獨立實例是用全新視角讀這段 code,不會被生成時的思路牽著走。</p>
+  <h2><span class="num">知識 2</span> &nbsp;獨立實例 > self-review 指令或 extended thinking</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 team lead 建議「開 extended thinking 讓模型多想一下應該就能自己發現問題」，你需要說明為什麼這個方法效果仍不如獨立實例，以及三種方法的效果排序。</div>
+  <p>關鍵比較。要抓<b>細微問題(subtle issues)</b>,「換一個<b>沒有先前推理脈絡</b>的獨立實例」來審,比「叫同一實例 self-review（自我審查）」或「開 extended thinking 多想一下」<b>更有效</b>。因為獨立實例是用全新視角讀這段 code,不會被生成時的思路牽著走。效果排序：獨立 review 實例 &gt; self-review 指令 &gt; extended thinking。</p>
   <div class="key"><b>重點:</b>抓細微 bug 的效果:獨立 review 實例 &gt; self-review 指令 &gt; extended thinking。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;多輪審查:逐檔 local pass + 跨檔 integration pass</h2>
-  <p>大型審查不能「一次把全部檔案塞進去一起看」——注意力會被稀釋(attention dilution),還可能給出<b>互相矛盾</b>的結論。正確拆法:先做<b>逐檔的 local pass</b>(每個檔各自看區域性問題),再做<b>跨檔的 integration pass</b>(專看檔案之間的資料流、介面、相依)。分工避免分心與矛盾。</p>
+  <h2><span class="num">知識 3</span> &nbsp;multi-pass review（多輪審查）:逐檔 local pass + 跨檔 integration pass</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>一個 PR 改了 15 個檔案，你把全部 diff 塞進同一個 review 請求，回傳的結果有幾個互相矛盾的 comment（在 A 檔說可以、在 B 檔說不可以），你需要重新設計審查架構。</div>
+  <p>大型 multi-pass review（多輪審查）不能「一次把全部檔案塞進去一起看」——注意力會被稀釋(attention dilution),還可能給出<b>互相矛盾</b>的結論。正確拆法:先做<b>逐檔的 local pass</b>(每個檔各自看區域性問題),再做<b>跨檔的 integration pass</b>(專看檔案之間的資料流、介面、相依)。分工避免分心與矛盾。</p>
   <div class="key"><b>重點:</b>大審查拆成 per-file local pass + cross-file integration pass,避免 attention dilution 與矛盾結論。</div>
 
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;用「第二個獨立 Claude 實例」審查生成的 code(不帶 generator 脈絡)</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 CI pipeline 目前讓同一個 Claude session 先產 code 再自我 review，你需要把它重構成 generator/reviewer 分離的架構，確保 reviewer 是真正乾淨的第二視角。</div>
   <p>核心實作。generator 實例負責產 code;審查時<b>另開一個全新實例</b>,只給它「待審的 code + 審查任務」,<b>不要</b>把 generator 的對話脈絡或推理過程帶過去。這樣 reviewer 是用乾淨視角看,抓得到 generator 自己看不到的問題。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -304,6 +372,7 @@ review = <span class="tok-fn">independent_review</span>(code.content[<span class
   <div class="key"><b>重點:</b>reviewer 另開新實例,只給 code、不帶 generator 脈絡 = 真正獨立的第二意見。</div>
 
   <h2><span class="num">技能 2</span> &nbsp;大型多檔審查:拆成逐檔 local pass + 獨立的跨檔 integration pass</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要對一個改了 auth.py、user.py、api.py 三個檔的 PR 做完整審查，需要設計一個能同時捕捉單檔問題和跨檔資料流問題的流程，而不讓這兩種 pass 互相干擾。</div>
   <p>把知識 3 變成流程。對一個改了很多檔的 PR:先<b>逐檔</b>各跑一次審查(專看該檔自身的 local 問題),再<b>另跑一次</b> integration pass(把各檔的介面/資料流一起看,專抓<b>跨檔</b>問題)。兩種 pass 任務不同、互不干擾。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -325,7 +394,8 @@ review = <span class="tok-fn">independent_review</span>(code.content[<span class
   <div class="key"><b>重點:</b>local pass 抓單檔問題、integration pass 抓跨檔資料流;分開跑避免分心與矛盾。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;驗證 pass 讓模型「自報信心」,做校準分流</h2>
-  <p>讓審查可被分流。要求 reviewer 在<b>每個 finding 旁邊附上信心值</b>(高/中/低或 0–1)。然後依信心<b>校準路由</b>:高信心的問題自動標記/擋 merge,低信心的<b>送人工複核</b>,避免高 false positive 直接吵到開發者。</p>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 CI reviewer 有時報出真的很嚴重的 bug、有時又報出明顯不確定的問題，你希望把高信心的問題自動擋 merge、低信心的問題送人工確認，而不是讓所有 finding 走同一條路。</div>
+  <p>讓審查可被分流。要求 reviewer 在<b>每個 finding 旁邊附上信心值</b>(高/中/低或 0–1)。然後依信心做<b>校準路由（calibrated routing）</b>:高信心的問題自動標記/擋 merge,低信心的<b>送人工複核</b>,避免高 false positive（假陽性）直接吵到開發者。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-com"># Scenario 5:每個 PR finding 自報信心,依信心分流</span>
@@ -352,6 +422,77 @@ resp = client.messages.<span class="tok-fn">create</span>(
     <h2>整個 Task 4.6 的記憶骨架</h2>
     <p>核心一句:<span class="num">自己審自己會放水</span>,因為生成時的推理脈絡讓模型不願質疑自己。所以要用<span class="num">第二個獨立實例</span>(不帶 generator 脈絡)來審,抓細微 bug 的效果勝過 <span class="num">self-review 指令</span>或 <span class="num">extended thinking</span>。大型審查拆成<span class="num">逐檔 local pass</span>(單檔問題)+ <span class="num">跨檔 integration pass</span>(資料流/介面),避免注意力稀釋與矛盾結論。最後讓每個 finding <span class="num">自報 confidence</span>,高信心自動擋 merge、低信心送人工,做<span class="num">校準分流</span>降低 false positive。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">Your CI pipeline uses a single Claude instance to both generate code fixes for failing tests and then review those same fixes. After several weeks, your team observes that the reviewer rarely flags issues in the generated code — even when human reviewers later find obvious bugs. The review pass uses the same API session as the generation pass. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The review prompt is too short and does not give the model enough context to find bugs.</li>
+        <li>The model retains the generation session's reasoning context, making it unlikely to question its own decisions in the same session.</li>
+        <li>The model's temperature is set too low, reducing creative bug-finding ability.</li>
+        <li>The generation and review prompts are too similar, causing the model to produce identical outputs for both.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：這是 self-review（自我審查）的天生限制。同一個 session 裡，模型在生成 code 時已經「說服過自己」這段邏輯是對的，推理脈絡殘留在 context 中，於是在審查時不容易質疑自己做出的決定，細微 bug 就被放過了。</p>
+          <p>A 錯在哪：prompt 長短影響的是能看到多少資訊，但根本問題是「同一實例不願質疑自己」，加長 review prompt 也解決不了 reasoning context 殘留的問題。C 錯在哪：temperature 影響輸出的多樣性，但 self-review 的失效是結構性問題——即使調高 temperature，模型仍然帶著相同的 generation context，偏見依然存在。D 錯在哪：prompt 相似性影響輸出格式，但不是造成 review 放水的原因；兩個 prompt 可以完全不同，self-review 的偏見仍然存在。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">A PR modifies 8 files across your authentication, user management, and API gateway modules. You send all 8 files' diffs in a single review request. The review returns 15 findings, but three of them directly contradict each other: file A is told to use pattern X, while file B is told to avoid pattern X. What architectural change most directly addresses this problem?</p>
+      <ol class="q-options" type="A">
+        <li>Add "ensure consistency across all files" to the review prompt so the model maintains a consistent position.</li>
+        <li>Split the review into per-file local passes (one request per file) plus a separate integration pass focused on cross-file data flow and interface consistency.</li>
+        <li>Use a more capable model with a larger context window to process all files simultaneously without losing track of earlier content.</li>
+        <li>Filter out contradictory findings automatically using a post-processing script before showing results to developers.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：大型多檔審查的矛盾結論來自 attention dilution（注意力稀釋）——模型同時處理太多內容，前面看到的和後面看到的會相互干擾。解法是 multi-pass review（多輪審查）：每個檔單獨跑一次 local pass（只看該檔自身問題），再另跑一次 integration pass 專門分析跨檔的資料流和介面一致性，兩種 pass 任務明確不衝突。</p>
+          <p>A 錯在哪：在同一個請求裡加文字指令「保持一致」並不能解決注意力稀釋的問題；模型仍然要在同一個 context 裡處理 8 個檔案，矛盾的根本原因沒有改變。C 錯在哪：更大的 context window 只是讓所有內容都能塞進去，但 attention dilution 和矛盾結論不是因為 context 不夠，而是因為任務複雜度超過了模型在單次請求中能保持一致性的能力。D 錯在哪：post-processing 過濾矛盾是在治標不治本，而且自動判斷哪條正確、哪條應該被過濾本身就是一個困難問題；正確做法是從架構上避免矛盾的產生。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">Your CI reviewer uses an independent Claude instance (no generator context) and produces findings with a confidence score (0–1). Currently, all findings — regardless of confidence — automatically block the merge and notify the developer. Developers are complaining about too many low-confidence findings that turn out to be false positives. Which change best addresses this while keeping high-confidence issues properly enforced?</p>
+      <ol class="q-options" type="A">
+        <li>Remove the confidence field and use only high/medium/low severity to filter which findings block merges.</li>
+        <li>Raise the minimum confidence threshold to 0.9 to block merges only on near-certain findings, discarding all others silently.</li>
+        <li>Route findings with confidence ≥ 0.8 to automatic merge blocking, and route findings with confidence &lt; 0.8 to a human review queue instead of auto-blocking.</li>
+        <li>Switch back to the generator instance for review — it is faster and produces fewer findings overall.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：這是技能 3 的校準分流（calibrated routing）模式。高信心（≥ 0.8）的 finding 自動擋 merge，確保真正的問題不被漏過；低信心的 finding 送人工複核而非直接阻擋，讓有判斷力的人決定是否真的是問題。這樣既降低了 false positive（假陽性）對開發者的干擾，又不會讓高信心的真問題被忽略。</p>
+          <p>A 錯在哪：用 severity 取代 confidence 是不同維度的資訊——severity 表示問題有多嚴重，confidence 表示模型有多確定這是問題；兩者都有用，移除 confidence 會失去「不確定性」這個關鍵訊號。B 錯在哪：靜默丟棄低信心 finding 會讓真正的問題（只是模型不夠確定）永遠消失，從來不到達任何人的眼前；送人工複核比靜默丟棄保留了發現真問題的機會。D 錯在哪：切回 generator 實例做 review 正是知識 1 說明的問題根源——generator 帶著自己的 reasoning context，更不可能抓到自己的細微 bug，reducing findings 是因為放水，不是因為真的沒有問題。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output

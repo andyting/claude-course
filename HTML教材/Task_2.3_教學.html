@@ -224,6 +224,70 @@
   }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -278,8 +342,9 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;工具太多,選擇可靠度會下降</h2>
-  <p>核心原則:給一個 agent <b>18 個工具</b>,遠不如給它精準的 <b>4～5 個</b>。工具一多,每次要選的「決策複雜度」就暴增,模型更容易選錯。少而精的工具集,選擇才可靠。</p>
+  <h2><span class="num">知識 1</span> &nbsp;工具太多，tool selection（工具選擇）可靠度會下降</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的研究系統 coordinator 掌管 18 個工具，監控顯示工具選擇錯誤率高達 30%，你需要理解工具數量與選擇可靠度之間的關係，才能決定如何重新分配工具。</div>
+  <p>核心原則：給一個 agent <b>18 個工具</b>，遠不如給它精準的 <b>4～5 個</b>。工具一多，每次要選的「決策複雜度」就暴增，模型更容易選錯。少而精的工具集，選擇才可靠。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ 一個 agent 塞 18 個工具 → 決策複雜度爆炸,常選錯</span>
@@ -293,7 +358,8 @@ search_agent = {<span class="tok-str">"allowedTools"</span>: [<span class="tok-s
   </div>
   <div class="key"><b>考點重點:</b>4～5 個 &gt; 18 個;工具愈多,選擇可靠度愈低。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;拿到本行以外的工具,agent 會誤用</h2>
+  <h2><span class="num">知識 2</span> &nbsp;拿到本行以外的工具，agent 會誤用（cross-specialization misuse）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 synthesis agent 負責整合各來源的研究結果，但日誌顯示它頻繁呼叫 web_search 工具自行蒐集新資料，導致重複搜尋且與 search agent 的結果不一致，你需要理解為何給 agent 超出其角色的工具會造成誤用。</div>
   <p>當 agent 手上有<b>不屬於它專長</b>的工具時,它傾向去亂用。官方例子:一個負責「綜合(synthesis)」的 agent,如果給了它網路搜尋工具,它就會跑去搜尋——但那不是它該做的事。把工具限制在角色範圍內,就能避免這種跨專長的誤用。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -305,8 +371,9 @@ synthesis_agent = {<span class="tok-str">"allowedTools"</span>: [<span class="to
   </div>
   <div class="key"><b>重點:</b>本行外的工具 → 誤用;工具要對齊 agent 的專長。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;Scoped tool access:只給角色需要的,外加少量高頻跨角色工具</h2>
-  <p>實務上的平衡點:每個 agent <b>只拿它角色需要的工具</b>(scoped access),但允許<b>少量</b>例外——那些「高頻、跨角色」的需求,可以給一兩個跨角色工具。重點是「少量、針對特定高頻需求」,不是大開後門。</p>
+  <h2><span class="num">知識 3</span> &nbsp;scoped access（範圍限制）：只給角色需要的，外加少量高頻跨角色工具</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你需要設計一個多代理研究系統的工具分配策略，既要避免各 subagent 越權操作，又要讓 synthesis agent 能處理高頻的查證需求而不必每次都繞回 coordinator，你需要了解 scoped access 的設計原則。</div>
+  <p>實務上的平衡點：每個 agent <b>只拿它角色需要的工具</b>（scoped access，範圍限制），但允許<b>少量</b>例外——那些「高頻、跨角色」的需求，可以給一兩個跨角色工具。重點是「少量、針對特定高頻需求」，不是大開後門。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code>agents = {
@@ -320,7 +387,8 @@ synthesis_agent = {<span class="tok-str">"allowedTools"</span>: [<span class="to
   </div>
   <div class="key"><b>重點:</b>scoped = 角色該用的工具 + 少量高頻跨角色工具。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;tool_choice 三種設定:auto / any / 強制指定</h2>
+  <h2><span class="num">知識 4</span> &nbsp;tool choice configuration（工具選擇設定）三種模式：auto / any / 強制指定</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 data enrichment pipeline 需要確保 metadata 提取永遠是第一步，但 agent 有時跳過它直接進行 enrichment，導致後續步驟缺少必要的上下文，你需要了解如何用 tool_choice 強制控制工具呼叫順序。</div>
   <p>除了「給哪些工具」,還能控制「怎麼用工具」。<code>tool_choice</code> 有三種:</p>
   <p><b><code>"auto"</code></b>:模型自己決定要不要用工具(預設)。<br>
   <b><code>"any"</code></b>:強制模型<b>一定要</b>呼叫某個工具(不准只回文字)。<br>
@@ -336,7 +404,8 @@ tool_choice_forced = {<span class="tok-str">"type"</span>: <span class="tok-str"
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;把每個 subagent 的工具集限制在它的角色內</h2>
+  <h2><span class="num">技能 1</span> &nbsp;把每個 subagent 的工具集限制在它的角色內（role-scoped tool set）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你需要為多代理研究系統的四個角色（搜尋、分析、整合、報告）各自設定 allowedTools 清單，確保每個 subagent 只能使用其角色範圍內的工具，從架構層面防止跨專長誤用。</div>
   <p>知識 1～2 的實作:逐一替每個 subagent 設定 <code>allowedTools</code>,只放角色相關工具,從源頭杜絕跨專長誤用。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -350,7 +419,8 @@ tool_choice_forced = {<span class="tok-str">"type"</span>: <span class="tok-str"
     <span class="tok-kw">return</span> table[role]   <span class="tok-com"># 每個角色只拿自己那一份</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 2</span> &nbsp;用「受限工具」替換「通用工具」</h2>
+  <h2><span class="num">技能 2</span> &nbsp;用 constrained tool（受限工具）替換「通用工具」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 search agent 配備了 <code>fetch_url</code> 工具，結果它開始抓取不相關的外部 API 端點和內部系統頁面，你需要設計一個只接受合法文件 URL 的受限替代工具來收窄操作邊界。</div>
   <p>通用工具(如 <code>fetch_url</code> 能抓任何網址)權限太寬、容易被誤用。改成<b>受限版本</b>:例如 <code>load_document</code>,只接受並驗證「文件 URL」。功能收斂、邊界清楚,模型不會拿去做不該做的事。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -365,7 +435,8 @@ load_document = {
   </div>
   <div class="key"><b>重點:</b>通用工具 → 受限工具,功能收斂、邊界明確。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;高頻跨角色需求給 scoped 工具,複雜情況才走 coordinator</h2>
+  <h2><span class="num">技能 3</span> &nbsp;高頻跨角色需求給 scoped 工具，複雜情況才 routing（路由）回 coordinator</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 synthesis agent 每次需要查證事實都要繞回 coordinator 再轉發給 search agent，造成不必要的延遲和多餘的通訊開銷，你需要為這個高頻需求設計一個直接可用的 scoped 工具，同時保留複雜案例的 routing 路徑。</div>
   <p>對應知識 3。像 synthesis agent 常需要「查證事實」,就給它一個專用的 <code>verify_fact</code> 工具處理這個<b>高頻</b>需求;但若遇到<b>複雜</b>狀況,仍要回頭<b>透過 coordinator</b> 協調,而不是讓 synthesis agent 自己越權處理。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -379,8 +450,9 @@ load_document = {
   </div>
   <div class="key"><b>重點:</b>高頻需求給專用工具;複雜案例路由回 coordinator。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;用 forced 強制先呼叫某工具;用 "any" 保證一定呼叫工具</h2>
-  <p>兩個實用設定。<b>forced 強制指定</b>:確保某工具<b>第一個</b>被呼叫(例如先 <code>extract_metadata</code> 再做後續 enrichment),後續步驟在接下來的回合處理。<b><code>"any"</code></b>:當你<b>不要模型只回閒聊文字</b>、一定要它呼叫某個工具時使用。</p>
+  <h2><span class="num">技能 4</span> &nbsp;用 forced 強制先呼叫某工具；用 <code>"any"</code> 保證一定呼叫工具</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 有時在沒有呼叫任何工具的情況下就直接回覆閒聊文字，或跳過必要的 metadata 提取步驟，你需要用 tool_choice 設定來強制執行正確的操作順序並保證工具一定被呼叫。</div>
+  <p>兩個實用設定。<b>forced 強制指定</b>：確保某工具<b>第一個</b>被呼叫（例如先 <code>extract_metadata</code> 再做後續 enrichment），後續步驟在接下來的回合處理。<b><code>"any"</code></b>：當你<b>不要模型只回閒聊文字</b>、一定要它呼叫某個工具時使用。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-com"># ✅ 強制先抽 metadata,再進入 enrichment;後續步驟下一回合再處理</span>
@@ -398,6 +470,77 @@ must_use_tool = {<span class="tok-str">"tool_choice"</span>: {<span class="tok-s
     <h2>整個 Task 2.3 的記憶骨架</h2>
     <p>工具<span class="num">少而精</span>(4～5 個 &gt; 18 個);給了本行外工具,agent 就<span class="num">誤用</span>。原則是 <span class="num">scoped access</span>——每個 agent 只拿角色該用的工具,外加少量高頻跨角色工具(如 synthesis 的 verify_fact),複雜案例走 coordinator。通用工具換成<span class="num">受限工具</span>(fetch_url → load_document)。用 <span class="num">tool_choice</span> 控制:auto 自行、any 保證用工具、forced 指定先用哪個。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A multi-agent research system has a single coordinator agent equipped with 18 tools covering web search, document loading, data extraction, summarization, fact verification, report writing, database queries, translation, and more. Engineers observe that tool selection errors have increased significantly compared to an earlier version with 5 tools per agent. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The model's tool descriptions are too long, causing the model to ignore some of them.</li>
+        <li>Too many tools in a single agent increases decision complexity, degrading the reliability of tool selection.</li>
+        <li>The coordinator is calling tools in the wrong order, and forced tool_choice should be used.</li>
+        <li>The tools have overlapping names that confuse the model into selecting the wrong one.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>工具太多是工具選擇可靠度下降的根本原因。每次呼叫時，模型需要從 18 個工具中判斷應該用哪一個，決策複雜度遠高於只有 4～5 個工具的情況。官方建議每個 agent 只給它角色所需的少量工具，以維持選擇的可靠性。</p>
+          <p>A 錯在哪：描述長度本身不是問題，問題是工具數量導致的決策複雜度；且題目說的是「tool selection errors」，不是「description comprehension errors」。C 錯在哪：forced tool_choice 是用來保證特定工具被優先呼叫，不是解決工具太多導致的選擇錯誤問題。D 錯在哪：工具命名重疊確實會造成 misrouting，但題目描述的是多種功能不同的工具，問題的核心是數量而非命名相似。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">A synthesis agent in a multi-agent research system is given <code>web_search</code>, <code>summarize</code>, and <code>verify_fact</code> tools. In production, the agent frequently uses <code>web_search</code> to gather new information instead of synthesizing the documents already collected by the search agent. Which change best addresses this issue?</p>
+      <ol class="q-options" type="A">
+        <li>Update the synthesis agent's system prompt to explicitly instruct it not to call <code>web_search</code>.</li>
+        <li>Remove <code>web_search</code> from the synthesis agent's allowed tools, keeping only <code>summarize</code> and <code>verify_fact</code>.</li>
+        <li>Replace <code>web_search</code> with a constrained <code>load_document</code> tool that only accepts document URLs.</li>
+        <li>Set <code>tool_choice: "any"</code> to ensure the synthesis agent always calls a tool instead of returning text.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>Synthesis agent 的職責是整合已有資料，而非搜尋新資料。根據 scoped access 原則，應從 allowedTools 中完全移除 <code>web_search</code>，讓 synthesis agent 只保留其角色需要的 <code>summarize</code> 和 <code>verify_fact</code>。工具不在清單裡，agent 就無法誤用它。</p>
+          <p>A 錯在哪：用 system prompt 指令禁止使用某工具是 keyword-sensitive 做法，且「不要做 X」的負向指令比直接移除工具更不可靠，agent 在某些情況下仍可能選用。C 錯在哪：把 web_search 換成 load_document 雖然更受限，但 synthesis agent 根本不需要任何 URL 抓取工具，這個替換沒有解決角色邊界的根本問題。D 錯在哪：tool_choice: "any" 是用來保證模型一定呼叫工具（而非回純文字），和解決「呼叫了不該呼叫的工具」這個問題無關。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 3 · Multi-Agent Research System</span>
+      </div>
+      <p class="q-text">An architect is building a data enrichment pipeline where the agent must always call <code>extract_metadata</code> as the very first tool before any enrichment tools. In testing, the agent sometimes skips <code>extract_metadata</code> and calls enrichment tools directly. Which tool_choice configuration most effectively enforces the required sequence?</p>
+      <ol class="q-options" type="A">
+        <li>Set <code>tool_choice: "any"</code> to force the model to call a tool instead of returning conversational text.</li>
+        <li>Set <code>tool_choice: "auto"</code> and add a note in the system prompt instructing the model to always start with <code>extract_metadata</code>.</li>
+        <li>Set <code>tool_choice: {"type": "tool", "name": "extract_metadata"}</code> to force the first call to be <code>extract_metadata</code>, then process subsequent steps in follow-up turns.</li>
+        <li>Remove all enrichment tools from the first API call and add them back only after <code>extract_metadata</code> has been called.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>Forced tool_choice 設定 <code>{"type": "tool", "name": "extract_metadata"}</code> 可以強制模型在這一輪一定先呼叫指定的工具，無論上下文如何都不例外。後續的 enrichment 步驟在 <code>extract_metadata</code> 完成後的下一回合處理，這是官方建議的順序控制做法。</p>
+          <p>A 錯在哪：<code>tool_choice: "any"</code> 只保證模型一定會呼叫某個工具（不回純文字），但不指定是哪個工具，模型仍可能選擇任何一個 enrichment 工具而非 <code>extract_metadata</code>。B 錯在哪：<code>tool_choice: "auto"</code> 加 system prompt 指令是 keyword-sensitive 且不可靠的做法，不能保證 <code>extract_metadata</code> 一定是第一個被呼叫的工具。D 錯在哪：動態調整工具清單在技術上可行，但架構複雜且維護成本高；直接用 forced tool_choice 是更簡潔、更標準的解法。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 2: Tool Design &amp; MCP Integration

@@ -143,6 +143,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -192,7 +256,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;延長 session 的 context 退化:開始給不一致答案、講「典型做法」而非具體類別</h2>
+  <h2><span class="num">知識 1</span> &nbsp;延長 session 的 context degradation（上下文降級）:開始給不一致答案、講「典型做法」而非具體類別</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>工程師用 Claude 探索一個 10 萬行的 legacy codebase 已進行 2 小時，model 開始說「退款通常由某個 service 處理」，而在 30 分鐘前它明確識別了 RefundProcessor.execute() 這個具體類別，前後答案矛盾且漸漸失去精確性。</div>
   <p>探索一久,context 被大量 <code>Read</code>/<code>Grep</code> 輸出塞滿,model 會出現<b>退化徵兆</b>:答案前後不一致、開始引用「一般來說 service 層通常會…」這種<b>典型模式</b>,而不是它<b>稍早真的查到的具體類別</b>(例如 <code>RefundProcessor</code>)。這代表早期發現已經被擠出有效 context。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -206,7 +271,8 @@
   </div>
   <div class="key"><b>考點重點:</b>退化的指標 = 答案不一致 + 引用「典型模式」取代「先前發現的具體類別」。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;scratchpad 檔:把關鍵發現持久化,跨越 context 邊界</h2>
+  <h2><span class="num">知識 2</span> &nbsp;scratchpad file（草稿檔）:把關鍵發現持久化,跨越 context 邊界</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>Agent 在探索第一階段識別了 AuthService、LedgerClient 等關鍵類別，但在 context 被壓縮後，這些具體發現消失，第二階段的回答開始用「一般的認證服務」等模糊描述，需要一個外部持久化機制來跨越 context 邊界。</div>
   <p>對抗退化的核心工具:<b>scratchpad 檔</b>。把探索中的關鍵發現(哪個檔做什麼、關鍵類別、依賴關係)<b>寫進外部檔案</b>。它存在 context 之外,即使對話被 compact 或重啟,發現都還在——之後需要時再 <code>Read</code> 回來。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -224,6 +290,7 @@ notes = <span class="tok-fn">Read</span>(<span class="tok-str">".scratchpad/refu
   <div class="key"><b>重點:</b>scratchpad = 把關鍵發現存在 context 之外的外部檔,跨 context 邊界保命。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;subagent 委派:隔離冗長探索輸出,主 agent 只管高層理解</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>主 agent 直接執行 Grep("def test_", path=".") 搜尋整個 repo，數千行輸出進入主 context，導致 context 在後續問題前就已耗盡，無法繼續進行架構分析。</div>
   <p>當某個調查會產生大量輸出(例如 <code>Grep</code> 整個 repo 找所有 test),不要讓主 agent 自己跑——那會把它的 context 灌爆。改成<b>派一個 subagent</b> 去跑,subagent 在自己隔離的 context 裡消化冗長輸出,只把<b>精簡結論</b>回給主 agent。主 agent 因此保持乾淨,專注於高層協調。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -238,7 +305,8 @@ summary = <span class="tok-fn">Task</span>(
   </div>
   <div class="key"><b>重點:</b>冗長調查交給 subagent 隔離消化,主 agent 只收結論、保高層協調。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;結構化狀態持久化:崩潰恢復用 manifest</h2>
+  <h2><span class="num">知識 4</span> &nbsp;結構化狀態持久化:crash recovery（崩潰恢復）用 manifest</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>一個耗時 3 小時的大型 codebase 探索任務在中途因 API 逾時崩潰，所有已發現的架構資訊全部遺失，工程師必須從頭開始，若有 manifest 機制，只需從上次的斷點繼續。</div>
   <p>長探索可能中途崩潰。對策:每個 agent 把自己的狀態<b>匯出到已知位置</b>,coordinator 在恢復時<b>載入一份 manifest</b>(清單),知道誰做到哪、發現了什麼,再把這些注入 agent 的 prompt 重新接續。這樣崩潰後不必從零重來。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -257,6 +325,7 @@ manifest = {
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;派 subagent 調查特定問題,主 agent 保持高層協調</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>主 agent 需要同時了解測試覆蓋、依賴關係和 API 邊界，若每項都親自執行 Grep/Read，三項加起來的輸出會立即讓主 context 耗盡，無法完成高層架構的綜合分析。</div>
   <p>知識 3 的實作。把具體、會產生大量輸出的調查問題(「找出所有測試檔」「追蹤 refund flow 的依賴」)<b>各派一個 subagent</b> 去查,主 agent 只彙整它們的結論。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -270,7 +339,8 @@ manifest = {
   </div>
   <div class="key"><b>重點:</b>具體調查問題 → 各派 subagent；主 agent 只收結論、不沾冗長輸出。</div>
 
-  <h2><span class="num">技能 2</span> &nbsp;維護 scratchpad 檔記錄關鍵發現,後續問題先參照它以抗退化</h2>
+  <h2><span class="num">技能 2</span> &nbsp;維護 scratchpad file（草稿檔）記錄關鍵發現,後續問題先參照它以抗 context degradation（上下文降級）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>工程師詢問「auth 模組怎麼運作？」時，agent 在 context 已部分退化的情況下給出了模糊的泛泛描述，若在探索階段就把 AuthService 的具體發現寫入 scratchpad，回答前先 Read 就能給出準確答案。</div>
   <p>知識 2 的實作。每查到一塊就<b>寫進 scratchpad</b>;之後回答後續問題前,<b>先 Read scratchpad</b> 把具體發現拉回 context,而不是靠已退化的記憶硬答。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -286,6 +356,7 @@ manifest = {
   <div class="key"><b>重點:</b>邊探索邊寫 scratchpad；回答前先 Read 回來,用具體發現取代退化記憶。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;進入下一階段前先摘要本階段發現,注入下一階段初始 context</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>第一階段的 subagent 完成了整體架構探索，但 spawn 第二階段 subagent 時直接給一個空白 context，第二階段浪費大量時間重新發現第一階段已知的架構事實。</div>
   <p>探索分階段時,在 spawn 下一批 subagent <b>之前</b>,先把本階段的關鍵發現<b>摘要</b>好,並把摘要<b>注入</b>下一階段的初始 context。這樣下一階段一開始就帶著前面的精華,不必重查,也避免把整段原始輸出拖進來。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -301,7 +372,8 @@ manifest = {
   </div>
   <div class="key"><b>重點:</b>階段交棒 = 先摘要本階段、再把摘要注入下一階段初始 context。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;用結構化狀態匯出(manifest)設計崩潰恢復</h2>
+  <h2><span class="num">技能 4</span> &nbsp;用結構化狀態匯出(manifest)設計 crash recovery（崩潰恢復）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>兩個 explorer subagent 中，一個已完成 refund_flow 探索，另一個正在進行 auth_module 分析時系統崩潰。若有 manifest 機制，resume 時可以跳過已完成的部分，只繼續未完成的 auth_module 任務。</div>
   <p>知識 4 的實作。把各 agent 狀態<b>結構化匯出</b>成 manifest;coordinator 在 resume 時<b>載入 manifest 並注入</b>各 agent 的 prompt,讓它們從上次中斷處接續。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -315,7 +387,8 @@ manifest = {
   </div>
   <div class="key"><b>重點:</b>manifest 結構化匯出 + resume 時載入注入 prompt = 從中斷處接續。</div>
 
-  <h2><span class="num">技能 5</span> &nbsp;延長探索時用 /compact 壓低 context 用量</h2>
+  <h2><span class="num">技能 5</span> &nbsp;延長探索時用 /compact 壓低 context window（上下文視窗）用量</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>長時間的 codebase 探索 session 中，context 被累積的 Read/Grep 輸出塞至 80% 使用量，繼續探索風險截斷關鍵發現，需要在壓縮前先把重要發現落地到 scratchpad，再用 /compact 安全釋放空間。</div>
   <p>當 context 被冗長探索輸出塞滿,可用 <code>/compact</code> 把對話壓縮,保留要點、丟掉囉嗦的中間過程,騰出空間繼續探索。它是延長 session 中對抗 context 爆滿的直接手段(常與 scratchpad 搭配:compact 前先把關鍵發現寫進 scratchpad,確保不會被壓掉)。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -334,6 +407,77 @@ manifest = {
     <h2>整個 Task 5.4 的記憶骨架</h2>
     <p>探索大型 codebase 時,<code>Read</code>/<code>Grep</code> 的冗長輸出會讓 context <span class="num">退化</span>(答案不一致、用「典型做法」取代先前查到的具體類別)。四大對策:把關鍵發現寫進 <span class="num">scratchpad 檔</span>(存 context 之外,回答前先 Read 回來)、把冗長調查<span class="num">交給 subagent</span> 隔離消化、階段交棒<span class="num">先摘要再注入</span>下一階段、用 <span class="num">manifest</span> 結構化匯出狀態以支援崩潰恢復。context 快滿時用 <span class="num">/compact</span>,並先把發現落地到 scratchpad 再壓縮。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 4 · Developer Productivity with Claude</span>
+      </div>
+      <p class="q-text">An engineer is using Claude to explore a 120,000-line legacy codebase. After 90 minutes of exploration, the agent was asked "Which class handles the refund processing?" In the first 30 minutes, the agent had clearly identified <code>RefundProcessor.execute()</code> in <code>src/payments/refund.py</code>. Now it responds: "Refund processing is typically handled by a service layer class that coordinates with the ledger system." Logs show the context is at 85% capacity. What is the most likely root cause?</p>
+      <ol class="q-options" type="A">
+        <li>The model has been updated and lost the ability to analyze Python code</li>
+        <li>Context degradation — the context is full of verbose Read/Grep output, pushing the specific class discovery from earlier turns out of effective context, causing the model to fall back on generic patterns</li>
+        <li>The <code>RefundProcessor</code> class was renamed during the session</li>
+        <li>The agent's system prompt does not include instructions for identifying payment classes</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：這是 context degradation（上下文降級）的典型症狀——context 被大量 Read/Grep 的冗長輸出塞滿後，早期發現的具體類別名稱被擠出有效 context 範圍，model 開始用「典型模式」取代「先前發現的具體類別」。85% context 使用量正是退化的警訊。</p>
+          <p>A 錯在哪：模型本身的能力不會在 session 中途突然改變，這不是模型能力問題，而是 context 管理問題。C 錯在哪：codebase 在探索 session 中不會自行改變，RefundProcessor 仍然存在，只是已被擠出有效 context。D 錯在哪：system prompt 的設計問題在 session 開始就會顯現，不會在 90 分鐘後才突然發生，且問題描述明確顯示 30 分鐘前還能正確回答。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 4 · Developer Productivity with Claude</span>
+      </div>
+      <p class="q-text">An agent is exploring a large codebase to understand its architecture. The main agent directly runs <code>Grep("def test_", path=".")</code> across the entire repository to find all test files, receiving 4,200 lines of output that now fills a large portion of its context. The main agent can no longer fit its high-level architectural analysis work in the remaining context budget. What is the most effective change to address this?</p>
+      <ol class="q-options" type="A">
+        <li>Increase the model's context window so it can hold more Grep output</li>
+        <li>Have the main agent summarize the Grep output into prose before processing it to reduce token usage</li>
+        <li>Spawn a subagent to run the Grep search and return only a concise module-to-test-file mapping, keeping the verbose discovery output isolated in the subagent's separate context</li>
+        <li>Run the Grep search in batches of 500 lines to avoid overwhelming the context at once</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：派 subagent 去執行會產生大量輸出的 Grep 任務，讓冗長輸出被隔離在 subagent 自己的 context 中消化，主 agent 只收到精簡的模組對應清單。這讓主 agent 的 context 保持乾淨，專注於高層架構協調工作。</p>
+          <p>A 錯在哪：更大的 context window 只是推遲問題——當 codebase 夠大時，冗長 Grep 輸出仍然會塞滿任何大小的 context，且不解決「主 agent 需要保持乾淨以進行高層協調」的核心需求。B 錯在哪：在主 agent 中把 4,200 行輸出摘要成散文，摘要過程本身就佔用大量 context，且主 agent 仍需先處理原始輸出才能摘要，問題並未得到根本解決。D 錯在哪：分批處理只是把相同的問題分散到多輪，總 token 使用量不變，最終仍然塞滿主 agent 的 context。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 4 · Developer Productivity with Claude</span>
+      </div>
+      <p class="q-text">A multi-agent codebase exploration task has been running for 2.5 hours. Two explorer subagents are active: <code>explorer_01</code> completed the refund flow analysis, and <code>explorer_02</code> is 60% through the authentication module analysis. The coordinator agent crashes due to an API error. When the engineer restarts the system, the coordinator has no record of which agents finished which tasks, so it restarts the entire exploration from scratch. What design change best addresses this issue?</p>
+      <ol class="q-options" type="A">
+        <li>Increase the API timeout value to prevent the coordinator from crashing mid-task</li>
+        <li>Save the entire conversation history to a database after each turn so the coordinator can replay all messages on resume</li>
+        <li>Design each agent to export its state to a known file location after each phase, and have the coordinator load a manifest on resume to inject each agent's prior progress into their prompts</li>
+        <li>Add a health-check endpoint that pings all subagents every 5 minutes and restarts any that have failed</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：結構化 manifest 的 crash recovery（崩潰恢復）設計讓每個 agent 在完成每個階段後都將狀態匯出到已知位置。coordinator resume 時載入 manifest，得知 explorer_01 已完成（跳過）、explorer_02 進行到 60%（從中斷處接續），並把各 agent 的既有狀態注入其 prompt，避免重工。</p>
+          <p>A 錯在哪：調整 timeout 值可以減少某些類型的崩潰，但無法防止所有失敗情境（網路中斷、OOM 等），且完全沒有解決「崩潰後如何恢復」的問題。B 錯在哪：重播整個對話歷史不僅計算成本高，還可能因為 context window 限制而無法重播完整歷史，且重播過程中可能導致重複執行已完成的操作。D 錯在哪：健康檢查可以偵測失敗，但本身不提供任何恢復能力——當 subagent 失敗後，若沒有狀態持久化機制，重啟只會從零開始。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability

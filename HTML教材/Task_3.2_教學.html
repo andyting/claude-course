@@ -115,6 +115,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -164,7 +228,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;Project-scoped vs user-scoped:command 放哪裡決定誰看得到</h2>
+  <h2><span class="num">知識 1</span> &nbsp;Project-scoped vs user-scoped:slash command（斜線指令）放哪裡決定誰看得到</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你建了一個 /review-pr 的 slash command（斜線指令），但隊友說他們的 Claude Code 裡找不到這個指令，你需要了解 command 存放位置與可見範圍的關係才能修正。</div>
   <p>同樣是 slash command,放的位置決定它的「能見範圍」:</p>
   <p><b>Project-scoped</b>(<code>.claude/commands/</code>):放在專案目錄裡,會跟著 git 一起進版控,<b>整個團隊都能用</b>。適合團隊共用的工作流程,例如 <code>/review-pr</code>。<br>
   <b>User-scoped</b>(<code>~/.claude/commands/</code>):放在你個人家目錄,<b>只有你自己看得到</b>,不會影響別人。適合個人習慣的小工具。</p>
@@ -180,7 +245,8 @@
   </div>
   <div class="key"><b>考點重點:</b><code>.claude/commands/</code> = 專案共享(進版控);<code>~/.claude/commands/</code> = 個人。位置 = 能見範圍。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;Skill 與 SKILL.md frontmatter 三大欄位</h2>
+  <h2><span class="num">知識 2</span> &nbsp;Skill（技能）與 SKILL.md frontmatter 三大欄位</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 /analyze-codebase skill（技能）每次跑完都把幾百行的分析原文倒進主對話，嚴重佔用 context window，你需要了解 frontmatter 的哪個欄位能解決這個問題。</div>
   <p>Skill 放在 <code>.claude/skills/</code>,每個 skill 有一份 <code>SKILL.md</code>。檔案開頭的 <b>frontmatter</b>(用 <code>---</code> 包起來的設定區)支援三個關鍵欄位:</p>
   <p><b>context: fork</b> — 讓 skill 在獨立子代理 context 跑,輸出不污染主對話。<br>
   <b>allowed-tools</b> — 限制 skill 執行時能用哪些工具。<br>
@@ -202,6 +268,7 @@ argument-hint: "&lt;要分析的目錄路徑&gt;"   <span class="tok-com"># 沒�
   <div class="key"><b>考點重點:</b>三欄位各管一件事——fork 管「context 隔離」、allowed-tools 管「工具權限」、argument-hint 管「參數提示」。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;context: fork — 把吵雜輸出隔離在子代理</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>工程師執行 /brainstorm-refactors 之後，主對話被大量的探索輸出淹沒，後續的實作指令完全找不到焦點，你需要知道如何讓 skill 的雜訊保留在子代理而不污染主對話。</div>
   <p>有些 skill 會吐出一大堆內容(例如分析整個 codebase),如果直接灌進主對話,會把寶貴的 context window 塞爆、把重點淹沒。<code>context: fork</code> 的作用是讓這個 skill <b>在一個隔離的子代理 context 裡執行</b>,跑完只把<b>精煉後的結果</b>帶回主對話,中間那堆雜訊留在子代理裡。</p>
   <p>用團隊情境想:工程師下 <code>/analyze-codebase</code> 想搞懂一個 legacy 模組,分析過程翻了上百個檔案——你不會想把這上百檔的原文都塞回主對話。</p>
   <div class="codeblock">
@@ -221,7 +288,8 @@ context: fork
   </div>
   <div class="key"><b>一句話記住:</b>verbose 或 exploratory 的 skill → 加 <code>context: fork</code>,別污染主對話。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;個人化 skill:用不同名字放 ~/.claude/skills/,不影響隊友</h2>
+  <h2><span class="num">知識 4</span> &nbsp;個人化 skill（技能）:用不同名字放 ~/.claude/skills/,不影響隊友</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你想修改團隊的 /generate-tests skill 讓它更符合自己的 TDD 習慣，但擔心改動後會影響所有隊友的工作流程，你需要知道如何在不影響他人的前提下建立個人變體。</div>
   <p>團隊共用的 skill 你不該亂改——一改大家都受影響。要客製成自己順手的版本,做法是在<b>個人目錄 <code>~/.claude/skills/</code></b> 建一個<b>不同名字</b>的變體。這樣你用你的,隊友用團隊原版,互不干擾。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -236,7 +304,8 @@ context: fork
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;建 project-scoped slash command 給全隊用</h2>
+  <h2><span class="num">技能 1</span> &nbsp;建 project-scoped slash command（斜線指令）給全隊用</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你們團隊每個人 PR review 的流程和品質參差不齊，你想建一個標準化的 /review-pr 指令讓所有人只要一個指令就能跑統一的 review 流程。</div>
   <p>知識 1 的實作。把 command 的 <code>.md</code> 放進 <code>.claude/commands/</code> 並 commit,隊友 pull 之後就能直接打那個 slash command。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -251,7 +320,8 @@ git commit -m <span class="tok-str">"add /review-pr command"</span>
 <span class="tok-com"># 3) 隊友 pull 後即可 /review-pr,全隊一致</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 2</span> &nbsp;用 context: fork 隔離 verbose / 探索型 skill</h2>
+  <h2><span class="num">技能 2</span> &nbsp;用 context: fork 隔離 verbose / 探索型 skill（技能）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>CI job 中的 /codebase-analysis skill 掃描完後把數千行的原始檔案內容倒進主對話，導致後續的 review 任務完全沒有可用的 context 空間，你需要用 context: fork 把探索過程隔離。</div>
   <p>知識 3 的實作落點:把「會吐很多字」(codebase 分析)或「探索性質」(腦暴替代方案)的 skill,在 frontmatter 加 <code>context: fork</code>。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -266,7 +336,8 @@ allowed-tools: [Read, Grep, Glob]
 只回精煉摘要,不要貼大量原始碼。</code></pre>
   </div>
 
-  <h2><span class="num">技能 3</span> &nbsp;用 allowed-tools 限制 skill 能用的工具</h2>
+  <h2><span class="num">技能 3</span> &nbsp;用 allowed-tools 限制 skill（技能）能用的工具</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 /scaffold-module skill 意外執行了刪除現有檔案的 Bash 指令，造成生產程式碼損失，你需要用 allowed-tools 把 skill 的工具權限收緊到只允許必要操作。</div>
   <p>最小權限原則。在 frontmatter 用 <code>allowed-tools</code> 把工具縮到最小,避免 skill 做出破壞性動作。例如只給寫檔、不給執行 Bash 刪檔。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -286,6 +357,7 @@ allowed-tools: [Write]   <span class="tok-com"># 僅檔案寫入,不給 Bash 等
   <div class="key"><b>重點:</b><code>allowed-tools</code> 收緊權限 → 防止 skill 執行破壞性動作。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;用 argument-hint 提示必填參數</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>開發者輸入 /generate-tests 但忘了帶目標檔案路徑，導致 skill 在整個 repo 亂跑產出大量無效測試，你需要 argument-hint 在缺少參數時立刻提示使用者補齊。</div>
   <p>當使用者不帶參數就呼叫 skill,<code>argument-hint</code> 會提示他該填什麼,避免 skill 在缺資訊下亂跑。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -299,7 +371,8 @@ argument-hint: "&lt;目標檔案路徑,例如 src/auth.py&gt;"
 <span class="tok-com"># 系統用 argument-hint 提示他補上路徑</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 5</span> &nbsp;Skill vs CLAUDE.md:何時用哪個</h2>
+  <h2><span class="num">技能 5</span> &nbsp;Skill（技能）vs CLAUDE.md file（CLAUDE.md 檔）:何時用哪個</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你不確定新增的「TypeScript strict 模式」規範應該放進 CLAUDE.md 還是做成一個 skill，錯誤的選擇會讓規範只在特定場合生效或反而每次都被載入造成干擾。</div>
   <p>兩者都是「給 Claude 的設定」,但觸發方式不同:</p>
   <p><b>Skill</b> = <b>按需呼叫</b>,針對特定任務的工作流程(你叫它才跑)。<br>
   <b>CLAUDE.md</b> = <b>永遠載入</b>的普世規範(每次都自動生效,例如全專案的命名規則、coding style)。</p>
@@ -317,6 +390,77 @@ argument-hint: "&lt;目標檔案路徑,例如 src/auth.py&gt;"
     <h2>整個 Task 3.2 的記憶骨架</h2>
     <p>在 Scenario 2 的團隊裡:command/skill 放 <span class="num">.claude/</span>(進版控、全隊共享)還是 <span class="num">~/.claude/</span>(個人、改名避免影響隊友),決定誰看得到。Skill 的 <span class="num">SKILL.md frontmatter</span> 管三件事——<span class="num">context: fork</span>(隔離 verbose/探索輸出)、<span class="num">allowed-tools</span>(收緊工具權限防破壞)、<span class="num">argument-hint</span>(提示必填參數)。最後一刀:<span class="num">永遠載入的普世規範用 CLAUDE.md,按需任務流程用 skill</span>。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A developer on a team runs <code>/codebase-analysis</code> to understand a legacy authentication module. After the skill finishes, the main conversation context contains hundreds of raw file contents from the scan, leaving almost no room for the subsequent refactoring discussion. The <code>SKILL.md</code> frontmatter for that skill currently has no special configuration. What is the most effective single change to prevent this problem?</p>
+      <ol class="q-options" type="A">
+        <li>Add <code>allowed-tools: [Read, Grep]</code> to the skill frontmatter to limit which files can be scanned.</li>
+        <li>Add <code>context: fork</code> to the skill frontmatter so the verbose scan runs in an isolated sub-agent context and only the summary is returned to the main conversation.</li>
+        <li>Move the skill file from <code>.claude/skills/</code> to <code>~/.claude/skills/</code> so it does not share context with the project session.</li>
+        <li>Add <code>argument-hint: "&lt;module path&gt;"</code> to the frontmatter so the developer scopes the scan to a single directory.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p><code>context: fork</code> 讓 skill 在獨立子代理 context 裡執行，中間那堆 verbose 的掃描原文留在子代理，主對話只收到精煉摘要，context window 保持乾淨。這正是官方設計 context: fork 的核心用途。</p>
+          <p>A 錯在哪：allowed-tools 控制的是工具存取權限，不能控制輸出是否進入主對話。C 錯在哪：把 skill 移到個人目錄只影響可見範圍（誰能用），無法解決輸出污染主 context 的問題。D 錯在哪：argument-hint 可以縮小掃描範圍，但只要輸出還是直接進主對話，問題仍然存在，這不是根本解法。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A team's <code>/scaffold-module</code> skill is designed only to generate boilerplate files. During an incident investigation, engineers discover that the skill occasionally executes Bash commands that delete existing files when the scaffolding logic encounters conflicts. The skill's <code>SKILL.md</code> has no <code>allowed-tools</code> restriction. Which change best addresses this security risk?</p>
+      <ol class="q-options" type="A">
+        <li>Add <code>context: fork</code> to run the skill in an isolated context so any destructive actions do not affect the main workspace.</li>
+        <li>Add <code>allowed-tools: [Write]</code> to the skill frontmatter to restrict tool access to file write operations only, blocking Bash and other destructive tools.</li>
+        <li>Move the skill to <code>~/.claude/skills/</code> so it requires explicit user invocation and cannot be triggered accidentally.</li>
+        <li>Add an <code>argument-hint</code> prompting the developer to confirm the target directory before execution.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p><code>allowed-tools: [Write]</code> 直接套用最小權限原則：skill 只需要寫檔能力，把 Bash 等危險工具從允許清單（allowlist）中排除，就從根本上阻止了破壞性操作的發生。</p>
+          <p>A 錯在哪：context: fork 隔離的是輸出，讓雜訊不進主對話，但不限制 skill 能執行的工具種類，子代理裡的 Bash 仍可刪除檔案。C 錯在哪：把 skill 移到個人目錄改變的是可見範圍，無法限制執行時能用的工具。D 錯在哪：argument-hint 提示參數，但不能阻止 skill 在取得參數後仍執行危險操作。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A team enforces a TypeScript strict mode rule across all their projects and also uses a <code>/generate-tests</code> workflow that developers invoke only when adding new features. An architect is deciding whether each of these should be configured as a CLAUDE.md rule or a skill. Which assignment is correct?</p>
+      <ol class="q-options" type="A">
+        <li>Both should be skills: TypeScript strict mode as a skill triggered before every file edit, and test generation as a separate skill.</li>
+        <li>TypeScript strict mode should be in CLAUDE.md (always-loaded universal standard), and test generation should be a skill (on-demand task-specific workflow).</li>
+        <li>TypeScript strict mode should be a skill (invoked when needed), and test generation should be in CLAUDE.md (always-loaded so Claude always suggests tests).</li>
+        <li>Both should be in CLAUDE.md to ensure they are always available without requiring explicit invocation.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>CLAUDE.md 適合「每次工作都該套用的普世規範」——TypeScript strict 模式是編碼標準，應該每個檔案都生效；Skill 適合「只在做特定任務時才執行的工作流程」——/generate-tests 只在需要補測試時才呼叫，按需即可。</p>
+          <p>A 錯在哪：把 TypeScript strict 做成 skill 表示它只在主動呼叫時才生效，工程師可能忘記呼叫，規範就不一致了。C 錯在哪：把測試生成放進 CLAUDE.md 會讓 Claude 在每次互動都嘗試生成或建議測試，反而造成干擾。D 錯在哪：把 /generate-tests 這種任務型工作流程放進 CLAUDE.md 會讓每次 session 都永遠載入這段指令，浪費 context 且不必要。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows

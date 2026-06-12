@@ -143,6 +143,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -192,7 +256,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;合理的升級觸發條件:點名要真人、政策例外/空白、推不動</h2>
+  <h2><span class="num">知識 1</span> &nbsp;合理的 escalation trigger（升級觸發）條件:點名要真人、政策例外/空白、推不動</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客服 agent 在遇到「競品比價」請求時不知道該自行處理還是升級，因為政策文件只涵蓋本站調價，沒有明文規範競品情況，導致 agent 自行腦補規則給出錯誤承諾。</div>
   <p>什麼時候該 <code>escalate_to_human</code>?官方列出三類觸發:<b>(1)</b> 客戶明確要求真人;<b>(2)</b> 遇到政策例外或政策根本沒寫到的情況(不只是「案件很複雜」);<b>(3)</b> agent 已經沒辦法有意義地推進。注意第二點:政策<b>空白</b>本身就是升級理由,不是非得很難才升。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -208,6 +273,7 @@
   <div class="key"><b>考點重點:</b>三觸發 = 要真人 / 政策空白或例外 / 推不動。政策空白≠案件複雜,但同樣要升。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;客戶明確要求 vs. 問題很單純:該立刻升 還是 提議先解決</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客戶說「我要找你們主管！」時，agent 仍先嘗試自行查詢訂單並提出解決方案，等待了 3 輪後才升級，讓原本已不耐煩的客戶更加憤怒，CSAT 分數下滑。</div>
   <p>關鍵的二分法:如果客戶<b>明確要求真人</b>,就<b>立刻升</b>,不要先自己查一輪;但如果問題其實很單純,agent 可以<b>提議「我可以直接幫您處理」</b>。差別在於「客戶是否明講要真人」。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -221,7 +287,8 @@
   </div>
   <div class="key"><b>重點:</b>明講要真人 → 立刻升;單純問題 → 提議自己解決。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;情緒升級與「自評信心分數」都不可靠</h2>
+  <h2><span class="num">知識 3</span> &nbsp;情緒升級與「自評 confidence calibration（信心校準）分數」都不可靠</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>系統將 sentiment == "angry" 設為升級觸發條件，結果一個單純詢問退貨期的生氣客戶被升級給真人客服，而一個語氣平和卻要求政策例外的複雜案件卻沒有被升級，造成資源錯置。</div>
   <p>兩個常見的<b>錯誤代理指標</b>:<b>(a)</b> 用「客戶語氣」決定升級——語氣兇不代表案件複雜,語氣好也可能是棘手政策例外;<b>(b)</b> 用模型「自評的信心分數」當複雜度代理——模型常常該不確定時很有自信。真正該看的是<b>案件本身的複雜度</b>(政策有沒有寫、能不能推進),不是情緒或自評。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -239,7 +306,8 @@
   </div>
   <div class="key"><b>重點:</b>情緒、自評信心 = 不可靠代理。判斷依據是案件實際複雜度。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;多筆相符要「問清楚」,不要用啟發法亂選</h2>
+  <h2><span class="num">知識 4</span> &nbsp;多筆相符要「問清楚」做 ambiguity resolution（模糊解析）,不要用啟發法亂選</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>呼叫 get_customer(name="陳怡君") 回傳三筆相符資料，agent 選取了第一筆（最近登入），結果處理到另一個客戶的帳號，造成資料外洩與退款流向錯誤的嚴重事故。</div>
   <p>呼叫 <code>get_customer</code> 時若回傳<b>多筆相符</b>(同名、同 email 前綴…),不能憑「選最近一筆」「選訂單最多的」這種啟發法猜。正確做法是<b>請客戶提供更多識別資訊</b>(訂單號、後四碼…)來消歧義。猜錯客戶身分在客服場景是嚴重事故。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -257,7 +325,8 @@
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;在 system prompt 用 few-shot 範例寫明確的升級準則</h2>
+  <h2><span class="num">技能 1</span> &nbsp;在 system prompt 用 few-shot 範例寫明確的 escalation trigger（升級觸發）準則</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客服 agent 的 system prompt 只有一句「遇到複雜問題請升級」，導致 agent 對「複雜」的判斷標準不一致，有時升級單純問題、有時對複雜政策例外硬解，需要用 few-shot 範例讓判斷標準具體化。</div>
   <p>把「何時升、何時自解」用<b>具體 few-shot 例子</b>寫進 system prompt,而不是只給一句抽象規則。例子能讓模型抓到判斷的「語感」,大幅降低該升不升、不該升亂升的情況。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -279,6 +348,7 @@
   <div class="key"><b>重點:</b>升級準則 + few-shot 範例寫進 system prompt,讓判斷有依據。</div>
 
   <h2><span class="num">技能 2</span> &nbsp;客戶明確要求真人時,立刻照辦,不先自己調查</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客戶明確表示「我要跟真人講話」後，agent 仍先呼叫 lookup_order 試圖自行解決，讓等待升級的客戶又多等了兩輪回應，導致原本可以快速轉接的案件變成客訴。</div>
   <p>知識 2 的實作。客戶說「我要真人」,就<b>馬上</b> <code>escalate_to_human</code>——不要先跑 <code>lookup_order</code>、不要先試圖自己解決。硬要先調查,只會讓已經想找真人的客戶更不耐煩。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -292,6 +362,7 @@
   <div class="key"><b>重點:</b>明確要求真人 = 立刻升,不先調查。</div>
 
   <h2><span class="num">技能 3</span> &nbsp;能力範圍內:先安撫情緒並提議解決,客戶堅持才升</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客戶抱怨「等很久了，你們的服務太差了！」但問題只是確認退貨期是否已過，agent 若直接升級是浪費人力，應先承認挫折感並提議立即協助，僅在客戶再次堅持時才升級。</div>
   <p>客戶很挫折、但問題其實在 agent 能力範圍內時,正確做法是:<b>先承認他的挫折</b>,<b>同時提議「我可以直接幫您處理」</b>;只有當客戶<b>再次堅持</b>要真人,才升級。這跟技能 2 不同——技能 2 是客戶「明講要真人」,這裡是客戶「在抱怨但沒明講要真人」。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -305,6 +376,7 @@ reply = <span class="tok-str">"很抱歉讓您久等、造成困擾。這筆退�
   <div class="key"><b>重點:</b>挫折但可解 → 先安撫+提議解決;客戶再堅持才升。</div>
 
   <h2><span class="num">技能 4</span> &nbsp;政策模糊或沒寫到客戶的情況時,升級</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客戶要求比對競品價格，而公司政策文件只涵蓋「本站歷史最低價調整」，agent 在沒有授權的情況下自行決定拒絕或接受，任一做法都可能造成客戶流失或財務損失。</div>
   <p>知識 1 第二觸發的實作。當客戶的請求落在政策<b>沒明文規範</b>的灰色地帶——例如政策只寫「本站調價」,客戶卻要求<b>比對競品價</b>——agent 不該自己腦補一個規則,而要升級讓有權限的人決定。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -318,6 +390,7 @@ reply = <span class="tok-str">"很抱歉讓您久等、造成困擾。這筆退�
   <div class="key"><b>重點:</b>政策對該請求模糊/沉默 → 升級,不要自行腦補規則。</div>
 
   <h2><span class="num">技能 5</span> &nbsp;工具回傳多筆相符時,指示 agent 請求額外識別資訊</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>客服系統的 get_customer API 在查詢常見姓名時頻繁回傳多筆相符，需要在 agent 指示中明確定義「多筆相符就請求識別碼」的行為，避免開發者或 agent 自行選擇啟發法。</div>
   <p>知識 4 的實作。把「多筆相符就問清楚」寫成明確指示,讓 agent 在 <code>get_customer</code> / <code>lookup_order</code> 回多筆時,主動請客戶補識別碼,而不是靠啟發法挑一個。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -336,6 +409,77 @@ reply = <span class="tok-str">"很抱歉讓您久等、造成困擾。這筆退�
     <h2>整個 Task 5.2 的記憶骨架</h2>
     <p>客服 agent 的升級要靠<span class="num">明確觸發</span>而非情緒:客戶<span class="num">明講要真人就立刻升</span>、政策<span class="num">空白或例外要升</span>、<span class="num">推不動要升</span>;但問題單純時先<span class="num">提議自己解決</span>,客戶挫折但可解就先安撫+提議、再堅持才升。<span class="num">情緒與自評信心都不可靠</span>,判斷依據是案件實際複雜度。<code>get_customer</code> 回<span class="num">多筆相符</span>時請求額外識別碼消歧義,不用啟發法亂選。所有準則用 <span class="num">few-shot 寫進 system prompt</span>。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A customer service agent receives this message: "This is the third time I'm contacting you about the same issue. I want to speak with a manager right now." The agent's current behavior is to first run <code>lookup_order</code>, analyze the case, and then offer to resolve before considering escalation. Logs show the customer must wait through 2–3 agent turns before being transferred. What is the most effective change to address this?</p>
+      <ol class="q-options" type="A">
+        <li>Add sentiment analysis to detect anger scores above 0.8 and trigger escalation automatically</li>
+        <li>Detect explicit human-agent requests at the start of message handling and call <code>escalate_to_human</code> immediately, before any investigation</li>
+        <li>Increase the agent's self-reported confidence threshold so it escalates more readily when uncertain</li>
+        <li>Add a cooldown timer so customers who request escalation are transferred after one additional resolution attempt</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：當客戶明確要求真人時，應立刻升級，不需要先調查。在訊息處理流程的最前面偵測「明確要求真人」並立即呼叫 escalate_to_human，是最直接且尊重客戶意願的做法。</p>
+          <p>A 錯在哪：情緒分數是不可靠的代理指標——高情緒不代表案件複雜，也不代表客戶明確要求真人。這個做法在客戶生氣但問題簡單時會錯誤升級，而在客戶平靜但明確要求真人時可能不觸發。C 錯在哪：自評信心分數同樣不可靠，且完全沒有捕捉到「客戶明確要求真人」這個關鍵觸發條件。D 錯在哪：讓客戶再等一輪「解決嘗試」正是問題所在——客戶已明確表示要真人，任何額外的等待都會增加挫折感。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A customer contacts support saying: "I'm really frustrated — I've been waiting for my refund for two weeks." The agent's system prompt only says "escalate complex issues." The agent escalates immediately due to detected frustration. However, a review shows that 60% of escalated cases were straightforward refund status checks that the agent could have resolved. What is the most effective approach to reduce unnecessary escalations while still honoring genuine requests?</p>
+      <ol class="q-options" type="A">
+        <li>Remove all escalation capability and require the agent to resolve every case autonomously</li>
+        <li>Add few-shot examples to the system prompt showing that frustration alone does not trigger escalation — the agent should acknowledge frustration, offer resolution, and only escalate if the customer reiterates their preference for a human</li>
+        <li>Replace the escalation trigger with a rule that only escalates cases open for more than 14 days</li>
+        <li>Set the escalation confidence threshold to 0.9 so the model only escalates when very uncertain</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：用 few-shot 範例在 system prompt 中明確示範「挫折但可解 → 先安撫 + 提議解決，客戶再堅持才升」的判斷邏輯。具體範例比抽象規則更能讓模型抓到判斷的語感，大幅降低因情緒誤觸升級的比率。</p>
+          <p>A 錯在哪：完全移除升級能力會在客戶明確要求真人、或政策空白時造成更大問題，這是矯枉過正。C 錯在哪：以案件開立時長作為升級條件完全偏離問題核心，且可能讓新開立的複雜政策例外案件無法即時升級。D 錯在哪：自評信心分數不可靠，且設定為 0.9 只會讓模型在所有案件上都假裝有信心，反而更不觸發必要的升級。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 1 · Customer Support Resolution Agent</span>
+      </div>
+      <p class="q-text">A customer named "Lin Wei" contacts support. The agent calls <code>get_customer(name="Lin Wei")</code> and receives three matching records. The agent selects the record with the most recent login, processes a return request, and the customer later reports that refund was applied to the wrong account. What change best prevents this type of error?</p>
+      <ol class="q-options" type="A">
+        <li>Change the heuristic to select the record with the largest order history instead of most recent login</li>
+        <li>Add a fallback that queries by email address if the name lookup returns more than one result</li>
+        <li>Instruct the agent to request additional identifying information (order number or last 4 digits of phone) when <code>get_customer</code> returns multiple matches, rather than selecting based on any heuristic</li>
+        <li>Limit <code>get_customer</code> to only return exact name matches to reduce the chance of multiple results</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：多筆相符時，任何啟發法選擇都有處理到錯誤帳號的風險。正確做法是請客戶提供額外識別資訊（訂單號、手機後四碼）來進行 ambiguity resolution（模糊解析），確保唯一相符後才繼續處理。這是唯一能從根本消除猜測的方法。</p>
+          <p>A 錯在哪：換一個不同的啟發法（訂單量最多）同樣是在猜測，猜測的結果同樣可能出錯，沒有解決根本問題。B 錯在哪：用 email 備援查詢可能有幫助，但若客戶提供的 email 也有多筆相符，問題仍然存在；且這個方法並沒有消除在某些情況下仍需要額外識別資訊的需求。D 錯在哪：限制為精確姓名比對可能讓真正的客戶查不到（如略稱、空格差異），且即使是精確相符也可能有重名，無法根本解決問題。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 5: Context Management &amp; Reliability

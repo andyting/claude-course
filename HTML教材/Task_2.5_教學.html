@@ -212,6 +212,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -266,8 +330,9 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;Grep:搜「檔案內容」裡的模式(函式名、錯誤訊息、import)</h2>
-  <p>當你想找的是<b>檔案內容裡的某個東西</b>——某個函式名出現在哪、某句錯誤訊息哪裡丟的、誰 import 了某個模組——用 <code>Grep</code>。它掃的是「檔案裡寫了什麼」,不是「檔案叫什麼名字」。探索陌生 codebase 時,這通常是你的第一把工具。</p>
+  <h2><span class="num">知識 1</span> &nbsp;Grep：搜「檔案內容」裡的模式（函式名、錯誤訊息、import）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你接手一個陌生的 legacy 服務，需要快速找出 <code>InvalidTokenError</code> 是從哪個模組丟出來的，以及有哪些地方 import 了 session 模組，你需要知道用哪個工具搜尋檔案內容裡的特定字串。</div>
+  <p>當你想找的是<b>檔案內容（file content）裡的某個東西</b>——某個函式名出現在哪、某句錯誤訊息哪裡丟的、誰 import 了某個模組——用 <code>Grep</code>。它掃的是「檔案裡寫了什麼」，不是「檔案叫什麼名字」。探索陌生 codebase 時，這通常是你的第一把工具。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-com"># Scenario 4:剛接手一個陌生服務,想找登入流程從哪開始</span>
@@ -277,8 +342,9 @@
   </div>
   <div class="key"><b>考點重點:</b>Grep = 搜「內容」(content)。找字串、找模式、找誰用了什麼 → Grep。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;Glob:用「檔名 / 路徑模式」找檔案</h2>
-  <p>當你要找的是<b>符合某種命名模式的檔案</b>——所有測試檔、所有 <code>.tsx</code> 元件、某資料夾下所有設定檔——用 <code>Glob</code>。它比對的是「檔案路徑長怎樣」,不看裡面內容。<code>**</code> 代表任意層資料夾,<code>*</code> 代表任意檔名片段。</p>
+  <h2><span class="num">知識 2</span> &nbsp;Glob：用「檔名 / 路徑模式（file path pattern）」找檔案</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你剛接手一個前端專案，需要快速盤點有哪些 React 元件有對應的測試檔，你需要知道如何用命名模式一次找出所有 <code>.test.tsx</code> 檔案，而不必手動遍歷整個目錄結構。</div>
+  <p>當你要找的是<b>符合某種命名模式（naming pattern）的檔案</b>——所有測試檔、所有 <code>.tsx</code> 元件、某資料夾下所有設定檔——用 <code>Glob</code>。它比對的是「檔案路徑長怎樣」，不看裡面內容。<code>**</code> 代表任意層資料夾，<code>*</code> 代表任意檔名片段。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-com"># Scenario 4:想盤點這個前端專案有哪些測試檔</span>
@@ -288,7 +354,8 @@
   </div>
   <div class="key"><b>考點重點:</b>Glob = 比對「路徑 / 檔名」。找「哪些檔」而非「檔裡有什麼」 → Glob。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;Read / Write 是整檔操作;Edit 是靠「唯一文字比對」做定點修改</h2>
+  <h2><span class="num">知識 3</span> &nbsp;Read / Write 是整檔操作；Edit 是靠「唯一文字比對（unique text matching）」做定點修改</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你需要修改 legacy 服務裡一個設定值，這個值在整個檔案裡只出現一次，你需要了解 Edit 工具如何使用唯一文字作為 anchor 來精準定位並替換，以及和整檔 Read/Write 的使用場景差異。</div>
   <p>三把改檔工具分工:<b>Read</b> 把整個檔讀進來、<b>Write</b> 把整個檔寫出去(會覆蓋),這兩把是「整檔」級。<b>Edit</b> 則是「定點」——你給它一段<b>要被取代的舊文字</b>和<b>新文字</b>,它在檔裡找到那段就替換。關鍵前提:那段舊文字在檔裡必須<b>唯一</b>,Edit 才知道要改哪一處。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -307,8 +374,9 @@ content = <span class="tok-fn">Read</span>(file_path=<span class="tok-str">"src/
   </div>
   <div class="key"><b>考點重點:</b>整檔 → Read/Write;改一小段 → Edit(但 old_string 要唯一)。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;Edit 因「文字不唯一」失敗時:退回 Read + Write</h2>
-  <p>這是最常考的一條。當你要改的那段文字在檔裡<b>出現了好幾次</b>(例如同樣一行 <code>timeout = 30</code> 出現三處),Edit 不知道該改哪一個,就會失敗。這時的可靠後備是:<b>Read</b> 把整檔讀進來、在記憶裡做好替換、再用 <b>Write</b> 整檔寫回去。用「整檔覆寫」繞過「定點比對不唯一」的問題。</p>
+  <h2><span class="num">知識 4</span> &nbsp;Edit 因「文字不唯一（non-unique match）」失敗時：退回 Read + Write</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你嘗試用 Edit 修改 <code>config.py</code> 裡的 <code>timeout = 30</code>，但工具回報無法定位因為這行在檔案中出現了三次，你需要知道遇到 non-unique match 時應該改用哪個工具組合來可靠地完成修改。</div>
+  <p>這是最常考的一條。當你要改的那段文字在檔裡<b>出現了好幾次</b>（例如同樣一行 <code>timeout = 30</code> 出現三處），Edit 不知道該改哪一個，就會失敗。這時的可靠後備（fallback）是：<b>Read</b> 把整檔讀進來、在記憶裡做好替換、再用 <b>Write</b> 整檔寫回去。用「整檔覆寫」繞過「定點比對不唯一（non-unique match）」的問題。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ old_string 在檔內出現多次 → Edit 無法定位,失敗</span>
@@ -323,7 +391,8 @@ text = text.<span class="tok-fn">replace</span>(<span class="tok-str">"timeout =
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;跨整個 codebase 搜程式內容,用 Grep(找呼叫點、找錯誤訊息)</h2>
+  <h2><span class="num">技能 1</span> &nbsp;跨整個 codebase 搜程式內容，用 Grep（找呼叫點、找錯誤訊息）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你需要評估修改 <code>charge_customer()</code> 函式的影響範圍，必須找出整個 codebase 裡所有呼叫這個函式的地方，同時也要定位線上報警中某句錯誤訊息在原始碼的出處。</div>
   <p>技能版的知識 1。探索陌生服務時最常做的兩件事:找「某函式的所有呼叫者」、定位「某句錯誤訊息」。兩者都是搜內容,都用 <code>Grep</code>。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -334,7 +403,8 @@ text = text.<span class="tok-fn">replace</span>(<span class="tok-str">"timeout =
 <span class="tok-fn">Grep</span>(pattern=<span class="tok-str">"Payment gateway timeout"</span>)   <span class="tok-com"># 直接定位來源</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 2</span> &nbsp;用 Glob 找符合命名模式的檔案(如 **/*.test.tsx)</h2>
+  <h2><span class="num">技能 2</span> &nbsp;用 Glob 找符合命名模式的檔案（如 <code>**/*.test.tsx</code>）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你接手一個前端專案，需要盤點測試覆蓋狀況，找出哪些 React 元件還沒有對應的測試檔，你需要用命名模式批次找出所有測試檔和元件檔進行比對。</div>
   <p>技能版的知識 2。盤點專案結構時,用命名模式一次撈出整類檔案。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -344,7 +414,8 @@ text = text.<span class="tok-fn">replace</span>(<span class="tok-str">"timeout =
 <span class="tok-com"># 比對清單 → 哪些元件還沒測試,一目了然</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 3</span> &nbsp;Read 載入整檔 → 當 Edit 找不到唯一 anchor 時改用 Write</h2>
+  <h2><span class="num">技能 3</span> &nbsp;Read 載入整檔 → 當 Edit 找不到唯一 anchor（unique anchor text）時改用 Write</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你嘗試用 Edit 修改一個設定值，但因為相同的文字在檔案中出現多次而失敗，你需要一個可靠的 fallback 流程來完成這個修改，同時保持最小的改動範圍。</div>
   <p>技能版的知識 4,流程化。先試 Edit;一旦因為 anchor 文字不唯一而失敗,就 Read 整檔、在記憶裡精準處理、Write 寫回。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -359,7 +430,8 @@ text = text.<span class="tok-fn">replace</span>(<span class="tok-str">"timeout =
   </div>
   <div class="key"><b>重點:</b>Edit 優先(改動小、精準);失敗就 Read+Write 兜底。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;漸進式理解 codebase:先 Grep 找入口,再 Read 沿 import 追流程</h2>
+  <h2><span class="num">技能 4</span> &nbsp;漸進式理解 codebase（incremental exploration）：先 Grep 找入口，再 Read 沿 import 追流程</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你接手一個龐大的陌生 legacy 服務，需要快速理解結帳（checkout）流程的完整呼叫鏈，若一開始就讀所有檔案會讓 context 爆掉，你需要一套系統性的漸進式探索策略。</div>
   <p>這條是探索陌生程式碼的<b>正確節奏</b>,也最常考。<b>不要</b>一開始就把整個 repo 的檔全 Read 進來(浪費 context、抓不到重點)。正確做法:先用 <code>Grep</code> 找到<b>入口點</b>(main、route handler、某功能的起始函式),再用 <code>Read</code> 讀那個檔、看它 import 了什麼,<b>沿著 import 一路往下追</b>,只讀真正相關的檔。像偵探循線索,而不是把整個圖書館搬回家。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -377,7 +449,8 @@ src = <span class="tok-fn">Read</span>(file_path=<span class="tok-str">"src/rout
   </div>
   <div class="key"><b>重點:</b>先 Grep 找入口、再 Read 循 import 追;別一次讀光整個 repo。</div>
 
-  <h2><span class="num">技能 5</span> &nbsp;追函式在 wrapper 模組間的使用:先列出所有匯出名,再逐名搜尋</h2>
+  <h2><span class="num">技能 5</span> &nbsp;追函式在 wrapper 模組間的使用：先列出所有匯出名（exported names），再逐名搜尋</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要評估移除 <code>retry_request</code> 的影響，但直接搜這個名字只找到少數幾個呼叫點，你懷疑這個函式在多個 wrapper 模組中被 re-export 並換了名字，需要找出所有實際使用點才能安全重構。</div>
   <p>有些 codebase 會層層包裝:一個工具函式被 <code>utils/__init__.py</code> re-export、又被別的模組換名匯出,直接搜原始函式名會漏掉這些「換了馬甲」的呼叫。正確做法:先找出某模組<b>所有匯出的名稱</b>(原名 + 別名),再拿<b>每一個名字</b>去整個 codebase 搜一遍,才能完整追出真實用量。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -397,6 +470,77 @@ src = <span class="tok-fn">Read</span>(file_path=<span class="tok-str">"src/rout
     <h2>整個 Task 2.5 的記憶骨架</h2>
     <p>六把內建工具,選對才不繞路:找<span class="num">內容</span>(函式名、錯誤訊息、import)用 <span class="num">Grep</span>;找<span class="num">檔名/路徑模式</span>(<code>**/*.test.tsx</code>)用 <span class="num">Glob</span>;整檔讀寫用 <span class="num">Read/Write</span>,改一小段用 <span class="num">Edit</span>(old_string 要唯一);Edit 因<span class="num">文字不唯一</span>失敗,就退回 <span class="num">Read+Write</span> 整檔處理。理解陌生 codebase 要<span class="num">漸進式</span>——先 Grep 找入口、再 Read 沿 import 追,別一次讀光整個 repo;追 wrapper 後的函式用量,先列<span class="num">所有匯出名(含別名)</span>再逐名搜。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 4 · Developer Productivity with Claude</span>
+      </div>
+      <p class="q-text">An engineer is onboarding to a large legacy Python codebase and needs to understand the complete flow for a checkout process. The agent's first action is to call <code>Glob(pattern="**/*.py")</code> and then Read every single file returned. After processing 300 files, the agent runs out of context and fails to produce a useful answer. What is the most effective approach to fix this?</p>
+      <ol class="q-options" type="A">
+        <li>Increase the model's context window by switching to a larger model before running the same approach.</li>
+        <li>Use Glob to narrow down files by name pattern first, then Read only files whose names suggest relevance to checkout.</li>
+        <li>Start with Grep to find the checkout route entry point, then use Read to follow import chains incrementally, reading only directly relevant files.</li>
+        <li>Use Bash to run a grep command across the codebase and pipe the output to a file for the agent to read all at once.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>正確的陌生 codebase 探索節奏是「漸進式」：先用 Grep 找到功能入口點（如 checkout 的 route handler），再用 Read 讀入口檔並沿著 import 鏈往下追，只讀真正相關的模組。這樣能用最少的 token 建立最精準的理解，避免把整個 repo 讀進來造成 context 爆掉。</p>
+          <p>A 錯在哪：切換大模型增加 context window 是治標不治本，根本問題是讀了大量不相關的檔案；正確的工具選擇策略才是解答。B 錯在哪：用 Glob 依檔名篩選有一定幫助，但 checkout 相關邏輯可能散落在 services、utils 等各種命名的檔案中，依名字篩選仍可能漏掉或包含太多不相關的檔案。D 錯在哪：用 Bash grep 把輸出存到檔案再讀，本質上還是一次讀大量文字，沒有解決 context 的問題，且增加了不必要的複雜性。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 4 · Developer Productivity with Claude</span>
+      </div>
+      <p class="q-text">An agent needs to update a timeout value in <code>config.py</code>. It calls <code>Edit(file_path="config.py", old_string="timeout = 30", new_string="timeout = 60")</code>. The Edit tool returns an error indicating the string is not uniquely found. Which approach best resolves this?</p>
+      <ol class="q-options" type="A">
+        <li>Retry the Edit call with a higher confidence threshold parameter.</li>
+        <li>Use Bash to run <code>sed -i 's/timeout = 30/timeout = 60/' config.py</code> to replace all occurrences.</li>
+        <li>Call Read to load the full file content, perform the replacement in memory, then call Write to overwrite the file.</li>
+        <li>Add more context lines to <code>old_string</code> to make the match unique — for example, include the surrounding lines that differ between the occurrences.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: D</p>
+          <p>等等！這題有兩個合理答案。D（加更多上下文使 old_string 唯一）是最精準的做法：找到目標位置周圍的獨特文字作為 anchor，讓 Edit 能精確定位。C（Read + Write）是正確的 fallback，但會修改所有出現的 <code>timeout = 30</code>。若只需要改某一處，D 更精準；若確實要改全部，C 也可接受。官方文件中 D 描述的「提供更多周圍上下文讓比對唯一」是解決 non-unique match 的首選方法。</p>
+          <p>A 錯在哪：Edit 工具沒有「confidence threshold」參數，這個選項描述的是不存在的功能。B 錯在哪：雖然 sed 在技術上可行，但指引要求優先使用專用工具（Edit/Read/Write）而非 Bash；Bash 應留給工具本身無法完成的任務。C 的考量：Read+Write 是正確的 fallback，但若只想修改特定那一處而非全部，應先嘗試提供更多 anchor 上下文讓 Edit 能唯一定位。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 4 · Developer Productivity with Claude</span>
+      </div>
+      <p class="q-text">An agent needs to find all callers of a <code>retry_request</code> utility function before refactoring it. A simple Grep for "retry_request" returns only 3 results, but a senior engineer suspects the function is re-exported under different names in multiple wrapper modules. What is the most thorough approach?</p>
+      <ol class="q-options" type="A">
+        <li>Grep for "retry_request" with a recursive flag to ensure all subdirectories are searched.</li>
+        <li>Use Glob to find all Python files, then Read each one and manually scan for the function name.</li>
+        <li>First Grep the utils module to find all exported names (including aliases) of retry_request, then Grep for each exported name separately across the entire codebase.</li>
+        <li>Search the git commit history for all changes to files that originally defined retry_request to identify where it was copied or re-exported.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>追 wrapper 後的真實用量，正確做法分兩步：第一步用 Grep 在 utils 模組找出 <code>retry_request</code> 的所有匯出名（包括 <code>as retry</code>、<code>do_retry</code> 等別名和 <code>__all__</code> 清單）；第二步用每個名字分別 Grep 整個 codebase。只搜原始函式名會漏掉所有「換了馬甲」的呼叫，無法完整評估重構影響。</p>
+          <p>A 錯在哪：加遞迴旗標只確保搜尋範圍涵蓋所有子目錄，但問題在於 <code>retry_request</code> 被換名匯出後，直接搜原始名字就是找不到，不是搜尋範圍的問題。B 錯在哪：讀所有 Python 檔案是 anti-pattern——context 爆掉的風險很高，且效率遠不如精準使用 Grep；這是技能 4 明確反對的做法。D 錯在哪：查 git 歷史可能幫助理解演化，但無法準確找出「當前程式碼中所有的呼叫點」，因為程式可能在 git 歷史之外已經被大幅重構。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 2: Tool Design &amp; MCP Integration

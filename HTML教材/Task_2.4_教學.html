@@ -212,6 +212,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer {
     text-align: center;
     color: var(--gray-500);
@@ -266,9 +330,10 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;MCP server 的 scope:專案層 .mcp.json vs 使用者層 ~/.claude.json</h2>
+  <h2><span class="num">知識 1</span> &nbsp;MCP server 的 scope：專案層 <code>.mcp.json</code> vs 使用者層 <code>~/.claude.json</code></h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的團隊新加入了一個 GitHub MCP server，有人把設定寫在個人機器的使用者層設定檔，導致其他隊友 clone 後無法使用；你需要理解 MCP server 設定的 scope 機制，決定設定應該放哪裡。</div>
   <p>同一個團隊要共用的 MCP server(例如連 GitHub、Jira),設定要寫進<b>專案層</b>的 <code>.mcp.json</code>——這個檔放在 repo 裡、會進版控,所以 clone 下來的每個隊友都自動拿到同一套工具。反過來,你個人在玩、還在實驗的 server,放<b>使用者層</b>的 <code>~/.claude.json</code>——只對你生效,不會吵到隊友。</p>
-  <p>判斷準則很簡單:<b>「這個工具該不該被全隊看到?」</b> 該 → 專案層;只是自己用 → 使用者層。</p>
+  <p>判斷準則很簡單：<b>「這個工具該不該被全隊看到？」</b>該 → 專案層（project-scoped）；只是自己用 → 使用者層（user-scoped）。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-com"># 專案層 .mcp.json(放 repo 根目錄,會進版控 → 全隊共用)</span>
@@ -291,8 +356,9 @@
   </div>
   <div class="key"><b>考點重點:</b>共用 → <code>.mcp.json</code>(專案層、進版控);個人實驗 → <code>~/.claude.json</code>(使用者層、不分享)。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;環境變數展開:用 ${GITHUB_TOKEN} 管金鑰,不把 secret 寫進版控</h2>
-  <p><code>.mcp.json</code> 會進版控,所以<b>絕對不能</b>把真正的 token 字串直接寫進去——一旦 commit,全世界都看得到。正確做法是寫 <code>${GITHUB_TOKEN}</code> 這種<b>環境變數佔位符</b>,Claude Code 在連線時會去環境變數裡把真值展開填入。檔案裡只留變數名,真值留在每個人各自的環境裡。</p>
+  <h2><span class="num">知識 2</span> &nbsp;環境變數展開（environment variable expansion）：用 <code>${GITHUB_TOKEN}</code> 管金鑰，不把 secret 寫進版控</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>安全審查發現有人不小心把 GitHub personal access token 硬編碼進 <code>.mcp.json</code> 並 commit 到 repo，導致 token 外洩，你需要了解如何用環境變數展開機制避免 secret 進入版控。</div>
+  <p><code>.mcp.json</code> 會進版控，所以<b>絕對不能</b>把真正的 token 字串直接寫進去——一旦 commit，全世界都看得到。正確做法是寫 <code>${GITHUB_TOKEN}</code> 這種<b>環境變數佔位符（environment variable placeholder）</b>，Claude Code 在連線時會去環境變數裡把真值展開填入。檔案裡只留變數名，真值留在每個人各自的環境裡。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-com"># .mcp.json:用 ${VAR} 佔位,真 token 不入庫</span>
@@ -317,7 +383,8 @@
   </div>
   <div class="key"><b>一句話記住:</b>檔案只放 <code>${VAR}</code> 名字,真金鑰留在環境變數。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;所有 MCP server 的工具在「連線時」被一次發現,同時可用</h2>
+  <h2><span class="num">知識 3</span> &nbsp;所有 MCP server 的工具在「連線時」被一次發現，同時可用（tool discovery at connection time）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 同時掛載了 GitHub 和 Jira MCP server，有人擔心 agent 在同一任務中無法同時存取兩邊的工具，你需要說明 MCP 的工具發現機制如何讓多個 server 的工具並存可用。</div>
   <p>Claude Code 啟動連線時,會把<b>所有已設定的 MCP server</b>(專案層 + 使用者層)的工具<b>一次全部探索出來</b>,然後同時放進 agent 可用的工具清單。不是用到才連、也不是一次只能開一個——是連線當下全部就緒、同時可用。</p>
   <p>實務含意:你掛了 GitHub server 又掛了 Jira server,agent 在同一個任務裡可以一邊查 issue、一邊開 PR,兩邊工具並存,不需要切換。</p>
   <div class="codeblock">
@@ -335,7 +402,8 @@
   </div>
   <div class="key"><b>重點:</b>連線時一次發現全部工具 → 多個 server 的工具「同時並存可用」。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;MCP resources:把「內容目錄」攤開,減少瞎探的工具呼叫</h2>
+  <h2><span class="num">知識 4</span> &nbsp;MCP resources：把「內容目錄」攤開，減少 exploratory tool calls（探索性工具呼叫）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 在開始寫程式之前總是先發出一連串的 <code>list_issues</code>、<code>get_issue</code> 呼叫來了解有哪些工作，浪費大量 token 和時間，你需要了解如何用 MCP resources 讓 agent 直接看到可用資料的目錄，省掉這些探索性呼叫。</div>
   <p>除了「工具(tools)」,MCP server 還能提供「資源(resources)」。Resources 就像把一份<b>內容目錄</b>(issue 摘要清單、文件層級結構、資料庫 schema)直接攤開給 agent 看。差別在哪?沒有 resources 時,agent 為了搞清楚「有哪些資料可用」,得先發一堆<b>探索性工具呼叫</b>(列 issue、列表格、翻目錄);有 resources,它一眼就看到全貌,省掉那些來回。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -360,7 +428,8 @@ get_issue(101); get_issue(102); get_issue(103)  <span class="tok-com"># 一個�
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;在專案層 .mcp.json 設定共用 server,並用環境變數展開做驗證</h2>
+  <h2><span class="num">技能 1</span> &nbsp;在專案層 <code>.mcp.json</code> 設定共用 server，並用環境變數展開做驗證</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 Code Generation 團隊要把 GitHub MCP server 共享給所有開發者，同時確保每個人的 access token 不會洩漏到 git 歷史記錄，你需要正確設定專案層設定檔並使用環境變數展開來管理認證。</div>
   <p>這是知識 1 + 2 的合體實作:共用的 GitHub MCP server 寫進 <code>.mcp.json</code>,認證 token 用 <code>${GITHUB_TOKEN}</code> 展開。隊友 clone 下來,各自設好自己的 <code>GITHUB_TOKEN</code> 環境變數即可,設定檔本身不含任何 secret。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -377,7 +446,8 @@ get_issue(101); get_issue(102); get_issue(103)  <span class="tok-com"># 一個�
 <span class="tok-com"># 隊友只需:export GITHUB_TOKEN=... → 工具立即可用,設定零洩漏</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 2</span> &nbsp;個人/實驗 server 設在使用者層 ~/.claude.json</h2>
+  <h2><span class="num">技能 2</span> &nbsp;個人/實驗 server 設在使用者層 <code>~/.claude.json</code></h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你正在開發一個實驗性的自訂程式碼掃描 MCP server，需要在 Claude Code 中測試它但不想影響同事的工作環境，你需要知道應該把設定放在哪個層級。</div>
   <p>你正在寫一個自製的程式碼掃描工具,還沒成熟、不想推給全隊。放使用者層的 <code>~/.claude.json</code>,只在你機器上生效,既能立刻在 Claude Code 裡試,又不會污染專案設定。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -394,7 +464,8 @@ get_issue(101); get_issue(102); get_issue(103)  <span class="tok-com"># 一個�
   </div>
   <div class="key"><b>重點:</b>實驗放使用者層,穩定後再搬到專案層分享。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;把 MCP 工具描述寫詳細,免得 agent 寧可用 Grep 也不用更強的工具</h2>
+  <h2><span class="num">技能 3</span> &nbsp;把 MCP tool description（工具描述）寫詳細，免得 agent 寧可用 Grep 也不用更強的工具</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你安裝了一個能跨整個 GitHub 組織做語意搜尋的 MCP 工具，但 agent 仍然偏好使用只能搜尋本機檔案的內建 Grep，你需要了解為何工具描述不夠具體會讓 agent 退回使用熟悉的內建工具。</div>
   <p>這條很反直覺、很常考。你裝了一個強大的 GitHub 程式碼搜尋 MCP 工具,結果 agent 卻一直用內建的 <code>Grep</code>——為什麼?因為你的工具<b>描述太模糊</b>,agent 看不出它比 Grep 強在哪,就退回用熟悉的內建工具。解法:把工具描述寫得<b>具體</b>——它能做什麼、回傳什麼、什麼時候該用它而不是 Grep。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -411,7 +482,8 @@ get_issue(101); get_issue(102); get_issue(103)  <span class="tok-com"># 一個�
   </div>
   <div class="key"><b>重點:</b>工具描述要寫清楚「能做什麼、回傳什麼、何時勝過 Grep」,否則 agent 會偏好內建工具。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;標準整合用社群現成 server,自訂 server 留給團隊特有流程</h2>
+  <h2><span class="num">技能 4</span> &nbsp;標準整合用社群現成 server，自訂 server 留給團隊特有流程</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的團隊要把 Jira 整合進 Claude Code，有人建議從頭自製一個 MCP server，你需要評估何時應該使用社群現成的解決方案、何時才值得投入自製 server 的開發成本。</div>
   <p>遇到像 Jira 這種<b>標準整合</b>,別自己從頭刻一個 MCP server——社群早就有現成、維護良好的版本,拿來用就好。自己寫 server 的成本(開發、維護、踩坑)只該花在<b>團隊特有、社群沒有</b>的工作流上。這是工程取捨,不是技術問題。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -434,7 +506,8 @@ get_issue(101); get_issue(102); get_issue(103)  <span class="tok-com"># 一個�
   </div>
   <div class="key"><b>重點:</b>標準的用社群現成;自製只給團隊特有流程。</div>
 
-  <h2><span class="num">技能 5</span> &nbsp;把內容目錄做成 MCP resource,讓 agent 一眼看見可用資料</h2>
+  <h2><span class="num">技能 5</span> &nbsp;把內容目錄做成 MCP resource，讓 agent 一眼看見可用資料</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 在開始寫 SQL 查詢之前總是先一張張列出資料表，耗費了大量 token，你需要把資料庫 schema 做成 MCP resource 讓 agent 連線時就直接看到完整的 schema 目錄，免去探索性呼叫。</div>
   <p>技能版的知識 4。把 issue 摘要、文件層級、資料庫 schema 這類「目錄型」內容做成 resource 暴露出去。agent 連線當下就看到「有哪些東西可查」,直接挑要的,不必先發一連串探索性呼叫去摸清楚有什麼。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -456,6 +529,77 @@ get_issue(101); get_issue(102); get_issue(103)  <span class="tok-com"># 一個�
     <h2>整個 Task 2.4 的記憶骨架</h2>
     <p>把 MCP 接進 Claude Code,兩條主線先記住:<span class="num">scope</span>——共用工具寫專案層 <code>.mcp.json</code>(進版控、全隊共享),個人實驗寫使用者層 <code>~/.claude.json</code>;<span class="num">金鑰</span>——一律用 <code>${GITHUB_TOKEN}</code> 環境變數展開,真值絕不入庫。連線時<span class="num">所有 server 的工具一次全被發現、同時可用</span>;把目錄型內容做成 <span class="num">MCP resources</span> 省掉探索性呼叫;工具<span class="num">描述要寫詳細</span>免得 agent 退回用 Grep;標準整合(Jira)<span class="num">用社群現成</span>,自製只留給團隊特有流程。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A development team wants to share a GitHub MCP server configuration across all team members using version control. An engineer proposes writing the following directly into <code>.mcp.json</code>: <code>"GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_abc123secrettoken"</code>. What is the most critical problem with this approach?</p>
+      <ol class="q-options" type="A">
+        <li>The <code>.mcp.json</code> file should be placed in the user's home directory, not the project root.</li>
+        <li>Hardcoding the token in <code>.mcp.json</code> will commit the secret to version control, exposing it to anyone with repository access.</li>
+        <li>GitHub tokens cannot be used with MCP servers; OAuth must be used instead.</li>
+        <li>The token format is invalid and will cause the MCP server to fail to connect.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p><code>.mcp.json</code> 放在 repo 根目錄會進版控，把真實 token 寫進去等於把 secret commit 出去，任何能存取 repo 的人（包括 CI 系統、fork 的外部人員）都能看到。正確做法是用 <code>${GITHUB_TOKEN}</code> 環境變數佔位符，讓真值只存在各人的環境變數中而不進入 git 歷史。</p>
+          <p>A 錯在哪：<code>.mcp.json</code> 本就應該放在專案根目錄（project-scoped），這樣才能進版控被全隊共享；放在使用者層反而失去共享的目的。C 錯在哪：GitHub MCP server 支援 personal access token 認證，題目的問題不在認證方式而在 secret 管理。D 錯在哪：題目沒有顯示 token 格式無效，而且即使格式正確，把真實 token 寫進版控也是嚴重的安全問題。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A team has configured three MCP servers (GitHub, Jira, PostgreSQL) in their project's <code>.mcp.json</code>. A developer claims that the agent can only use one MCP server at a time and must be explicitly switched between them. The architect needs to correct this misunderstanding. What is the accurate description of how MCP tool discovery works?</p>
+      <ol class="q-options" type="A">
+        <li>MCP servers are connected lazily — tools from each server are only discovered when the agent first calls a tool from that server.</li>
+        <li>All configured MCP servers are connected at startup, and their tools are discovered simultaneously and made available to the agent at the same time.</li>
+        <li>The agent can only use tools from one MCP server per conversation turn; switching servers requires a new API call.</li>
+        <li>MCP tools are discovered in the order the servers are listed in <code>.mcp.json</code>, and later tools may override earlier ones with the same name.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>MCP 的工具發現機制是在連線時（connection time）一次性探索所有已設定的 server，並將全部工具同時加入 agent 的可用工具清單。這代表 agent 在同一個任務中可以同時使用來自 GitHub、Jira 和 PostgreSQL 的工具，不需要任何切換動作。</p>
+          <p>A 錯在哪：MCP server 不是 lazy loading，而是在連線時主動一次全部探索；「第一次呼叫時才發現」的描述是錯的。C 錯在哪：agent 在單一 conversation turn 中可以同時呼叫來自不同 server 的工具，不存在「每次只能用一個 server」的限制。D 錯在哪：MCP 沒有「後來的工具覆蓋先前的」機制；工具依其名稱和來源識別，不依序覆蓋。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 2 · Code Generation with Claude Code</span>
+      </div>
+      <p class="q-text">A Claude Code agent is configured with a powerful <code>code_search</code> MCP tool that performs semantic search across the entire GitHub organization. Despite this, the agent consistently uses the built-in Grep tool instead. The tool description for <code>code_search</code> currently reads: <code>"Search code repositories."</code> What is the most effective change to make the agent prefer the MCP tool?</p>
+      <ol class="q-options" type="A">
+        <li>Add an instruction to the system prompt: "Always prefer code_search over Grep for code searches."</li>
+        <li>Rename the tool to <code>github_semantic_search</code> so its name better differentiates it from Grep.</li>
+        <li>Rewrite the tool description to specify its capabilities, outputs, and when to use it over Grep — for example: "Performs semantic and symbol search across the entire GitHub organization; returns file paths, line numbers, and call relationships. Use instead of Grep when cross-repo search or call graph analysis is needed."</li>
+        <li>Remove Grep from the agent's available tools so it has no alternative.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>Agent 偏好 Grep 是因為 <code>code_search</code> 的描述「Search code repositories」太模糊，看不出它和 Grep 有何差異或優勢。根據 Task 2.4 技能 3，解法是把工具描述寫具體：說明它能做什麼（語意搜尋、跨 repo）、回傳什麼（路徑、行號、呼叫關係）、何時優於 Grep（需要跨 repo 或呼叫圖分析時）。描述夠清楚，agent 自然知道什麼情況該用它。</p>
+          <p>A 錯在哪：system prompt 裡的 keyword instruction（"Always prefer code_search"）是 keyword-sensitive 做法，且這個問題的根本原因是工具描述不清，不是 system prompt 沒有指示。B 錯在哪：改名確實有助於區分，但名字本身傳達的資訊有限；真正決定 agent 選擇的是 description 的內容，光改名不夠。D 錯在哪：移除 Grep 是破壞性做法，可能讓 agent 在只需要本機搜尋的情況下也被迫使用較重的 MCP 工具，且沒有解決描述不清的根本問題。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 2: Tool Design &amp; MCP Integration

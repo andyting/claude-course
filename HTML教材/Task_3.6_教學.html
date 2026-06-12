@@ -115,6 +115,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -164,7 +228,8 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;<code>-p</code> / <code>--print</code>:在自動化 pipeline 裡跑非互動模式</h2>
+  <h2><span class="num">知識 1</span> &nbsp;<code>-p</code> / <code>--print</code>:在自動化 pipeline（管線）裡跑非互動模式（non-interactive mode）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你把 Claude Code 加進 GitHub Actions workflow，但 CI job 每次都在等待使用者輸入而超時卡死，整條 pipeline 跑不完，你需要知道哪個 flag 能讓它在無人值守環境中正常執行。</div>
   <p>互動模式的 Claude Code 會等你輸入;但 CI 沒有人坐在前面。<b><code>-p</code>(或 <code>--print</code>)</b>讓它跑<b>非互動模式</b>:讀 prompt、做完事、印出結果就結束,不會停下來等輸入而把整條 pipeline 卡死(hang)。這是把 Claude Code 接進 CI 的第一個前提。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -177,15 +242,18 @@ claude -p <span class="tok-str">"review 本次 PR 的 diff,找出 bug 與安全�
   </div>
   <div class="key"><b>考點重點:</b><code>-p</code> / <code>--print</code> = 非互動模式,防止 CI job 等輸入而 hang。</div>
 
-  <h2><span class="num">知識 2</span> &nbsp;<code>--output-format json</code> + <code>--json-schema</code>:在 CI 強制結構化輸出</h2>
+  <h2><span class="num">知識 2</span> &nbsp;<code>--output-format json</code> + <code>--json-schema</code>:在 CI pipeline（管線）強制結構化輸出</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 CI review job 每次輸出的發現（findings）格式不一致，有時是條列，有時是段落，導致自動貼 PR inline comment 的腳本無法 parse，你需要強制輸出可被程式讀取的固定結構。</div>
   <p>CI 需要把 Claude 的發現<b>程式化處理</b>(例如貼成 PR comment),所以輸出不能是自由散文。<b><code>--output-format json</code></b> 讓它輸出 JSON;<b><code>--json-schema</code></b> 再用一個 schema 把欄位、型別、嚴重度等級鎖死,確保每次都長一樣、可被腳本 parse。</p>
   <div class="key"><b>重點:</b><code>--output-format json</code> 出 JSON;<code>--json-schema</code> 把結構鎖死 → 機器可解析。</div>
 
-  <h2><span class="num">知識 3</span> &nbsp;<code>CLAUDE.md</code>:把專案脈絡餵給 CI 觸發的 Claude Code</h2>
+  <h2><span class="num">知識 3</span> &nbsp;<code>CLAUDE.md</code> file（CLAUDE.md 檔）:把專案脈絡餵給 CI 觸發的 Claude Code</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>CI 自動產生的測試完全不符合團隊的規範——建議了大量沒有意義的 getter/setter 測試，卻沒有覆蓋任何 edge case，你需要一個機制把測試標準和可用 fixture 告訴 CI 裡的 Claude。</div>
   <p>CI 裡的 Claude 沒有你腦中的專案常識。<b><code>CLAUDE.md</code></b> 就是把這些脈絡寫下來的機制:測試標準(testing standards)、fixture 慣例、review 準則(review criteria)。CI 觸發 Claude Code 時會讀到它,產測試、做 review 才會貼合團隊規範,而不是亂槍打鳥。</p>
   <div class="key"><b>重點:</b>用 <code>CLAUDE.md</code> 寫下 testing standards / fixture 慣例 / review criteria,餵給 CI 的 Claude。</div>
 
-  <h2><span class="num">知識 4</span> &nbsp;session context 隔離:寫程式的 session 不適合 review 自己的改動</h2>
+  <h2><span class="num">知識 4</span> &nbsp;session context 隔離:寫程式的 session 不適合 review 自己的改動（anti-pattern 反模式）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你發現 CI 的 code review 幾乎從不找出問題，尤其是由同一個 Claude Code session 寫完程式碼後立刻做 review 時，你需要了解為什麼這種做法有根本性的偏見問題以及如何修正。</div>
   <p>關鍵觀念:<b>同一個產生程式碼的 Claude session,review 自己的改動時會比較弱</b>。因為它已經帶著「當初為何這樣寫」的偏見,容易為自己的決定辯護、看不到盲點。正解是用<b>獨立的 review instance</b>——乾淨脈絡、沒有立場,才能客觀挑錯。這就像人也不該 review 自己剛寫完的 code。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -200,7 +268,8 @@ review 以下 diff,只看正確性與安全。"</span> &lt; pr.diff</code></pre>
 
   <p class="section-kicker">Skills in · 技能點</p>
 
-  <h2><span class="num">技能 1</span> &nbsp;在 CI 用 <code>-p</code> 跑,避免互動輸入把 job 卡死</h2>
+  <h2><span class="num">技能 1</span> &nbsp;在 CI pipeline（管線）用 <code>-p</code> 非互動模式（non-interactive mode）跑,避免互動輸入把 job 卡死</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你在 GitLab CI 的 pipeline 步驟中加入 Claude Code review，但每次 job 都在 "Waiting for input..." 狀態超時，你需要找到讓 Claude Code 在無人看管的 CI 環境下自動執行並退出的方法。</div>
   <p>知識 1 的落點。把 review/測試產生包進一個 CI step,一律加 <code>-p</code>。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -212,7 +281,8 @@ git diff origin/main...HEAD | \
   claude -p <span class="tok-str">"review 這份 diff,找 bug 與安全問題。"</span></code></pre>
   </div>
 
-  <h2><span class="num">技能 2</span> &nbsp;用 JSON + schema 產機器可讀發現,自動貼成 inline PR comment</h2>
+  <h2><span class="num">技能 2</span> &nbsp;用 JSON + schema 產機器可讀發現,自動貼成 inline PR comment（pipeline 管線整合）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你想讓 CI 的 code review 結果直接以 inline comment 形式貼在 PR 的對應行上，而不是一整段文字，你需要讓 Claude Code 的輸出能被腳本 parse 並逐筆對應到檔案行號。</div>
   <p>知識 2 的實作核心。定一個 schema(每筆 finding 有 file、line、severity、message),用 <code>--json-schema</code> 強制輸出,再讓腳本逐筆貼成 inline comment。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -233,7 +303,8 @@ git diff origin/main...HEAD | claude -p \
   </div>
   <div class="key"><b>重點:</b><code>--output-format json</code> + <code>--json-schema</code> → 穩定 JSON → 腳本自動貼 inline comment。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;重跑 review 時帶入先前 findings,只回報「新的或仍未處理」的問題</h2>
+  <h2><span class="num">技能 3</span> &nbsp;重跑 review 時帶入先前 findings,只回報「新的或仍未處理」的問題（anti-pattern 反模式：重複留言）</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>工程師推了一個新 commit，CI 的 review job 重跑後把上一輪已經修好的問題又重新貼了一遍，整個 PR 充滿重複的 inline comment，你需要讓 review 只報告真正新的問題。</div>
   <p>知識 4 衍生的實戰痛點:新 commit 進來重跑 review,若不帶上一輪結果,會把<b>已經貼過的問題重複貼一次</b>,洗版又煩人。做法:把上輪 findings 放進 context,並明確指示「只回報<b>新出現</b>或<b>仍未處理</b>的」。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -247,7 +318,8 @@ findings(JSON)。只回報『新出現』或『仍未修正』的問題,
   </div>
   <div class="key"><b>重點:</b>重跑 review 帶入 prior findings,指示只報 new / still-unaddressed,避免 duplicate comment。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;產測試時帶入既有測試檔,避免建議重複的測試情境</h2>
+  <h2><span class="num">技能 4</span> &nbsp;產測試時帶入既有測試檔（allowlist 允許清單 context）,避免建議重複的測試情境</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>CI 的自動測試生成每次都建議大量已經存在的測試情境，工程師得手動刪掉重複的，浪費時間，你需要讓 Claude 知道哪些情境已經被覆蓋了。</div>
   <p>讓 Claude 在 CI 產測試時,先<b>把現有測試檔放進 context</b>。否則它會建議一堆<b>已經被覆蓋過</b>的情境,徒增 noise。帶進去後,它能補的是真正缺的 case。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -258,7 +330,8 @@ claude -p <span class="tok-str">"為 cart.py 新增測試。
   --append-context tests/test_cart.py</code></pre>
   </div>
 
-  <h2><span class="num">技能 5</span> &nbsp;在 <code>CLAUDE.md</code> 寫測試標準、有價值的測試準則與可用 fixture</h2>
+  <h2><span class="num">技能 5</span> &nbsp;在 <code>CLAUDE.md</code> file（CLAUDE.md 檔）寫測試標準、有價值的測試準則與可用 fixture</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>CI 自動產測試的品質每次都讓 reviewer 不滿意——太多無意義的測試、從不用團隊已有的 mock_payment fixture——你需要把團隊的測試哲學和可用工具寫進 Claude 每次都會讀到的設定檔裡。</div>
   <p>知識 3 的落點。把<b>測試標準、什麼算「有價值的測試」、有哪些 fixture 可用</b>寫進 <code>CLAUDE.md</code>,CI 產測試時品質更高、low-value 的測試更少。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -275,6 +348,77 @@ claude -p <span class="tok-str">"為 cart.py 新增測試。
     <h2>整個 Task 3.6 的記憶骨架</h2>
     <p>在 Scenario 5 把 Claude Code 接進 CI/CD,記四件事:① 用 <span class="num">-p / --print</span> 跑非互動模式,別讓 job 等輸入而 hang;② 用 <span class="num">--output-format json + --json-schema</span> 產機器可解析的 findings,腳本自動貼成 <span class="num">inline PR comment</span>;③ 用 <span class="num">CLAUDE.md</span> 寫下 testing standards / fixture 慣例 / review criteria,把專案脈絡餵給 CI 的 Claude;④ review 要<span class="num">獨立 instance</span>,因為寫程式的同一 session 評自己的改動會帶偏見。兩個實戰細節:重跑 review 帶 <span class="num">prior findings</span> 只報 new/unaddressed 避免重複留言;產測試帶<span class="num">既有測試檔</span>避免重複情境。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">A team integrates Claude Code into their GitHub Actions CI pipeline to automate PR code reviews. The pipeline step runs <code>claude "review the diff for bugs and security issues"</code> without any flags. Every CI job times out after 10 minutes at the "Waiting for user input" stage. What is the root cause and the correct fix?</p>
+      <ol class="q-options" type="A">
+        <li>Claude Code requires a CLAUDE.md file to operate in CI environments; add a CLAUDE.md with review criteria to the repository to enable non-interactive mode.</li>
+        <li>Claude Code defaults to interactive mode and waits for user input; add the <code>-p</code> (or <code>--print</code>) flag to run in non-interactive mode so the job completes without waiting for input.</li>
+        <li>The GitHub Actions runner lacks sufficient permissions; grant the workflow write access to the repository to allow Claude Code to run.</li>
+        <li>Claude Code cannot run in CI without <code>--output-format json</code>; add this flag to produce machine-readable output and prevent the hang.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p><code>-p</code>（<code>--print</code>）是讓 Claude Code 在無人值守的 CI 環境中運行的第一個必要條件：它告訴 Claude Code 採用非互動模式（non-interactive mode），讀完 prompt、執行完任務、印出結果後即自動退出，不等待任何輸入。</p>
+          <p>A 錯在哪：CLAUDE.md 提供的是專案脈絡（testing standards、review criteria），可以提升輸出品質，但不是解決「等輸入卡死」問題的機制。C 錯在哪：CI 卡在等輸入是 Claude Code 自身的互動模式問題，不是 runner 的權限問題。D 錯在哪：<code>--output-format json</code> 控制的是輸出格式，對於防止 hang 沒有任何作用，沒有 <code>-p</code> 的情況下加 JSON 格式旗標仍會等輸入。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">A team's CI pipeline runs Claude Code to review PRs and post findings as inline comments. After a developer pushes a second commit to address three of five reported issues, the CI re-runs the review and posts the same five issues again — including the three that were already fixed. Engineers are frustrated by duplicate comments cluttering the PR. What change to the CI invocation best addresses this?</p>
+      <ol class="q-options" type="A">
+        <li>Use a separate independent Claude instance for each review run to ensure there is no shared session context that could carry over stale findings.</li>
+        <li>Include the previous review's findings in context and instruct Claude to report only new or still-unaddressed issues, avoiding duplicate comments.</li>
+        <li>Switch from <code>--output-format json</code> to plain text output so the review script can detect and filter duplicate lines before posting.</li>
+        <li>Delete all existing inline comments before each CI review run so there are no duplicates from previous passes.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>正確做法是在重跑 review 時把上一輪的 findings 放進 context，並明確指示「只回報新出現或仍未修正的問題，已解決的不要再提」。這樣 Claude 有了對照基準，能判斷哪些問題真的解決了，只輸出增量的發現。</p>
+          <p>A 錯在哪：用獨立 instance 是正確的 review 實踐（避免寫程式的 session 評自己），但這不是解決重複留言的方法，獨立 instance 沒有上輪 findings 仍會重複回報所有問題。C 錯在哪：切換到純文字格式更難 parse，不能解決邏輯層面的「重複回報已修問題」問題，還破壞了結構化輸出的優勢。D 錯在哪：刪除舊留言後重貼所有問題，對已解決的 issue 又新貼一次通知，讓工程師要二次確認哪些是真的新問題，反而更煩。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">A team uses Claude Code in CI to automatically generate tests for new code in pull requests. Engineers report that 60% of the suggested tests duplicate scenarios already covered in the existing test suite, and the remaining tests are mostly for getters and setters rather than meaningful edge cases. The project has a <code>CLAUDE.md</code> but it only contains code style rules. What two changes would most effectively improve test generation quality?</p>
+      <ol class="q-options" type="A">
+        <li>Add <code>--output-format json</code> to the test generation command so the output is structured, and switch to plan mode so Claude designs the test strategy before writing tests.</li>
+        <li>Include the existing test files in context so Claude avoids duplicating covered scenarios, and add testing standards, valuable test criteria, and available fixtures to CLAUDE.md to guide quality.</li>
+        <li>Use a separate independent review instance after test generation to evaluate whether the suggested tests are valuable before posting them to the PR.</li>
+        <li>Move the test generation step to after code review is complete, so Claude has more context about what the correct implementation looks like before writing tests.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>這題需要同時解決兩個問題：①「重複情境」→ 把現有測試檔放進 context，讓 Claude 知道哪些已被覆蓋；②「低價值測試」→ 在 CLAUDE.md 寫下「什麼算有價值的測試（邊界與錯誤路徑）、有哪些 fixture 可用」，CI 觸發的 Claude 讀到後才能產出貼合規範的測試。兩項改動各解一個問題，組合起來正好對症。</p>
+          <p>A 錯在哪：<code>--output-format json</code> 改變輸出格式，對測試品質沒有影響；plan mode 適合架構決策任務，不是提升測試品質的工具。C 錯在哪：加一個 review 步驟可以過濾低品質測試，但這是事後篩選而非從源頭提升品質，而且 review 本身也需要脈絡才能判斷測試是否有價值。D 錯在哪：調整步驟順序無法解決「重複情境」或「低價值測試」的根本問題，因為即使在 code review 之後，Claude 仍不知道現有測試覆蓋了什麼。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 3: Claude Code Configuration &amp; Workflows

@@ -115,6 +115,70 @@
   .scenario .scen-tag { display: inline-block; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .5px; border-radius: 6px; padding: 2px 10px; margin-bottom: 8px; }
   .scenario .scen-name { font-weight: 700; color: #fff; }
   .scenario p { margin: 6px 0 0; font-size: 14.5px; opacity: .9; }
+  .trigger {
+    background: #f5f3ff;
+    border-left: 3px solid #7c3aed;
+    border-radius: 6px;
+    padding: 9px 16px 9px 14px;
+    margin: 6px 0 14px;
+    font-size: 14px;
+    color: #3b1173;
+    font-style: italic;
+  }
+  .trigger b {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #7c3aed;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .practice { margin: 48px 0 0; }
+  .practice > h2 { color: var(--gray-900); }
+  .practice-intro { color: var(--gray-500); font-size: 14px; margin: 0 0 24px; }
+  .q-block {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 18px 0;
+  }
+  .q-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .q-num {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 6px;
+    padding: 3px 11px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .q-scen-tag { font-size: 12px; color: var(--gray-500); font-weight: 600; letter-spacing: .4px; }
+  .q-text { font-size: 15px; margin: 0 0 16px; line-height: 1.7; }
+  .q-options { margin: 0 0 14px; padding-left: 22px; }
+  .q-options li { margin: 9px 0; font-size: 14.5px; color: var(--gray-700); line-height: 1.6; }
+  details.q-reveal summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: .4px;
+    user-select: none;
+    list-style: none;
+    padding: 6px 0;
+  }
+  details.q-reveal summary::before { content: "▶ "; }
+  details.q-reveal[open] summary::before { content: "▼ "; }
+  .q-reveal-body {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .q-ans { font-size: 15px; font-weight: 700; color: #16a34a; margin: 0 0 10px; }
   footer { text-align: center; color: var(--gray-500); font-size: 13px; margin-top: 50px; }
 </style>
 </head>
@@ -161,8 +225,9 @@
 
   <p class="section-kicker">Knowledge of · 知識點</p>
 
-  <h2><span class="num">知識 1</span> &nbsp;明確標準 &gt; 模糊指令</h2>
-  <p>提升精準度的根本:把指令<b>具體化、可判定</b>。官方對照超經典——「<b>只在註解宣稱的行為與實際程式行為相矛盾時才標記</b>」遠勝於「<b>檢查註解是否準確</b>」。前者給了一條清楚的判定線(矛盾才報),後者全憑模型自由心證,什麼都可能被當成「不準確」。</p>
+  <h2><span class="num">知識 1</span> &nbsp;explicit criteria（明確標準）&gt; 模糊指令</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 CI reviewer 每次 PR 都噴出大量「可能不準確」的 comment，工程師抱怨訊噪比太低、開始無視所有留言，你需要讓模型只在真正矛盾時才標記。</div>
+  <p>提升精準度的根本:把指令<b>具體化、可判定</b>。官方對照超經典——「<b>只在註解宣稱的行為與實際程式行為相矛盾時才標記</b>」遠勝於「<b>檢查註解是否準確</b>」。前者給了一條清楚的判定線(矛盾才報),後者全憑模型自由心證,什麼都可能被當成「不準確」。這正是 explicit criteria（明確標準）的威力。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ 模糊:全憑自由心證 → 誤報一堆</span>
@@ -176,7 +241,8 @@ claude -p <span class="tok-str">"review 這份 diff。只有當『註解宣稱�
   <div class="key"><b>考點重點:</b>「矛盾才標記」這類可判定標準 &gt; 「檢查是否準確」這類模糊指令。</div>
 
   <h2><span class="num">知識 2</span> &nbsp;「保守一點」「只報高信心」這類通則無效</h2>
-  <p>很多人想靠調語氣降誤報:「<b>be conservative</b>」「<b>only report high-confidence findings</b>」。考點明說:這些<b>通則無法真正提升精準度</b>,因為它們沒告訴模型「具體哪一類該報、哪一類不報」——模型還是用自己的標準判斷,只是嘴上更謹慎。真正有效的是<b>具體的分類準則(categorical criteria)</b>。</p>
+  <div class="trigger"><b>遇到這個問題時用到</b>你已在 prompt 加了「be conservative, only report high-confidence findings」，但 false positive 率幾乎沒降，team lead 要求你找出真正有效的調整方向。</div>
+  <p>很多人想靠調語氣降 false positive（假陽性）:「<b>be conservative</b>」「<b>only report high-confidence findings</b>」。考點明說:這些<b>通則無法真正提升精準度</b>,因為它們沒告訴模型「具體哪一類該報、哪一類不報」——模型還是用自己的標準判斷,只是嘴上更謹慎。真正有效的是<b>具體的分類準則(categorical criteria)</b>。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-bad"># ❌ 信心式過濾:沒有可操作的界線</span>
@@ -191,12 +257,14 @@ claude -p <span class="tok-str">"只回報:① 會造成錯誤行為的 bug
   <div class="key"><b>重點:</b>"be conservative" / "high-confidence" 是信心式過濾,無效;要用具體 categorical criteria。</div>
 
   <h2><span class="num">知識 3</span> &nbsp;false positive 會侵蝕信任,還會拖累準確的類別</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>metrics 顯示 security findings 的 dismiss 率突然從 10% 跳到 60%，但 security 類別的 prompt 根本沒動過，你需要解釋為什麼信任崩塌以及如何止血。</div>
   <p>關鍵後果:某一類誤報太高,工程師會<b>連帶不信任其他準確的類別</b>。一旦 reviewer 留言常常是雜訊,大家就學會「直接無視」——這時連它真的抓到的嚴重 bug 也被一起跳過。所以降誤報不只是品質問題,更是<b>維持整套自動 review 可信度</b>的問題。</p>
   <div class="key"><b>考點重點:</b>高 false positive 的類別會拉低開發者對「準確類別」的整體信任,導致真問題也被忽略。</div>
 
   <p class="section-kicker">Skills in · 技能點</p>
 
   <h2><span class="num">技能 1</span> &nbsp;寫明確 review 準則:界定「報什麼 / 跳過什麼」</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你要從頭設計 CI code review 的 prompt，需要決定要把哪些問題類別列入「必報」、哪些列入「略過」，讓模型有清楚的判定邊界而非靠自由心證。</div>
   <p>知識 1、2 的落點。與其靠信心過濾,不如直接列<b>要報</b>(bug、安全)與<b>要跳過</b>(小風格、本地慣例)的清單。在 Scenario 5 的 CI review,這份準則就是 prompt 的核心。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -214,6 +282,7 @@ git diff origin/main...HEAD | claude -p <span class="tok-str">"
   <div class="key"><b>重點:</b>用「report(bug/security)vs skip(minor style/local pattern)」的具體清單,取代信心式過濾。</div>
 
   <h2><span class="num">技能 2</span> &nbsp;暫時關掉高誤報類別,先把信任救回來</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>「可讀性建議」類別誤報爆炸，工程師開始把整個 bot 的留言全部 dismiss，連真正的 security bug 都被無視，你需要立即行動但又不能一夜之間修好所有 prompt。</div>
   <p>當某一類(例如「可讀性建議」)誤報失控、工程師開始無視整個 bot 時,務實做法:<b>先把那一類關掉</b>,讓 reviewer 只留下精準的類別、恢復信任;同時在背景<b>慢慢改善那一類的 prompt</b>,改好再開回來。先止血,再修因。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -226,7 +295,8 @@ git diff origin/main...HEAD | claude -p <span class="tok-str">"
   </div>
   <div class="key"><b>重點:</b>高 false-positive 類別先暫時 disable 救信任,同時離線改 prompt,改好再上。</div>
 
-  <h2><span class="num">技能 3</span> &nbsp;為每個 severity 配具體 code 範例,讓分級一致</h2>
+  <h2><span class="num">技能 3</span> &nbsp;為每個 severity（嚴重程度）配具體 code 範例,讓分級一致</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>同一個 SQL injection 問題這次被分到 critical、下次被分到 high，下游 ticket 系統因此漏掉優先處理，你需要讓 severity 分級在所有 PR 上保持一致。</div>
   <p>要讓「critical / high / medium / low」每次分級都一致,光給形容詞不夠,要<b>為每一級附具體的 code 範例</b>。模型有了錨點,分類才穩定,不會同一種問題這次 high 下次 low。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
@@ -245,6 +315,77 @@ git diff origin/main...HEAD | claude -p <span class="tok-str">"
     <h2>整個 Task 4.1 的記憶骨架</h2>
     <p>在 Scenario 5 設計 CI code review 的 prompt,核心是<span class="num">用明確標準提升精準、降低 false positive</span>:① <span class="num">明確標準 &gt; 模糊指令</span>——「註解與實際行為矛盾才標記」勝過「檢查註解是否準確」;② <span class="num">「保守一點 / 只報高信心」這類信心式通則無效</span>,要改用具體 categorical criteria;③ 記住<span class="num">高誤報會侵蝕信任</span>,還拖累準確類別。三個技能:寫明列 <span class="num">report(bug/security)vs skip(minor style)</span> 的準則;誤報失控時<span class="num">先暫時關掉該類別</span>救信任、再離線改 prompt;為每個 <span class="num">severity 配具體 code 範例</span>讓分級一致。</p>
   </div>
+
+  <section class="practice">
+    <h2><span class="num">考試情境題</span></h2>
+    <p class="practice-intro">以下三題模擬正式考試格式，每題一個生產情境，四個選項。先嘗試作答，再展開解析。</p>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 1</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">Your CI pipeline uses Claude to review every PR. The reviewer currently uses the instruction: "Check that all comments are accurate." Developers report that 70% of flagged comments are false positives — Claude flags comments that are slightly imprecise but not actually wrong. Which prompt change is most likely to reduce false positives?</p>
+      <ol class="q-options" type="A">
+        <li>Add "be conservative and only flag issues you are highly confident about" to the existing instruction.</li>
+        <li>Replace the instruction with "flag a comment only when the behavior it describes directly contradicts the actual code behavior."</li>
+        <li>Lower the model temperature to make outputs more deterministic.</li>
+        <li>Add "only report high-severity issues" to filter out minor comment problems.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：「只在宣稱行為與實際行為相矛盾時才標記」給了一條清楚的可判定邊界（矛盾才報），模型不需要自由心證「什麼叫準確」，false positive 率會顯著下降。這正是 explicit criteria（明確標準）的核心原則。</p>
+          <p>A 錯在哪：「be conservative / high-confidence」是信心式通則（confidence-based filtering），沒有告訴模型哪一類問題該報、哪一類不該報，模型還是用自己的尺度判斷，誤報率不會真正改善。C 錯在哪：temperature 控制輸出隨機性，與 false positive 的分類邊界無關，改 temperature 解決不了「哪種問題該報」的定義問題。D 錯在哪：「只報高嚴重度」改變的是 severity 過濾，不是 comment accuracy 的判定邏輯，仍然沒有定義「什麼算矛盾」。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 2</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">Your CI reviewer reports bugs, security issues, and readability suggestions. Developers have started dismissing all bot comments after the readability category produced numerous false positives for weeks. Security findings are now also being ignored. You need to restore trust quickly. What is the most effective immediate action?</p>
+      <ol class="q-options" type="A">
+        <li>Rewrite the readability prompt criteria with more specific rules and redeploy immediately.</li>
+        <li>Temporarily disable the readability category from the prompt while keeping bug and security reporting active, then refine the readability criteria offline.</li>
+        <li>Reduce the total number of findings per PR to no more than three, regardless of category.</li>
+        <li>Switch to a more capable model that has lower intrinsic false positive rates.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: B</p>
+          <p>B 正確：先暫時停用高誤報的可讀性類別（disable high false-positive category），讓 reviewer 只留下精準的 bug/security 類別，立刻讓留言恢復可信度；同時在背景離線改善可讀性 prompt，改好再重新啟用。這是「先止血、再修因」的務實做法。</p>
+          <p>A 錯在哪：立刻重寫並重部署代表這段時間誤報還在繼續傷害信任，且「立刻重寫」不代表新版本就一定準確，沒有先隔離高誤報類別的緩衝步驟。C 錯在哪：限制每次最多三條 finding 是數量過濾，不解決根本問題——那三條裡仍可能都是 readability 誤報，信任問題依然存在。D 錯在哪：換模型不是針對性解法；問題出在 prompt 對「可讀性」的定義模糊，換更強的模型也只是用更自信的方式誤報同樣類型的問題。</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="q-block">
+      <div class="q-meta">
+        <span class="q-num">Q 3</span>
+        <span class="q-scen-tag">Scenario 5 · Claude Code for Continuous Integration</span>
+      </div>
+      <p class="q-text">Your CI reviewer classifies findings as critical, high, medium, or low. Engineers report that the same SQL injection pattern is sometimes rated "critical" and sometimes "high" across different PRs, causing inconsistent ticket priority in the downstream issue tracker. What change best addresses this inconsistency?</p>
+      <ol class="q-options" type="A">
+        <li>Ask the model to explain its severity reasoning in each finding so engineers can manually re-classify.</li>
+        <li>Collapse critical and high into a single "blocking" category to eliminate ambiguity between the two levels.</li>
+        <li>Add concrete code examples for each severity level to the prompt — e.g., "critical: SQL string concatenation causing injection → execute(f'...{user}')".</li>
+        <li>Run the reviewer twice and take the higher severity rating when the two runs disagree.</li>
+      </ol>
+      <details class="q-reveal">
+        <summary>展開解析</summary>
+        <div class="q-reveal-body">
+          <p class="q-ans">Correct Answer: C</p>
+          <p>C 正確：為每個 severity（嚴重程度）附上具體的 code 範例當「錨點（anchor）」，模型在分類時有了明確的參照對象，就不會在邊界案例上左右搖擺。範例示範比文字描述更能穩定分類行為，確保相同類型的問題每次都落在同一個 severity 級別。</p>
+          <p>A 錯在哪：要求模型解釋理由只是讓不一致變得可見，沒有解決分類不一致的根本原因；還把重新分類的負擔轉給工程師，增加人工成本。B 錯在哪：合併 critical/high 是用「縮減分類數」迴避問題，不是解決分類不一致；而且會讓下游系統失去優先級區分能力。D 錯在哪：取兩次中較高的 severity 是一種噪音放大策略，會讓 severity 整體往高偏移，不能讓分級穩定，也沒有對齊「哪種問題該算 critical」的定義。</p>
+        </div>
+      </details>
+    </div>
+  </section>
 
   <footer>
     Claude Certified Architect – Foundations · Domain 4: Prompt Engineering &amp; Structured Output
