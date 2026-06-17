@@ -50,6 +50,7 @@ nav button.done{border-color:var(--correct);color:var(--correct)}
 .result-panel p{color:var(--muted);margin-top:8px}
 .btn-reset{margin-top:20px;padding:10px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:opacity .2s}
 .btn-reset:hover{opacity:.85}
+.task-ref{display:inline-block;background:rgba(94,234,212,.12);color:var(--accent2);font-size:.73rem;font-weight:700;padding:2px 9px;border-radius:4px;margin-right:8px;font-family:'Fira Code',monospace;letter-spacing:.03em;vertical-align:middle;border:1px solid rgba(94,234,212,.25)}
 </style>
 </head>
 <body>
@@ -57,7 +58,7 @@ nav button.done{border-color:var(--correct);color:var(--correct)}
   <div>
     <div style="margin-bottom:8px"><a href="../index.html" style="color:var(--muted);font-size:.8rem;text-decoration:none;opacity:.7">← 返回首頁</a></div>
     <h1>Claude Certified Architect — Foundations</h1>
-    <div style="margin-top:6px;font-size:.82rem;color:var(--muted)">Practice Exam · 6 Scenarios · 15 Questions Each · 90 Total</div>
+    <div style="margin-top:6px;font-size:.82rem;color:var(--muted)">Practice Exam · 6 Scenarios · 95 Questions · Answers Shuffled Each Session</div>
   </div>
   <div class="score-bar">
     Total Score: <span id="totalScore">0 / 0</span>
@@ -76,7 +77,7 @@ const scenarios = [
   questions:[
     {
       q:"Your agentic loop uses this termination logic: <code>while True: response = call_claude(); if \"I have completed\" in response.content[0].text: break</code>. Production logs show the agent sometimes terminates mid-task when the model uses phrases like \"I have completed looking up the customer.\" What is the correct approach to implement loop termination?",
-      opts:["Continue the loop when <code>stop_reason</code> is <code>\"tool_use\"</code> and terminate when <code>stop_reason</code> is <code>\"end_turn\"</code>, regardless of response text content","Extend the keyword list to cover more completion phrases like \"task complete\", \"finished\", and \"resolved\"","Set a maximum iteration count of 10 as the primary stopping mechanism to prevent infinite loops","Check if the assistant's response contains a <code>tool_use</code> content block before deciding whether to continue"],
+      opts:["Continue the loop when <code>stop_reason</code> is <code>\"tool_use\"</code> and terminate when <code>stop_reason</code> is <code>\"end_turn\"</code>, regardless of response text content","Use <code>stop_reason</code> as the primary signal but maintain a keyword fallback list as a safety net for cases where the API behaves unexpectedly","Set a maximum iteration count of 10 as the primary stopping mechanism to prevent infinite loops","Check if the assistant's response contains a <code>tool_use</code> content block before deciding whether to continue"],
       answer:0,
       exp:"正確的 agentic loop 應依據 <strong>stop_reason</strong> 來判斷是否繼續：<code>stop_reason</code> 為 <code>\"tool_use\"</code> 時繼續執行，<code>stop_reason</code> 為 <code>\"end_turn\"</code> 時才終止。解析自然語言文字來判斷完成是不可靠的 anti-pattern，因為模型可能在任何地方使用類似完成的措辭。設定固定迭代上限作為主要停止機制也是 anti-pattern。"
     },
@@ -163,6 +164,12 @@ const scenarios = [
       opts:["Compile a structured handoff summary including customer ID, order details, root cause analysis, refund amount processed, and recommended next actions before escalating","Paste the entire conversation transcript into the escalation ticket so the specialist has all context","Ask the customer to briefly summarize their issue for the specialist before escalating","Transfer all conversation history as raw JSON from the API response to the escalation system"],
       answer:0,
       exp:"<strong>結構化的交接摘要</strong>（customer ID、根本原因分析、退款金額、建議後續行動）確保人工客服能快速上手，無需重新詢問客戶已提供過的信息。原始對話記錄（B）對專家難以快速消化；讓客戶重新摘要（C）增加客戶負擔；原始 JSON（D）不適合人工閱讀。"
+    },
+    {
+      q:"Your customer support system prompt includes the instruction: \"When a customer references their account details, verify the information.\" Analytics show the agent calls <code>get_customer</code> on nearly every turn—including product feature questions—because product descriptions frequently contain the words \"details\" and \"information\". Your tool descriptions are already clear and well-differentiated. What is the most likely root cause?",
+      opts:["The system prompt's phrasing creates a keyword association—\"details\" and \"information\" trigger <code>get_customer</code> regardless of context; rephrase the instruction to remove the ambiguous keyword triggers","The <code>get_customer</code> tool description needs an explicit exclusion clause stating it should not be called for product-related questions","Product description content in the agent's context is confusing its tool selection; restrict product catalog access to a separate retrieval tool","Add few-shot examples in the system prompt showing product questions being answered without calling <code>get_customer</code>"],
+      answer:0,
+      exp:"<strong>System prompt 中的關鍵字敏感指令</strong>可能覆蓋精心撰寫的 tool descriptions，製造非預期的 tool 關聯。即使 tool descriptions 已經設計良好，system prompt 中含有「verify the information」或「check the details」這類措辭，仍可能在模型遇到「information」或「details」等詞彙時觸發特定工具。解決方法是<strong>審查 system prompt 措辭</strong>，移除或改寫可能形成非預期關聯的關鍵字觸發器。這是 Task 2.1 的一個獨立知識點：well-written tool descriptions 不足以抵抗 system prompt 中的 keyword-sensitive 指令。"
     }
   ]
 },
@@ -174,7 +181,7 @@ const scenarios = [
   questions:[
     {
       q:"A new team member reports that Claude Code behaves differently on their machine—it doesn't follow the team's coding standards or testing patterns. The team's instructions are in <code>~/.claude/CLAUDE.md</code> on the lead developer's machine. What is the most likely cause?",
-      opts:["Instructions in <code>~/.claude/CLAUDE.md</code> are user-level settings that apply only to that user and are not shared via version control","The new developer needs to run <code>claude --sync</code> to pull the latest CLAUDE.md configuration","CLAUDE.md files in the home directory only apply to the default project","The new developer's Claude Code installation is outdated and doesn't support user-level CLAUDE.md"],
+      opts:["Instructions in <code>~/.claude/CLAUDE.md</code> are user-level settings that apply only to that user and are not shared via version control","The team lead needs to manually copy <code>~/.claude/CLAUDE.md</code> to the new developer's machine and place it in the same path","CLAUDE.md files in the home directory only apply to the default project","The new developer's Claude Code installation is outdated and doesn't support user-level CLAUDE.md"],
       answer:0,
       exp:"<code>~/.claude/CLAUDE.md</code> 中的設定是<strong>用戶級別的設定</strong>，只適用於該用戶，不會通過版本控制分享給團隊成員。要讓整個團隊共享指令，應將 CLAUDE.md 放在 <strong>project-level</strong>（<code>.claude/CLAUDE.md</code> 或根目錄），這樣可以通過 git 進行版本控制和共享。"
     },
@@ -261,6 +268,18 @@ const scenarios = [
       opts:["Have Claude maintain a scratchpad file recording key findings (processor classes, failure patterns, code locations) and reference it for subsequent questions","Use <code>/compact</code> to compress the conversation history and free up context space","Start a fresh session with a prompt summary and repeat the discovery work","Spawn a new subagent for each new question to ensure fresh context for each investigation step"],
       answer:0,
       exp:"在擴展 session 中的 <strong>context 降解</strong>（引用「典型模式」而不是之前發現的具體內容）可以通過讓 agent <strong>維護 scratchpad 文件</strong>來記錄關鍵發現來解決。通過引用 scratchpad 文件進行後續問題，可以抵消 context 降解，因為發現被持久化在文件中而不是依賴 context window 中的記憶。"
+    },
+    {
+      q:"A developer reports that Claude Code intermittently applies Python naming conventions when editing TypeScript files. The team uses a root CLAUDE.md, two directory-level CLAUDE.md files, and several <code>.claude/rules/</code> files with different path patterns. The developer suspects a configuration hierarchy conflict but doesn't know which rule sets are actually loading. What is the correct built-in tool for diagnosing this?",
+      opts:["Use the <code>/memory</code> command to verify which memory files and rule sets are currently loaded for the active session context","Run <code>claude --verbose</code> to list all configuration files and their precedence order in the terminal output","Add <code>@debug: true</code> to the root CLAUDE.md to make Claude print which configuration it's using at the start of each response","Temporarily rename each CLAUDE.md file one by one and observe behavior changes to isolate the source of the conflict"],
+      answer:0,
+      exp:"<strong><code>/memory</code> 命令</strong>是驗證哪些 memory files 已被載入的正確工具，用來診斷跨 session 的行為不一致。當多層次的 CLAUDE.md 和 <code>.claude/rules/</code> 文件配置複雜時，<code>/memory</code> 命令讓開發者確認 Claude 實際看到哪些配置，而不是猜測層級優先順序。B、C、D 引用的均是 Claude Code 中不存在的功能（<code>--verbose</code> flag、<code>@debug</code> 指令、逐一重命名的診斷方法）。"
+    },
+    {
+      q:"After Claude Code generates an authentication module, you find three interacting problems: (1) the JWT secret is hardcoded instead of read from an environment variable, (2) token expiry logic is inverted so tokens never expire, (3) because tokens never expire AND use the hardcoded secret, a compromised secret cannot be rotated—tokens signed with the old secret remain valid indefinitely. How should you submit these issues?",
+      opts:["Provide all three issues in a single detailed message, since the fixes interact—addressing (1) and (2) independently without explaining (3) would produce patches that are individually correct but together still leave the rotation vulnerability","Fix issue (1) first as the root cause; once the secret is properly sourced, submit issue (2); the rotation problem (3) will resolve itself when the other two are fixed","Submit issues (1) and (2) together as security fixes, then address issue (3) separately as an operational concern in a follow-up","Ask Claude to run a full security audit of the authentication module; all three issues will be detected and fixed together in a single audit pass"],
+      answer:0,
+      exp:"當多個問題<strong>相互影響</strong>時，應在<strong>單個詳細訊息中一次性提供所有問題</strong>。這三個問題相互關聯：expiry bug 放大了 hardcoded secret 的風險，而兩者合起來才產生無法輪換金鑰的漏洞。分開提交會讓 Claude 在不了解完整影響鏈的情況下修復各個部分，可能產生技術上正確但語境不完整的修復。相比之下，<strong>獨立的問題</strong>（例如兩個不相關的 style violations）才適合依序迭代處理。"
     }
   ]
 },
@@ -280,7 +299,7 @@ const scenarios = [
       q:"For research on \"the economic impact of electric vehicles,\" your coordinator decomposes the topic into: \"EV manufacturing costs,\" \"EV purchase subsidies,\" and \"EV charging infrastructure investment.\" The final report is well-researched on these three areas but misses consumer behavior changes, electricity grid impacts, oil industry effects, and job market transformations. What is the root cause?",
       opts:["The coordinator's task decomposition is too narrow, resulting in subagent assignments that don't comprehensively cover all relevant dimensions of the topic","The web search subagent's queries are not broad enough to find articles on consumer behavior and employment","The synthesis subagent lacks instructions to identify coverage gaps in the findings it receives","The document analysis subagent is filtering out sources that discuss macroeconomic impacts"],
       answer:0,
-      exp:"Coordinator 的日誌直接揭示了根本原因：它將「電動車的經濟影響」分解為僅三個技術面的子任務，完全忽略了消費者行為、電網、石油產業、就業市場等重要維度。<strong>subagents 正確地執行了它們被分配的任務——問題在於 coordinator 的任務分解過於狹窄</strong>。"
+      exp:"從報告覆蓋範圍的缺口可以直接推斷根本原因：coordinator 將「電動車的經濟影響」分解為僅三個技術面的子任務（製造成本、購車補貼、充電基礎設施），完全忽略了消費者行為、電網、石油產業、就業市場等重要維度。<strong>subagents 正確地執行了它們被分配的任務——問題在於 coordinator 的任務分解過於狹窄</strong>，無法覆蓋主題的全部相關面向。"
     },
     {
       q:"The synthesis subagent frequently claims \"According to our research, EV adoption rates have grown 40% year-over-year,\" but no such statistic appears in the source documents. What is the most likely architectural cause of this hallucination?",
@@ -457,6 +476,12 @@ const scenarios = [
       opts:["First map the codebase structure; identify high-impact, high-risk areas (core business logic, external integrations); then create a prioritized test plan that adapts as dependencies and hidden complexity are discovered","Start writing tests immediately for the most recently modified files since they're most likely to have bugs","Use a fixed pipeline: list all files → generate tests alphabetically → run tests → fix failures","Enter plan mode with a complete specification of all tests needed before writing any test code"],
       answer:0,
       exp:"開放式任務（如「為 legacy codebase 添加全面測試」）需要<strong>動態自適應的分解</strong>：首先映射結構、識別高影響力領域，然後創建一個隨著依賴關係和隱藏複雜性被發現而適應的優先計劃。固定的順序 pipeline（C）對開放式調查任務不靈活；等待完整規範（D）在探索之前是不可能的。"
+    },
+    {
+      q:"Your developer productivity agent connects to a Jira MCP server. At the start of every session, the agent makes 4–5 exploratory calls (<code>list_projects</code>, <code>get_issue_types</code>, <code>list_boards</code>) just to understand what data structures are available—adding 8–10 seconds of startup latency. The Jira project structure changes rarely. Which MCP capability is specifically designed to eliminate these startup exploratory calls?",
+      opts:["Expose the project catalog, issue types, and board list as <strong>MCP resources</strong>—agents receive this structural information at connection time without making tool calls, eliminating exploratory overhead","Cache the results of the exploratory calls in a local JSON file; invalidate it weekly so the agent reads from cache instead of calling Jira each session","Combine <code>list_projects</code>, <code>get_issue_types</code>, and <code>list_boards</code> into a single <code>get_jira_schema</code> tool to reduce 5 calls to 1","Populate the agent's system prompt with the current Jira project structure so it knows available data without making any tool calls"],
+      answer:0,
+      exp:"<strong>MCP resources</strong> 是一種機制，將內容目錄（如 issue 摘要、文件層級、資料庫 schema、project 結構）暴露給 agent，讓 agent 在不需要探索性 tool calls 的情況下就能了解可用的數據。Resources 與 MCP tools 的區別在於：tools 執行動作、查詢即時數據；resources 提供靜態或半靜態的結構性目錄資訊，可在 connection 時自動傳遞。B 只是緩存問題但仍需初始化呼叫；C 減少呼叫次數但沒有消除；D 依賴手動維護的 system prompt 而非自動傳遞。"
     }
   ]
 },
@@ -480,7 +505,7 @@ const scenarios = [
     },
     {
       q:"You're using the same Claude session that wrote the code to also review it before merging. Reviews are catching fewer issues than expected. What is the fundamental problem?",
-      opts:["A model retains reasoning context from generation, making it less likely to question its own decisions; an independent review instance without the generator's prior context is more effective","The same model cannot simultaneously act as both code generator and reviewer due to role confusion","The context window fills up after code generation, leaving insufficient capacity for thorough review","Code review requires different model parameters (lower temperature) than code generation"],
+      opts:["A model retains reasoning context from generation, making it less likely to question its own decisions; an independent review instance without the generator's prior context is more effective","The same model cannot simultaneously act as both code generator and reviewer due to role confusion","The context window fills up after code generation, leaving insufficient capacity for thorough review","Add explicit self-critique instructions like \"Now review the code you just wrote as a skeptical senior engineer\" to counteract generation bias"],
       answer:0,
       exp:"<strong>Self-review 的局限性</strong>：模型保留了生成時的推理 context，使它不太可能在同一 session 中質疑自己的決策。<strong>沒有生成者先前推理 context 的獨立審查實例</strong>在捕捉微妙問題方面更有效，優於 self-review 指令或擴展思考。這是 multi-instance review 架構的基礎。"
     },
@@ -555,6 +580,12 @@ const scenarios = [
       opts:["Write a representative test suite covering expected behavior, edge cases, and error paths; run Claude's generated tests against these; share the test failures with Claude to guide improvement","Add detailed instructions to the prompt specifying every edge case type that should be covered","Provide a test checklist in CLAUDE.md that Claude should verify for completeness after generating","Add few-shot examples of 3 complete test files showing the quality and coverage you expect"],
       answer:0,
       exp:"<strong>Test-driven iteration</strong>：首先編寫涵蓋預期行為、邊界案例和錯誤路徑的測試套件，然後通過<strong>分享測試失敗來迭代指導改進</strong>，是最有效的方式。測試失敗提供了具體、明確的改進信號——「這個 edge case 沒有被覆蓋」比試圖在 prompt 中預測和規定所有可能的 edge case 要好得多。"
+    },
+    {
+      q:"Your CI review system generates 80 findings per PR. Every finding goes to a queue where senior engineers spend 40 minutes per PR on review. Analysis of past data shows 70% of findings could be auto-resolved or dismissed, while 30% genuinely need expert judgment. Senior engineer time is a scarce resource. What architectural addition best enables routing only the 30% that need human judgment to senior reviewers?",
+      opts:["Add a verification pass where the model self-reports a confidence score alongside each finding; calibrate routing thresholds against a labeled validation set to determine which confidence levels reliably predict genuine issues versus false positives","Route only Critical and Warning severity findings to senior engineers; auto-dismiss Info-level findings since they rarely require expert judgment","Run a second independent Claude instance on each finding; only route to human review when both instances flag the same issue","Implement a developer feedback loop: when developers dismiss findings as false positives, automatically suppress similar findings in future reviews"],
+      answer:0,
+      exp:"<strong>Verification pass（驗證通道）</strong>讓模型在每個發現旁邊自我回報信心分數，再使用 labeled validation set 校準路由閾值——確認哪個信心水平可靠地預測真正的問題 vs 假陽性。這樣有限的人工審查能力可以精確路由到最需要判斷的發現。僅按嚴重性過濾（B）假設 severity 標籤本身準確，但 severity 標籤也可能不正確；第二個獨立實例（C）改善準確性但不解決路由效率問題，且成本加倍；開發者反饋循環（D）是事後補救，無法預測哪些發現需要即時人工審查。"
     }
   ]
 },
@@ -658,6 +689,22 @@ const scenarios = [
 }
 ];
 
+// Task references per scenario (0-indexed) — maps question index → Task number
+const taskMap = [
+  // Scenario 1: Customer Support Resolution Agent
+  ["1.1","1.1","1.4","1.5","1.5","2.1","2.2","5.3","2.3","5.1","5.1","5.2","5.2","1.4","1.4","2.1"],
+  // Scenario 2: Code Generation with Claude Code
+  ["3.1","3.1","3.1","3.2","3.2","3.2","3.3","3.3","3.4","3.4","3.5","3.5","1.7","1.7","5.4","3.1","3.5"],
+  // Scenario 3: Multi-Agent Research System
+  ["1.2","1.2","5.6","1.3","1.3","1.6","5.3","2.3","5.4","2.2","5.3","5.6","5.6","1.3","1.2"],
+  // Scenario 4: Developer Productivity with Claude
+  ["2.5","2.5","2.5","2.4","2.4","2.4","2.4","2.1","2.3","2.3","3.4","3.2","3.1","5.4","1.6","2.4"],
+  // Scenario 5: Claude Code for Continuous Integration
+  ["3.6","3.6","4.6","3.6","4.1","4.1","4.1","4.2","3.6","4.5","4.5","4.6","4.6","4.4","4.4","4.6"],
+  // Scenario 6: Structured Data Extraction
+  ["4.3","4.3","4.3","4.3","4.4","4.4","4.4","4.3","4.5","4.5","4.2","5.1","5.5","5.5","5.6"]
+];
+
 let state = {
   current: 0,
   answers: scenarios.map(s => new Array(s.questions.length).fill(-1))
@@ -729,8 +776,10 @@ function renderContent(){
         <span>${opt}</span>
       </div>`;
     });
+    const taskNum = (taskMap[state.current]||[])[qi];
     html += `</div>
       <div class="explanation${isAnswered?' show':''}" id="exp-${qi}">
+        ${taskNum?`<span class="task-ref">Task ${taskNum}</span>`:''}
         <strong>解析：</strong> ${q.exp}
       </div>
     </div>`;
@@ -768,6 +817,19 @@ function updateTotal(){
   });
   document.getElementById('totalScore').textContent = `${correct} / ${total}`;
 }
+
+// Shuffle option order once per page load so correct answer is not always A
+(function shuffleOptions(){
+  scenarios.forEach(s=>{
+    s.questions.forEach(q=>{
+      const idx=[0,1,2,3];
+      for(let i=3;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
+      const orig=q.opts.slice();
+      q.opts=idx.map(i=>orig[i]);
+      q.answer=idx.indexOf(q.answer);
+    });
+  });
+})();
 
 renderNav();
 renderContent();
