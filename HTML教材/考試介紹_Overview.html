@@ -116,6 +116,23 @@
 
   footer { color: var(--gray-500); font-size: 13px; text-align: center; margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--gray-200); }
 
+  /* Practice CTA */
+  .practice-cta {
+    display: flex; align-items: center; gap: 20px;
+    background: #f0f9ff; border: 1px solid #38bdf8;
+    border-left: 4px solid #0284c7;
+    border-radius: 12px; padding: 22px 28px;
+    text-decoration: none; color: var(--gray-900);
+    margin-top: 48px;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .practice-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.09); }
+  .practice-cta .cta-ico { font-size: 32px; flex-shrink: 0; }
+  .practice-cta .cta-body { flex: 1; }
+  .practice-cta .cta-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: #0c4a6e; }
+  .practice-cta .cta-sub { font-size: 14px; color: var(--gray-500); }
+  .practice-cta .cta-arrow { font-size: 22px; color: #0284c7; flex-shrink: 0; }
+
   /* 證書 */
   .cert-wrap { display: flex; justify-content: center; margin: 22px 0 8px; }
   .cert-img {
@@ -269,6 +286,15 @@
     <img class="cert-img" src="cert_blurred.png" alt="Claude Certified Architect – Foundations 證書（持證人姓名已模糊）">
   </div>
   <p class="cert-note">※ 持證人姓名已模糊處理。</p>
+
+  <a class="practice-cta" href="practice-exam.html">
+    <span class="cta-ico">✏️</span>
+    <div class="cta-body">
+      <div class="cta-title">準備好了嗎？開始模擬考題</div>
+      <div class="cta-sub">6 大情境 × 15 題 = 90 道單選題，每題附詳細中文解析</div>
+    </div>
+    <span class="cta-arrow">→</span>
+  </a>
 
   <footer>
     內容整理自 Claude Certified Architect – Foundations Certification Exam Guide（Anthropic, PBC）。本頁為內部學習參考用。

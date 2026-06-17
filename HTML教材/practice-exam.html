@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCA Foundations — Practice Exam</title>
+<style>
+:root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3a;--accent:#7c6af7;--accent2:#5eead4;--correct:#22c55e;--wrong:#ef4444;--text:#e2e8f0;--muted:#8892a4;--warn:#f59e0b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding:0 0 60px}
+header{background:linear-gradient(135deg,#1e1b4b,#1a1d27);border-bottom:1px solid var(--border);padding:24px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+header h1{font-size:1.4rem;font-weight:700;color:#fff;letter-spacing:-.02em}
+header .badge{background:var(--accent);color:#fff;font-size:.75rem;padding:4px 12px;border-radius:20px;font-weight:600}
+.score-bar{display:flex;gap:20px;font-size:.85rem;color:var(--muted)}
+.score-bar span{color:var(--text);font-weight:600}
+nav{display:flex;gap:8px;overflow-x:auto;padding:16px 32px;border-bottom:1px solid var(--border);background:var(--card);scrollbar-width:thin}
+nav button{flex-shrink:0;padding:8px 18px;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s;white-space:nowrap}
+nav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+nav button.done{border-color:var(--correct);color:var(--correct)}
+.main{max-width:860px;margin:0 auto;padding:32px 24px}
+.scenario-header{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:32px}
+.scenario-header h2{font-size:1.1rem;color:var(--accent2);margin-bottom:8px;font-weight:600}
+.scenario-header p{font-size:.9rem;color:var(--muted);line-height:1.6}
+.scenario-header .domains{margin-top:12px;font-size:.8rem;color:var(--warn)}
+.question-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;transition:border-color .2s}
+.question-card.answered{border-color:var(--border)}
+.q-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.q-num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.q-text{font-size:.93rem;line-height:1.65;color:var(--text)}
+.q-text code{background:#252836;padding:1px 6px;border-radius:4px;font-family:'Fira Code',monospace;font-size:.87em;color:var(--accent2)}
+.options{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.option{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;font-size:.88rem;line-height:1.55;color:var(--muted)}
+.option:hover:not(.disabled){border-color:var(--accent);color:var(--text);background:rgba(124,106,247,.07)}
+.option .opt-label{font-weight:700;color:var(--accent);flex-shrink:0;min-width:20px}
+.option.correct{border-color:var(--correct);background:rgba(34,197,94,.08);color:var(--text)}
+.option.correct .opt-label{color:var(--correct)}
+.option.wrong{border-color:var(--wrong);background:rgba(239,68,68,.08);color:var(--text)}
+.option.wrong .opt-label{color:var(--wrong)}
+.option.disabled{cursor:default}
+.option code{background:#252836;padding:1px 5px;border-radius:3px;font-family:'Fira Code',monospace;font-size:.85em;color:var(--accent2)}
+.explanation{margin-top:14px;padding:14px 16px;background:#111827;border-left:3px solid var(--accent2);border-radius:0 8px 8px 0;font-size:.86rem;line-height:1.65;color:#94a3b8;display:none}
+.explanation.show{display:block}
+.explanation strong{color:var(--accent2)}
+.progress{display:flex;align-items:center;gap:12px;margin-bottom:24px;font-size:.85rem;color:var(--muted)}
+.progress-bar{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s}
+.result-panel{display:none;text-align:center;padding:40px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:24px}
+.result-panel.show{display:block}
+.result-panel .big-score{font-size:3.5rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.result-panel p{color:var(--muted);margin-top:8px}
+.btn-reset{margin-top:20px;padding:10px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;transition:opacity .2s}
+.btn-reset:hover{opacity:.85}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div style="margin-bottom:8px"><a href="../index.html" style="color:var(--muted);font-size:.8rem;text-decoration:none;opacity:.7">← 返回首頁</a></div>
+    <h1>Claude Certified Architect — Foundations</h1>
+    <div style="margin-top:6px;font-size:.82rem;color:var(--muted)">Practice Exam · 6 Scenarios · 15 Questions Each · 90 Total</div>
+  </div>
+  <div class="score-bar">
+    Total Score: <span id="totalScore">0 / 0</span>
+  </div>
+</header>
+<nav id="scenarioNav"></nav>
+<div class="main" id="mainContent"></div>
+
+<script>
+const scenarios = [
+{
+  id:1,
+  title:"Scenario 1: Customer Support Resolution Agent",
+  desc:"You are building a customer support resolution agent using the Claude Agent SDK. The agent handles high-ambiguity requests like returns, billing disputes, and account issues. It has access to your backend systems through custom MCP tools (<code>get_customer</code>, <code>lookup_order</code>, <code>process_refund</code>, <code>escalate_to_human</code>). Your target is 80%+ first-contact resolution while knowing when to escalate.",
+  domains:"Primary domains: Agentic Architecture & Orchestration · Tool Design & MCP Integration · Context Management & Reliability",
+  questions:[
+    {
+      q:"Your agentic loop uses this termination logic: <code>while True: response = call_claude(); if \"I have completed\" in response.content[0].text: break</code>. Production logs show the agent sometimes terminates mid-task when the model uses phrases like \"I have completed looking up the customer.\" What is the correct approach to implement loop termination?",
+      opts:["Continue the loop when <code>stop_reason</code> is <code>\"tool_use\"</code> and terminate when <code>stop_reason</code> is <code>\"end_turn\"</code>, regardless of response text content","Extend the keyword list to cover more completion phrases like \"task complete\", \"finished\", and \"resolved\"","Set a maximum iteration count of 10 as the primary stopping mechanism to prevent infinite loops","Check if the assistant's response contains a <code>tool_use</code> content block before deciding whether to continue"],
+      answer:0,
+      exp:"正確的 agentic loop 應依據 <strong>stop_reason</strong> 來判斷是否繼續：<code>stop_reason</code> 為 <code>\"tool_use\"</code> 時繼續執行，<code>stop_reason</code> 為 <code>\"end_turn\"</code> 時才終止。解析自然語言文字來判斷完成是不可靠的 anti-pattern，因為模型可能在任何地方使用類似完成的措辭。設定固定迭代上限作為主要停止機制也是 anti-pattern。"
+    },
+    {
+      q:"After calling <code>get_customer</code>, your agent calls Claude again to decide the next step, but Claude responds as if it has no information about the customer that was just retrieved. What is the most likely cause?",
+      opts:["The <code>get_customer</code> tool result was not appended to the conversation history before making the next API call","The <code>stop_reason</code> for the <code>get_customer</code> call was <code>\"end_turn\"</code> instead of <code>\"tool_use\"</code>","Claude's context window has been exceeded by the tool description definitions","The <code>get_customer</code> tool description does not specify the format of its return value"],
+      answer:0,
+      exp:"在 agentic loop 中，每次 tool 執行完畢後，必須將 <strong>tool result 加入到 conversation history</strong> 中，這樣模型才能在下一次 API 請求時推理這些結果。如果沒有將 tool result 加回對話歷史，模型就會對之前的 tool 呼叫一無所知。"
+    },
+    {
+      q:"The system prompt says \"Always verify customer identity with <code>get_customer</code> before processing any refund.\" Production logs show this instruction is followed 94% of the time, but 6% of cases still skip verification. What change would guarantee compliance?",
+      opts:["Implement a programmatic prerequisite that blocks <code>process_refund</code> calls until <code>get_customer</code> has returned a verified customer ID","Add five few-shot examples to the system prompt showing <code>get_customer</code> always called before <code>process_refund</code>","Change the system prompt to \"You MUST ALWAYS verify customer identity first. This is non-negotiable.\"","Use <code>tool_choice: \"any\"</code> to force the model to call a tool on every turn"],
+      answer:0,
+      exp:"當業務邏輯需要<strong>確定性合規保障</strong>（如身份驗證必須在金融操作之前），僅靠 prompt 指令無法保證零失敗率。<strong>程式化的前置條件</strong>才能提供確定性保障：在 <code>get_customer</code> 未回傳已驗證的 customer ID 之前，<code>process_refund</code> 工具根本不會被執行。B 和 C 只是改善 prompt，仍有失敗率。"
+    },
+    {
+      q:"Your MCP tools return dates in different formats: <code>get_customer</code> returns Unix timestamps, <code>lookup_order</code> returns ISO 8601 strings, and a shipping tool returns \"MM/DD/YYYY\". This inconsistency causes errors when the agent compares dates across tools. What is the most effective architectural solution?",
+      opts:["Implement a <code>PostToolUse</code> hook that normalizes all date formats to a standard format before the agent processes tool results","Update each tool's description to document its date format so the agent knows how to handle each one","Add instructions to the system prompt telling the agent to always convert dates to ISO 8601 before comparison","Create a separate <code>date_normalize</code> tool that the agent can call whenever it needs to compare dates"],
+      answer:0,
+      exp:"<strong>PostToolUse hook</strong> 可以在模型處理 tool 結果之前攔截並轉換資料格式，提供確定性保障，確保模型永遠只看到標準化後的資料。B 只是文件化問題；C 依賴模型的概率性合規；D 增加不必要的複雜性和額外 API 呼叫。"
+    },
+    {
+      q:"Your business policy states that refunds above $500 must be reviewed by a human agent before processing. You want to enforce this rule programmatically. Which approach best implements this requirement?",
+      opts:["Implement a pre-tool-call interception hook that checks the refund amount and redirects to <code>escalate_to_human</code> when the amount exceeds $500","Add to the system prompt: \"If the refund amount is more than $500, you must escalate to a human agent\"","Configure <code>process_refund</code> to return an error with a policy message when the amount exceeds $500","Use few-shot examples showing five cases where the agent correctly escalated high-value refunds"],
+      answer:0,
+      exp:"業務規則需要確定性合規保障時，應使用 <strong>hook 而非 prompt 指令</strong>。Hook 可以在 tool 呼叫發出之前攔截並強制執行政策，完全繞過模型的決策，提供 100% 的合規率。B 和 D 依賴模型的概率性遵循，有失敗風險。"
+    },
+    {
+      q:"Your agent frequently calls <code>get_customer</code> when users ask about order status, even when they provide an order number directly (e.g., \"Where is order #12345?\"). Both tools have one-sentence descriptions. What is the most effective first step to fix this misrouting?",
+      opts:["Expand each tool's description to include input formats, example queries, edge cases, and when to use it versus similar tools","Add few-shot examples to the system prompt showing order queries routing to <code>lookup_order</code>","Rename <code>get_customer</code> to <code>fetch_account_profile</code> and <code>lookup_order</code> to <code>fetch_order_details</code>","Implement a pre-processing layer that detects order numbers in user messages and selects <code>lookup_order</code>"],
+      answer:0,
+      exp:"<strong>Tool descriptions 是 LLM 進行 tool selection 的主要機制</strong>。當 descriptions 過於簡短時，模型缺乏足夠的上下文來區分相似的 tools。直接提升 tool descriptions（加入輸入格式、範例 queries、邊界條件）是最直接有效的修正方式。B 增加了 token 開銷但沒有解決根本原因；D 是過度設計。"
+    },
+    {
+      q:"Your <code>process_refund</code> MCP tool sometimes returns a generic error: \"Operation failed.\" The agent then retries the same refund multiple times, causing duplicate charges. What should the tool return to prevent this?",
+      opts:["Structured error metadata including <code>errorCategory</code> (e.g., \"validation\"), <code>isRetryable: false</code>, and a human-readable description of why the operation failed","An HTTP 400 status code to signal a client error that should not be retried","The error message \"Operation failed. Please do not retry.\" to instruct the agent","An empty result with <code>isError: true</code> to signal failure without revealing implementation details"],
+      answer:0,
+      exp:"<strong>結構化的錯誤 metadata</strong> 讓 agent 能做出明智的恢復決策。<code>isRetryable: false</code> 明確告知 agent 不要重試；<code>errorCategory</code> 幫助 agent 理解是驗證錯誤還是暫時性錯誤。一般的錯誤訊息無法讓 agent 區分哪些錯誤可以重試。"
+    },
+    {
+      q:"A subagent reports a \"database connection timeout\" error while looking up an order. Which error propagation strategy best enables the coordinator to make intelligent recovery decisions?",
+      opts:["Return structured error context including failure type (\"transient\"), the attempted query, any partial results, and potential alternative approaches such as cache lookup","Automatically retry 3 times within the subagent, then return a generic \"lookup unavailable\" status","Return an empty order list marked as a successful result so the workflow can continue","Terminate the entire customer support workflow and ask the user to try again later"],
+      answer:0,
+      exp:"<strong>結構化的錯誤 context</strong> 讓 coordinator 能做出智能的恢復決策——判斷是否重試、嘗試替代方案，還是帶著部分結果繼續。B 的通用狀態隱藏了有價值的 context；C 將存取失敗偽裝成成功的空結果，阻止了任何恢復；D 因單一失敗就終止整個工作流程是不必要的。"
+    },
+    {
+      q:"You have 18 available MCP tools covering customer lookup, order management, refund processing, shipping tracking, loyalty points, promotional codes, and account management. The agent frequently calls the wrong tool. What architectural change would most improve tool selection reliability?",
+      opts:["Restrict each agent to 4-5 tools most relevant to its specific role; use a coordinator agent to route requests to specialized subagents","Improve each tool's description to be more detailed and include examples of when to use it versus alternatives","Set <code>tool_choice: \"any\"</code> to force the agent to always call a tool rather than returning conversational text","Add a routing classifier that analyzes each request and pre-selects the correct tool before the agent runs"],
+      answer:0,
+      exp:"給 agent 太多 tools（18 個而非 4-5 個）<strong>增加決策複雜度，降低 tool selection 可靠性</strong>。最有效的架構解決方案是限制每個 agent 只能存取其角色所需的 tools，通過 coordinator 將不同類型的請求路由到專門的 subagents。B 有幫助但對 18 個 tools 效果有限。"
+    },
+    {
+      q:"After a long multi-issue conversation, the agent starts losing track of specific details mentioned early—like exact dollar amounts the customer quoted or specific dates mentioned. What is the most effective solution?",
+      opts:["Extract transactional facts (amounts, dates, order numbers, customer-stated expectations) into a persistent \"case facts\" block included in each prompt, separate from summarized conversation history","Increase the context window by using a model with more tokens to accommodate longer histories","Summarize the conversation after every 5 turns to keep context concise and within limits","Store all conversation details in a database and retrieve them on demand"],
+      answer:0,
+      exp:"<strong>Progressive summarization 的風險</strong>：壓縮數字值、百分比、日期和客戶陳述的期望為模糊的摘要。解決方案是將交易性事實（金額、日期、訂單號、狀態）提取到持久的「<strong>case facts</strong>」區塊，在每個 prompt 中包含此區塊，獨立於摘要的對話歷史，確保關鍵數據不會在摘要過程中丟失。"
+    },
+    {
+      q:"Your <code>get_customer</code> tool returns a 45-field record, but the agent typically only needs 5-6 fields for most support operations. As conversations grow longer, you notice performance degradation. What is the best approach?",
+      opts:["Trim the tool output to return only the fields relevant to support operations before appending it to the conversation context","Instruct the agent in the system prompt to ignore irrelevant fields from tool responses","Create a separate lightweight <code>get_customer_summary</code> tool for quick lookups","Use the full tool output but periodically run <code>/compact</code> to reduce context size"],
+      answer:0,
+      exp:"Tool 結果在 context 中積累，消耗與其相關性<strong>不成比例的 tokens</strong>（每次查詢 40+ 個欄位，但只有 5 個相關）。在結果加入 context 之前進行裁剪，可以防止這種積累。B 依賴模型忽略信息，但這些信息仍然佔用 context 空間；D 解決症狀而非根本原因。"
+    },
+    {
+      q:"A customer messages: \"I'm really frustrated. I've tried to resolve this billing issue three times and nobody has helped. I want to speak to a human representative right now.\" What should the agent do?",
+      opts:["Immediately escalate to a human agent using <code>escalate_to_human</code> without first attempting to resolve the billing issue","Acknowledge the customer's frustration, then investigate the billing issue and attempt resolution before escalating","Escalate only after attempting resolution and the customer repeats the request for a human","Use sentiment analysis to determine if the frustration level warrants escalation"],
+      answer:0,
+      exp:"當客戶<strong>明確要求與人工客服溝通時，應立即遵從</strong>，不需要先嘗試調查或解決問題。明確的客戶要求是最高優先級的升級觸發器。B 和 C 都是在客戶已明確要求人工服務後仍試圖自行解決；D 將情緒分析作為代理指標是不可靠的。"
+    },
+    {
+      q:"A customer requests a competitor price match. Your policy addresses price matching for your own website's historical prices but is silent on competitor pricing. The agent has verified the account and the product. What should the agent do?",
+      opts:["Escalate to a human agent because the policy is ambiguous or silent on this specific request type","Decline the request since the policy does not explicitly authorize competitor price matching","Process the competitor price match since the policy does not explicitly prohibit it","Ask the customer to provide documentation of the competitor's price, then process it if reasonable"],
+      answer:0,
+      exp:"當政策對客戶的<strong>具體請求模糊不清或沒有明確說明時，應升級給人工客服</strong>，而不是讓 agent 自行做政策解讀。這屬於「政策例外/缺口」升級觸發器。政策只涵蓋自家網站的歷史價格，競爭對手價格匹配屬於政策空白地帶，需要人工判斷。"
+    },
+    {
+      q:"Your agent handles multi-issue requests poorly—it addresses one issue and closes the case without investigating others. A customer reports: \"My order arrived damaged AND I was double-charged.\" What architectural pattern would best address this?",
+      opts:["Decompose the multi-concern request into distinct items, investigate each in parallel using shared context, then synthesize a unified response","Instruct the agent to list all detected issues at the start of each response before resolving any","Process issues sequentially: resolve the first issue completely before starting the second","Ask the customer to submit separate support tickets for each issue"],
+      answer:0,
+      exp:"多問題客戶請求應<strong>分解為不同的項目，在共享 context 下並行調查每個問題，最後合成統一回應</strong>。這確保了每個問題都得到充分調查，而不是在第一個問題解決後忽略其他問題。並行調查比順序調查更有效率。"
+    },
+    {
+      q:"The agent collects customer details, verifies the order, processes a refund—then transfers the case to a human specialist who has no access to the conversation transcript. The specialist asks the customer to repeat all information. How should the agent handle the transfer?",
+      opts:["Compile a structured handoff summary including customer ID, order details, root cause analysis, refund amount processed, and recommended next actions before escalating","Paste the entire conversation transcript into the escalation ticket so the specialist has all context","Ask the customer to briefly summarize their issue for the specialist before escalating","Transfer all conversation history as raw JSON from the API response to the escalation system"],
+      answer:0,
+      exp:"<strong>結構化的交接摘要</strong>（customer ID、根本原因分析、退款金額、建議後續行動）確保人工客服能快速上手，無需重新詢問客戶已提供過的信息。原始對話記錄（B）對專家難以快速消化；讓客戶重新摘要（C）增加客戶負擔；原始 JSON（D）不適合人工閱讀。"
+    }
+  ]
+},
+{
+  id:2,
+  title:"Scenario 2: Code Generation with Claude Code",
+  desc:"You are using Claude Code to accelerate software development. Your team uses it for code generation, refactoring, debugging, and documentation. You need to integrate it into your development workflow with custom slash commands, CLAUDE.md configurations, and understand when to use plan mode vs direct execution.",
+  domains:"Primary domains: Claude Code Configuration & Workflows · Context Management & Reliability",
+  questions:[
+    {
+      q:"A new team member reports that Claude Code behaves differently on their machine—it doesn't follow the team's coding standards or testing patterns. The team's instructions are in <code>~/.claude/CLAUDE.md</code> on the lead developer's machine. What is the most likely cause?",
+      opts:["Instructions in <code>~/.claude/CLAUDE.md</code> are user-level settings that apply only to that user and are not shared via version control","The new developer needs to run <code>claude --sync</code> to pull the latest CLAUDE.md configuration","CLAUDE.md files in the home directory only apply to the default project","The new developer's Claude Code installation is outdated and doesn't support user-level CLAUDE.md"],
+      answer:0,
+      exp:"<code>~/.claude/CLAUDE.md</code> 中的設定是<strong>用戶級別的設定</strong>，只適用於該用戶，不會通過版本控制分享給團隊成員。要讓整個團隊共享指令，應將 CLAUDE.md 放在 <strong>project-level</strong>（<code>.claude/CLAUDE.md</code> 或根目錄），這樣可以通過 git 進行版本控制和共享。"
+    },
+    {
+      q:"Your monorepo has three packages: React frontend, Node.js API, and Python data pipeline. Each has different coding standards. You want Claude to automatically apply the right standards when working in each package. What is the most maintainable approach?",
+      opts:["Create a root CLAUDE.md with <code>@import</code> directives that include package-specific standards files, and use directory-level CLAUDE.md files in each package","Create a single large CLAUDE.md at the root containing all standards for all three packages under labeled sections","Create separate <code>.claude/</code> directories in each package with complete CLAUDE.md files that duplicate shared standards","Use environment variables to tell Claude which package's standards to apply"],
+      answer:0,
+      exp:"使用 <strong><code>@import</code> 語法</strong>可以讓根目錄的 CLAUDE.md 引用外部標準文件，保持模塊化。在每個 package 中放置 CLAUDE.md 可以載入特定於該 package 的標準。這比在單一文件中維護所有標準更容易管理，也避免了重複。"
+    },
+    {
+      q:"Your team's CLAUDE.md has grown to 800 lines covering testing, API design, deployment, security, and frontend patterns. Team members report that Claude sometimes ignores relevant sections. What is the most effective way to reorganize?",
+      opts:["Split into focused topic-specific files in <code>.claude/rules/</code> (e.g., <code>testing.md</code>, <code>api-conventions.md</code>) and use path-specific rules where appropriate","Add prominent ALL CAPS section headers and dividers to make the CLAUDE.md more scannable","Reduce to only the most critical 10 rules and accept default behavior for everything else","Split content into multiple CLAUDE.md files in each subdirectory based on team ownership"],
+      answer:0,
+      exp:"<strong><code>.claude/rules/</code> 目錄</strong>允許將主題特定的規則文件組織成獨立的文件，作為單一大型 CLAUDE.md 的替代方案。這提高了可維護性，並且可以結合路徑特定規則（只在相關文件被編輯時加載），減少無關 context 和 token 消耗。"
+    },
+    {
+      q:"You want to create a <code>/deploy-check</code> slash command that runs a standard pre-deployment verification checklist. This command should be available to all developers automatically when they clone the repository. Where should you create this command file?",
+      opts:["In the <code>.claude/commands/</code> directory within the project repository","In <code>~/.claude/commands/</code> on each developer's local machine","In the CLAUDE.md file at the project root using a <code>commands:</code> section","In a <code>.claude/config.json</code> file with a <code>commands</code> array"],
+      answer:0,
+      exp:"存放在 <strong><code>.claude/commands/</code></strong> 目錄中的 project-scoped 命令會通過版本控制共享，當開發者 clone 或 pull repository 時<strong>自動可用</strong>。<code>~/.claude/commands/</code> 是個人命令，不通過版本控制共享。CLAUDE.md 用於 project 指令和 context，不是命令定義。"
+    },
+    {
+      q:"You've created a <code>/brainstorm-architecture</code> skill that generates extensive analysis of multiple architectural approaches. After using it, its lengthy output remains in conversation context, confusing Claude's subsequent responses. What frontmatter option should you use?",
+      opts:["<code>context: fork</code> — runs the skill in an isolated sub-agent context, preventing skill outputs from polluting the main conversation","<code>allowed-tools: []</code> — restricts the skill from accessing any tools, keeping output minimal","<code>argument-hint: \"architecture topic\"</code> — prompts for more focused input to limit output scope","<code>context: isolated</code> — creates a separate context window for the skill's execution"],
+      answer:0,
+      exp:"<strong><code>context: fork</code></strong> frontmatter 選項讓 skill 在隔離的 sub-agent context 中運行，防止 skill 的輸出污染主對話。這對於產生大量輸出的 skills（如 codebase 分析）或探索性 context（如架構備選方案的腦力激盪）特別有用。"
+    },
+    {
+      q:"You're creating a <code>/write-migration</code> skill that should only be allowed to write SQL migration files and read schema files—not delete files or run shell commands. How do you implement this restriction?",
+      opts:["Configure <code>allowed-tools</code> in the skill's SKILL.md frontmatter to restrict tool access during skill execution","Add instructions in the skill's system prompt telling Claude not to delete files or run shell commands","Create a separate user permission profile that restricts file operations when the skill is active","Use the <code>context: fork</code> option which automatically limits the skill to read and write operations"],
+      answer:0,
+      exp:"在 SKILL.md 的 frontmatter 中配置 <strong><code>allowed-tools</code></strong> 可以精確限制 skill 執行期間可用的工具。例如，只允許 Write 和 Read 工具，防止 Bash（shell 命令）或刪除操作。這提供了<strong>確定性的工具訪問控制</strong>，而不是依賴模型遵循指令。"
+    },
+    {
+      q:"Your codebase has test files scattered throughout—each test file is next to the source file it tests (e.g., <code>Button.test.tsx</code> next to <code>Button.tsx</code>). You want Claude to apply testing conventions only when editing test files, regardless of directory. What is the most effective approach?",
+      opts:["Create a <code>.claude/rules/</code> file with YAML frontmatter specifying <code>paths: [\"**/*.test.tsx\", \"**/*.test.ts\"]</code> to conditionally load testing conventions","Add a Testing section to the root CLAUDE.md and instruct Claude to apply it when editing <code>.test.tsx</code> files","Create <code>.claude/rules/</code> files in each directory that contains test files","Create a <code>/test-edit</code> skill that developers invoke before editing test files"],
+      answer:0,
+      exp:"帶有 YAML frontmatter 路徑字段的 <strong><code>.claude/rules/</code> 文件</strong>可以根據文件路徑模式條件性地加載規則。<code>**/*.test.tsx</code> 的 glob 模式無論目錄位置如何都會匹配所有測試文件，比在每個包含測試文件的目錄中創建 CLAUDE.md 更有效率。"
+    },
+    {
+      q:"You have React components in <code>src/components/</code>, API handlers in <code>src/api/</code>, and database models in <code>src/db/</code>. Each area has different conventions. You're deciding between <code>.claude/rules/</code> files with path patterns versus placing CLAUDE.md files in each subdirectory. Which should you choose?",
+      opts:["Use <code>.claude/rules/</code> files with glob patterns (e.g., <code>paths: [\"src/api/**/*\"]</code>) because they allow conditional loading and can extend to cross-directory patterns","Use subdirectory CLAUDE.md files because they are simpler and each developer can edit their area independently","Use both: CLAUDE.md for directory-specific and <code>.claude/rules/</code> for file-type conventions","Use root CLAUDE.md with conditional sections to ensure all conventions are always loaded"],
+      answer:0,
+      exp:"<strong><code>.claude/rules/</code> 帶有 glob 模式的路徑字段</strong>，只在編輯匹配文件時加載，減少無關 context 和 token 消耗。對於跨多個目錄的約定（如所有測試文件）比目錄級 CLAUDE.md 更靈活。根目錄 CLAUDE.md 會加載所有規則不論是否相關，增加不必要的 token 消耗。"
+    },
+    {
+      q:"Your team needs to migrate the codebase from an older HTTP client library to a new one. This migration will affect 47 source files and requires decisions about handling edge cases differently across module types. Which mode should you use?",
+      opts:["Plan mode — to explore the codebase, understand dependencies, design an approach for each module type, and identify edge cases before making any changes","Direct execution mode — to start making changes incrementally and let the migration reveal natural boundaries","Direct execution with comprehensive upfront instructions detailing exactly how each file should be migrated","Plan mode for the first 10 files, then switch to direct execution once the pattern is established"],
+      answer:0,
+      exp:"<strong>Plan mode</strong> 專為涉及<strong>大規模變更、多個有效方案、架構決策和多文件修改</strong>的複雜任務而設計——正是 47 個文件的 library 遷移所需要的。在提交變更之前，它允許安全的 codebase 探索和設計，防止因後期發現依賴關係而造成高昂的返工成本。"
+    },
+    {
+      q:"A developer reports a specific bug: <code>TypeError: Cannot read property 'userId' of undefined</code> in the authentication middleware. The stack trace points to a single line in <code>auth.middleware.ts</code>. Which mode should they use?",
+      opts:["Direct execution — this is a well-scoped single-file bug fix with a clear location from the stack trace","Plan mode — to understand the full impact of the authentication middleware before making changes","Plan mode — to explore all files that depend on the middleware before fixing the bug","Direct execution, but first use the Explore subagent to map all callers of the middleware"],
+      answer:0,
+      exp:"<strong>Direct execution</strong> 適用於具有清晰範圍的簡單、明確的變更——例如單文件 bug 修復，stack trace 指向明確位置。Plan mode 設計用於複雜任務，涉及大規模變更、多個有效方案或架構決策。對於有清晰 stack trace 的單一 bug，plan mode 會增加不必要的開銷。"
+    },
+    {
+      q:"Claude Code consistently generates date formatting code differently: sometimes using <code>date-fns</code>, sometimes <code>Intl.DateTimeFormat</code>, sometimes <code>moment.js</code>, despite your system prompt saying \"use the project's date formatting library.\" What is the most effective fix?",
+      opts:["Provide 2-3 concrete input/output examples showing the exact transformation: an input date value and the expected formatted string using the specific library function calls","Specify in the system prompt exactly which library to use: \"Always use date-fns format() function, never use moment.js\"","Add the date formatting library documentation to the CLAUDE.md as reference material","Create a <code>/format-date</code> skill that generates date formatting code with locked configuration"],
+      answer:0,
+      exp:"<strong>具體的 input/output 範例</strong>是在 prose 描述被不一致解讀時，溝通預期轉換最有效的方式。當自然語言描述產生不一致結果時，提供 2-3 個具體範例（輸入日期值 → 預期格式化字符串，使用特定函數調用）效果遠比改進文字描述更好。"
+    },
+    {
+      q:"You're implementing a new caching system and ask Claude Code to implement it. You realize Claude hasn't considered cache invalidation strategy, expiration policies, or what happens when the cache service is unavailable. How should you surface these considerations before implementation?",
+      opts:["Use the interview pattern: ask Claude to interview you about cache requirements, failure modes, and invalidation strategy before implementing","Provide a detailed specification document covering cache invalidation, expiration, and failure modes upfront","Let Claude implement a basic version first, then iteratively add edge case handling","Use plan mode to have Claude ask questions about requirements before proceeding"],
+      answer:0,
+      exp:"<strong>Interview pattern</strong> 讓 Claude 在實作之前主動提問，發現開發者可能沒有預料到的考量（cache invalidation 策略、failure modes）。在不熟悉的領域實作解決方案之前，使用 interview pattern 能主動發現需求，而不是在實作後才發現遺漏的邊界案例。"
+    },
+    {
+      q:"You've spent an hour debugging a complex async race condition. You need to explore two different fixing approaches but don't want to lose your current analysis. How should you manage this exploration?",
+      opts:["Use <code>fork_session</code> to create parallel exploration branches from the shared analysis baseline, one for each fix approach","Use <code>--resume</code> to continue the current session across both exploration paths sequentially","Create a new session with a summary of findings for each approach to ensure fresh context","Save the current session with <code>/save</code> and open two separate new sessions"],
+      answer:0,
+      exp:"<strong><code>fork_session</code></strong> 從共享的分析基線創建獨立的分支，讓你可以探索不同的方法而不影響原始分析 context。這正是有發散性探索需求時的理想用例——比較兩種修復策略，共享同一個 codebase 分析基線。"
+    },
+    {
+      q:"You have a named session \"perf-investigation\" from last week. Since then, you've refactored the database layer based on those findings. The refactoring changed the files that were analyzed. You want to continue the investigation. What should you do?",
+      opts:["Start a fresh session with a structured summary of the previous findings, then inform the session about the specific files that changed in the refactoring","Resume the session with <code>--resume perf-investigation</code> and let Claude re-analyze all the same files","Resume with <code>--resume perf-investigation</code> and provide a git diff of the refactored changes","Resume and use <code>/compact</code> first to free up context before providing updated file information"],
+      answer:0,
+      exp:"當之前的 tool 結果（已分析的文件）已經<strong>過時（stale）</strong>時，開啟帶有注入摘要的新 session 比繼續使用 stale tool results 的 session<strong>更可靠</strong>。將之前的發現結構化摘要加入到新 session 的初始 context 中，並告知 Claude 哪些特定文件在重構中發生了變化，以便進行有針對性的重新分析。"
+    },
+    {
+      q:"After exploring a payment processing failure for 30+ minutes, Claude Code starts giving inconsistent answers and referencing \"typical payment patterns\" instead of the specific payment processor classes discovered earlier. What technique best addresses this context degradation?",
+      opts:["Have Claude maintain a scratchpad file recording key findings (processor classes, failure patterns, code locations) and reference it for subsequent questions","Use <code>/compact</code> to compress the conversation history and free up context space","Start a fresh session with a prompt summary and repeat the discovery work","Spawn a new subagent for each new question to ensure fresh context for each investigation step"],
+      answer:0,
+      exp:"在擴展 session 中的 <strong>context 降解</strong>（引用「典型模式」而不是之前發現的具體內容）可以通過讓 agent <strong>維護 scratchpad 文件</strong>來記錄關鍵發現來解決。通過引用 scratchpad 文件進行後續問題，可以抵消 context 降解，因為發現被持久化在文件中而不是依賴 context window 中的記憶。"
+    }
+  ]
+},
+{
+  id:3,
+  title:"Scenario 3: Multi-Agent Research System",
+  desc:"You are building a multi-agent research system using the Claude Agent SDK. A coordinator agent delegates to specialized subagents: one searches the web, one analyzes documents, one synthesizes findings, and one generates reports. The system researches topics and produces comprehensive, cited reports.",
+  domains:"Primary domains: Agentic Architecture & Orchestration · Tool Design & MCP Integration · Context Management & Reliability",
+  questions:[
+    {
+      q:"Your coordinator sends messages directly between subagents—the web search agent passes results to document analysis, which passes to synthesis. You notice error handling is inconsistent and some communications are failing silently. What architectural change would best improve reliability?",
+      opts:["Route all subagent communication through the coordinator, which manages error handling, information routing, and monitors each step's success","Add error handling code to each subagent so they can independently recover from failures","Implement a message queue between subagents to buffer communications and prevent silent failures","Add retry logic to the direct subagent-to-subagent communication channels"],
+      answer:0,
+      exp:"<strong>Hub-and-spoke 架構</strong>中，coordinator agent 管理所有 subagent 間的通信、錯誤處理和信息路由。讓 subagents 直接相互通信會降低可觀察性、造成不一致的錯誤處理。<strong>所有通信通過 coordinator 路由</strong>可確保一致的錯誤處理和受控的信息流。"
+    },
+    {
+      q:"For research on \"the economic impact of electric vehicles,\" your coordinator decomposes the topic into: \"EV manufacturing costs,\" \"EV purchase subsidies,\" and \"EV charging infrastructure investment.\" The final report is well-researched on these three areas but misses consumer behavior changes, electricity grid impacts, oil industry effects, and job market transformations. What is the root cause?",
+      opts:["The coordinator's task decomposition is too narrow, resulting in subagent assignments that don't comprehensively cover all relevant dimensions of the topic","The web search subagent's queries are not broad enough to find articles on consumer behavior and employment","The synthesis subagent lacks instructions to identify coverage gaps in the findings it receives","The document analysis subagent is filtering out sources that discuss macroeconomic impacts"],
+      answer:0,
+      exp:"Coordinator 的日誌直接揭示了根本原因：它將「電動車的經濟影響」分解為僅三個技術面的子任務，完全忽略了消費者行為、電網、石油產業、就業市場等重要維度。<strong>subagents 正確地執行了它們被分配的任務——問題在於 coordinator 的任務分解過於狹窄</strong>。"
+    },
+    {
+      q:"The synthesis subagent frequently claims \"According to our research, EV adoption rates have grown 40% year-over-year,\" but no such statistic appears in the source documents. What is the most likely architectural cause of this hallucination?",
+      opts:["The synthesis subagent is not receiving structured findings with claim-source mappings from prior agents; it's generating plausible statistics because it lacks grounded source data","The web search subagent is returning low-quality sources that contain inaccurate statistics","The synthesis subagent's system prompt doesn't explicitly instruct it to cite sources","The document analysis subagent is summarizing without preserving specific numerical data points"],
+      answer:0,
+      exp:"當 synthesis subagent 沒有收到帶有 <strong>claim-source 映射的結構化發現</strong>時，它必須依靠模糊的上下文或生成似乎合理的統計數據。subagents 應該輸出帶有 claim-source 映射（來源 URL、文件名稱、相關摘錄）的結構化數據，而不是 prose 摘要，以便 synthesis agent 能追蹤每個聲明的來源。"
+    },
+    {
+      q:"Your research system invokes subagents sequentially: first web search, then document analysis, then synthesis. Total latency is 3 minutes. The web search and document analysis results are independent of each other. How should you redesign the coordinator to reduce latency?",
+      opts:["Emit multiple Task tool calls in a single coordinator response to spawn web search and document analysis subagents in parallel, rather than invoking them across separate turns","Use a faster model for the document analysis subagent since it takes the most time","Combine web search and document analysis into a single multi-capability subagent","Pre-load the document analysis subagent before the web search completes using speculative execution"],
+      answer:0,
+      exp:"通過在<strong>單個 coordinator response 中發出多個 Task tool 呼叫</strong>，可以並行生成 subagents。由於 web search 和 document analysis 的結果是相互獨立的，並行執行可以顯著減少總延遲。在不同 turns 中跨 Task 呼叫則是順序執行的。"
+    },
+    {
+      q:"When your coordinator passes research findings to the synthesis subagent, it passes plain text: \"EV market grew 35% in 2023 (from report_q4_2023.pdf page 12).\" However, the synthesis subagent's final report only says \"EVs showed strong growth\" without any citations. What is the likely cause and fix?",
+      opts:["The synthesis subagent receives plain text mixing content with metadata; use structured data formats that separate content from metadata (source documents, page numbers) to preserve attribution","The synthesis subagent's system prompt doesn't instruct it to include citations in the final report","The report generation subagent is stripping citations when formatting the final output","The synthesis subagent has insufficient context length to process long research findings with embedded citations"],
+      answer:0,
+      exp:"在 agent 間傳遞 context 時，<strong>使用結構化數據格式將內容與 metadata（來源 URL、文件名稱、頁碼）分離</strong>，可以保留來源歸因。當引用信息嵌入到 prose 文本中時，synthesis agent 很難在輸出中可靠地保留這些引用。使用結構化格式（如 JSON 中的 claim-source 映射）讓 synthesis agent 能正確追蹤聲明來源。"
+    },
+    {
+      q:"You're designing two systems: (1) a weekly market analysis that always gathers data from 5 specific sources, extracts metrics, identifies trends, and writes a summary; (2) a competitive intelligence system that must adapt its approach based on what it discovers about each competitor. Which decomposition strategy should you use for each?",
+      opts:["Prompt chaining for the market analysis (predictable sequential steps) and dynamic adaptive decomposition for the competitive intelligence (findings drive the next steps)","Dynamic adaptive decomposition for both since flexibility is always better than fixed pipelines","Prompt chaining for both since it is more predictable and easier to debug","Prompt chaining for the competitive intelligence and dynamic decomposition for the market analysis"],
+      answer:0,
+      exp:"<strong>Prompt chaining</strong> 適用於可預測的多步驟工作流程，步驟順序固定且已知。<strong>Dynamic adaptive decomposition</strong> 適用於開放式調查任務，中間發現決定後續步驟。市場分析有固定流程（固定來源、提取指標），而競爭情報需要根據每個競爭對手的情況動態調整方法。"
+    },
+    {
+      q:"The document analysis subagent encounters a transient database timeout while retrieving an archived document. It has successfully analyzed 8 out of 10 documents. What is the best error handling strategy?",
+      opts:["Implement local retry logic within the subagent; if retries are exhausted, propagate to the coordinator with partial results (8 analyzed documents), what was attempted, and that 2 couldn't be retrieved","Immediately propagate the database timeout to the coordinator and terminate the subagent's execution","Return an empty result set marked as successful so the coordinator can continue","Retry indefinitely until the database becomes available, since document analysis is critical"],
+      answer:0,
+      exp:"subagents 應該對<strong>暫時性失敗（transient failures）實作本地恢復邏輯</strong>，只將它們無法本地解決的錯誤傳播給 coordinator，<strong>並包含部分結果和嘗試了什麼</strong>。這讓 coordinator 能夠做出明智的決策——是否使用部分結果繼續，或嘗試替代方法。"
+    },
+    {
+      q:"Your synthesis agent has access to all tools: <code>web_search</code>, <code>fetch_document</code>, <code>analyze_document</code>, <code>verify_fact</code>, <code>generate_report</code>, <code>send_email</code>, and <code>update_database</code>. You notice it occasionally makes unnecessary web searches during synthesis. What is the best fix?",
+      opts:["Restrict the synthesis agent's tool access to only <code>verify_fact</code> (a scoped cross-role tool) and <code>generate_report</code>, routing complex verification through the coordinator","Add instructions to the synthesis agent's system prompt to not use <code>web_search</code> during synthesis","Remove <code>web_search</code> from all agents and add a separate fact-checking step at the end","Implement a hook that intercepts <code>web_search</code> calls from the synthesis agent and returns cached results"],
+      answer:0,
+      exp:"給 synthesis agent 提供超出其專業範圍的 tools（如 <code>web_search</code>）會導致誤用。正確做法是<strong>限制 synthesis agent 只能訪問其角色所需的 tools</strong>（生成報告、驗證事實），對需要 web search 的複雜驗證情況，通過 coordinator 路由。這遵循<strong>最小權限原則</strong>。"
+    },
+    {
+      q:"After a long research session, the coordinator starts giving inconsistent answers about findings from the early stages—citing \"typical patterns\" rather than the specific company data discovered. The coordinator is the main orchestrating agent, not a subagent. How should you address this context degradation?",
+      opts:["Have the coordinator maintain a scratchpad file recording key findings from each research phase, and reference this file for subsequent synthesis and reporting tasks","Reduce the number of research iterations so the coordinator's context doesn't fill up","Use a larger context model to accommodate more research findings","Have each subagent return increasingly compressed summaries as the session progresses"],
+      answer:0,
+      exp:"在擴展 session 中，models 會開始引用「典型模式」而不是之前發現的具體數據。讓 coordinator <strong>維護 scratchpad 文件記錄關鍵發現</strong>，並在後續問題中引用它，可以抵消 context 降解，因為發現被持久化在文件中而不是依賴 context window。"
+    },
+    {
+      q:"Your web search subagent returns: <code>{\"status\": \"error\", \"message\": \"No results found\"}</code> for a failed query. The coordinator skips this research thread. Later you discover the subagent was experiencing a temporary API rate limit, not a genuine absence of search results. What is the underlying problem?",
+      opts:["The error response does not distinguish between access failures (API rate limits needing retry decisions) and valid empty results (successful queries with no matching content)","The coordinator needs better logic to interpret ambiguous error messages from subagents","The web search subagent should implement automatic retry before returning any error","The status field should use HTTP error codes (429 for rate limits) rather than a generic \"error\" string"],
+      answer:0,
+      exp:"錯誤報告必須<strong>區分訪問失敗（超時、速率限制需要重試決策）和有效的空結果（成功的查詢但沒有匹配內容）</strong>。當兩者都返回類似的「無結果」消息時，coordinator 無法做出適當的恢復決策。結構化的錯誤 context 應該清楚地表明失敗類型。"
+    },
+    {
+      q:"A team member suggests that subagents which find no results should silently return empty results rather than propagating errors—this way, the coordinator can always continue. What is the risk of this approach?",
+      opts:["Silently suppressing errors makes it impossible for the coordinator to distinguish access failures from genuine absence of information, potentially producing incomplete research without any indication of coverage gaps","Empty results are more efficient than error objects since they have less overhead","This approach is acceptable for non-critical research but not for business-critical analysis","The coordinator will appear to succeed since no errors appear in the pipeline"],
+      answer:0,
+      exp:"<strong>靜默地將錯誤返回為空結果</strong>（如 API 超時偽裝成空結果）是 anti-pattern，讓 coordinator 無法區分訪問失敗和真正沒有信息。這可能導致研究報告遺漏重要信息，同時又呈現出完整性的外表。synthesis 輸出應該帶有<strong>覆蓋率注釋</strong>，指出哪些主題領域因來源不可用而存在缺口。"
+    },
+    {
+      q:"Two subagents find conflicting EV market share statistics: web search found \"35% market share in Q4 2023\" (Industry Report A), document analysis found \"28% market share in Q4 2023\" (Government Statistics B). How should the synthesis agent handle this conflict?",
+      opts:["Include both values with their respective source attributions, annotating the conflict explicitly so the coordinator or final report preserves the discrepancy rather than selecting one value","Select the more authoritative source (government statistics) and use that number","Average the two values to get a consensus estimate","Flag the conflict to the coordinator and pause synthesis until the coordinator resolves it"],
+      answer:0,
+      exp:"來自可信來源的衝突統計數據應通過<strong>來源歸因注釋衝突</strong>，而不是任意選擇一個值。document analysis 應完成時帶有包含且明確注釋的衝突值，讓 coordinator 在傳遞給 synthesis 之前決定如何調解。報告應<strong>區分有充分依據的發現和有爭議的發現</strong>。"
+    },
+    {
+      q:"Your research reports are missing the publication dates of sources, causing the synthesis agent to treat data from 2018 and 2024 as equivalent—leading to misleading \"contradiction\" flags when data has simply been updated over time. What is the fix?",
+      opts:["Require subagents to include publication or data collection dates in structured outputs so downstream agents can correctly interpret temporal differences rather than treating them as contradictions","Add a post-processing step that fetches publication dates for all cited sources after synthesis","Instruct the synthesis agent to search for publication dates when sources appear to contradict each other","Use only sources published within the last 12 months to avoid temporal confusion"],
+      answer:0,
+      exp:"要求 subagents 在<strong>結構化輸出中包含出版或數據收集日期</strong>，可以防止時間差異被誤解為矛盾。當 synthesis agent 知道一個數字來自 2018 年而另一個來自 2024 年時，它可以正確地將差異解釋為時間變化而不是衝突。這些 metadata 必須在早期 stages 就包含在結構化輸出中。"
+    },
+    {
+      q:"For research on \"quantum computing applications in finance,\" the coordinator creates 3 subagents: one for \"quantum computing,\" one for \"finance technology,\" and one for \"risk modeling.\" The report comprehensively covers all three areas but fails to address how quantum computing specifically applies to finance. What design change would fix this?",
+      opts:["Design coordinator prompts that specify research goals and quality criteria (e.g., \"find specific quantum computing applications being adopted or tested by financial institutions\") rather than keyword-based subtopic assignments","Add a fourth subagent specifically focused on \"quantum computing in finance\"","Have the synthesis agent identify gaps after receiving results and request additional research passes","Assign each subagent to a specific financial sector (banking, insurance, investment) rather than topics"],
+      answer:0,
+      exp:"Coordinator prompts 應該<strong>指定研究目標和質量標準</strong>，而不是逐步的程序性指令或關鍵詞。目標導向的提示（「找到金融機構正在採用的具體量子計算應用」）比關鍵詞主題分配更能讓 subagents 覆蓋交叉點，同時使 subagents 能夠自適應。"
+    },
+    {
+      q:"After the coordinator receives all subagent results, it synthesizes a first draft. The draft is missing analysis on cryptocurrency regulation and climate finance—two areas that should be covered. What pattern should the coordinator implement to catch and address these gaps?",
+      opts:["Implement an iterative refinement loop where the coordinator evaluates synthesis output for gaps, re-delegates to search and analysis subagents with targeted queries for missing areas, and re-invokes synthesis until coverage is sufficient","Have the synthesis subagent include a \"coverage assessment\" section listing topics it couldn't find information on","Add more subagents upfront to ensure comprehensive initial coverage","Have the report generation subagent add placeholder sections for expected topics not covered in synthesis"],
+      answer:0,
+      exp:"<strong>迭代細化循環（iterative refinement loop）</strong>：coordinator 評估 synthesis 輸出的缺口、用有針對性的 queries 重新委託給 search 和 analysis subagents、然後重新調用 synthesis 直到覆蓋範圍足夠。這確保了全面的覆蓋，而不是在初始 pass 後就接受不完整的輸出。"
+    }
+  ]
+},
+{
+  id:4,
+  title:"Scenario 4: Developer Productivity with Claude",
+  desc:"You are building developer productivity tools using the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, generate boilerplate code, and automate repetitive tasks. It uses the built-in tools (Read, Write, Edit, Bash, Grep, Glob) and integrates with MCP servers.",
+  domains:"Primary domains: Tool Design & MCP Integration · Claude Code Configuration & Workflows · Agentic Architecture & Orchestration",
+  questions:[
+    {
+      q:"A developer asks the agent to \"find all places in the codebase that use the <code>UserAuthentication</code> class.\" Which built-in tool should the agent use first?",
+      opts:["Grep — to search file contents for the string \"UserAuthentication\" across the codebase","Glob — to find all files matching the pattern <code>**/*Authentication*</code>","Read — to open each source file and check if it references <code>UserAuthentication</code>","Bash — to run a find command with grep to search for the class name"],
+      answer:0,
+      exp:"<strong>Grep 用於內容搜索</strong>（在文件內容中搜索函數名稱、錯誤消息或導入語句等模式）。在跨 codebase 搜索類引用時，Grep 是正確的選擇。<strong>Glob 用於文件路徑模式匹配</strong>（按名稱或擴展名模式查找文件），不適合內容搜索。讀取每個文件（C）效率低下。"
+    },
+    {
+      q:"The agent tries to edit a frequently-used boilerplate comment block that appears identically in 15 files. The Edit tool returns an error because the text is not unique. What should the agent do?",
+      opts:["Use Read to load the full file contents, then use Write to save the modified version with the specific change needed in that file","Use Grep to find unique surrounding context and use that as the anchor text for the Edit tool","Use Bash with <code>sed</code> to perform a global find-and-replace across all affected files","Use the Edit tool with <code>replace_all: true</code> to update all instances simultaneously"],
+      answer:0,
+      exp:"<strong>當 Edit 因為非唯一文本匹配而失敗時，使用 Read + Write 作為備用方案</strong>可以進行可靠的文件修改。Read 加載完整的文件內容，然後 Write 保存帶有所需更改的修改版本。<code>replace_all: true</code>（D）在同一文件內有效，但對跨文件的相同文本不適用。"
+    },
+    {
+      q:"A developer asks the agent to understand a large, unfamiliar codebase and trace how a payment is processed end-to-end. What is the most effective approach?",
+      opts:["Start with Grep to find entry points (e.g., \"processPayment\" function), then use Read to follow imports and trace execution flow incrementally","Use Read to load all source files upfront into the context window for complete information","Use Glob to find all files that might be related to payments, then Read all of them simultaneously","Use Bash to run the application and trace execution with debug logging"],
+      answer:0,
+      exp:"<strong>增量地構建 codebase 理解</strong>：從 Grep 找到入口點，然後使用 Read 追蹤導入和執行流程，而不是一開始就讀取所有文件。這種方法避免了 context window 被不相關的文件淹沒，與開發者手動探索 codebase 的方式相似。"
+    },
+    {
+      q:"Your team wants to add a GitHub Issues MCP server that all developers share, and separately, you want to add an experimental Jira MCP server that only you are testing. Where should each be configured?",
+      opts:["GitHub Issues in project-scoped <code>.mcp.json</code> (shared via version control); Jira in user-scoped <code>~/.claude.json</code> (personal/experimental)","Both in project-scoped <code>.mcp.json</code> since all team tools should be centrally managed","Both in <code>~/.claude.json</code> since MCP servers are environment-specific","GitHub Issues in <code>.claude/settings.json</code> and Jira in <code>~/.claude.json</code>"],
+      answer:0,
+      exp:"<strong>MCP server 的範圍</strong>：project-level (<code>.mcp.json</code>) 用於共享的<strong>團隊工具</strong>，通過版本控制共享；user-level (<code>~/.claude.json</code>) 用於<strong>個人/實驗性的 servers</strong>。GitHub Issues server 是整個團隊共享的，應在 <code>.mcp.json</code> 中；Jira server 只有你在測試，應在 <code>~/.claude.json</code> 中。"
+    },
+    {
+      q:"Your team's <code>.mcp.json</code> needs to include API credentials for the GitHub MCP server. How should you handle the credentials?",
+      opts:["Use environment variable expansion: configure the token as <code>${GITHUB_TOKEN}</code> in <code>.mcp.json</code>; each developer sets <code>GITHUB_TOKEN</code> in their local environment","Store the credentials in <code>.mcp.json</code> and add it to <code>.gitignore</code> to prevent committing","Create a separate <code>.mcp.secrets.json</code> file for credentials and reference it from <code>.mcp.json</code>","Generate a read-only token and hardcode it in <code>.mcp.json</code> since it has limited permissions"],
+      answer:0,
+      exp:"<strong><code>.mcp.json</code> 中的環境變量擴展</strong>（例如 <code>${GITHUB_TOKEN}</code>）允許在不提交密鑰的情況下進行憑據管理。每個開發者在本地環境中設置 <code>GITHUB_TOKEN</code>，<code>.mcp.json</code> 可以安全地被版本控制。將憑據存儲在 <code>.mcp.json</code> 即使加入 <code>.gitignore</code> 也有風險；硬編碼任何 token 都是不良實踐。"
+    },
+    {
+      q:"Your team uses a Jira MCP server for ticket lookup, but the agent almost always uses its built-in Grep tool to search for ticket information in local README files instead—even when the user is clearly asking about current ticket status. What is the most likely cause?",
+      opts:["The Jira MCP tool's description is too minimal and doesn't explain its capabilities well enough to outcompete built-in tools; enhancing the description would fix this","The Jira MCP server is responding too slowly, causing the agent to prefer faster built-in tools","The agent's system prompt contains keywords that create an unintended association with Grep","MCP tools are inherently lower priority than built-in tools in Claude's tool selection"],
+      answer:0,
+      exp:"<strong>增強 MCP tool descriptions</strong> 來詳細解釋其功能和輸出，可以防止 agent 偏好內建工具（如 Grep）而非更強大的 MCP tools。如果 Jira MCP tool 的描述很簡單，而 Grep 有詳細的使用說明，agent 就會傾向選擇它更了解的 Grep。<strong>描述是 LLM tool selection 的主要機制</strong>。"
+    },
+    {
+      q:"Your company already uses Jira for issue tracking. You need to add Jira integration to your developer productivity agent. Which approach should you take?",
+      opts:["Use an existing community Jira MCP server rather than building a custom integration, unless you have team-specific workflows that a community server doesn't support","Build a custom Jira MCP server to ensure it meets your exact security and feature requirements","Use Claude's built-in web fetching capabilities to retrieve Jira data directly via REST API calls","Create custom MCP tools that wrap the Jira REST API for better control over the integration"],
+      answer:0,
+      exp:"對於標準集成（例如 Jira），應該<strong>優先使用現有的社區 MCP servers</strong>，而不是自定義實現。社區 MCP servers 已經過測試，有完整的功能，並由社區維護。<strong>自定義 servers 應保留給需要特定工作流程</strong>的情況，這些情況無法被現有社區 servers 很好地服務。"
+    },
+    {
+      q:"You have two tools: <code>analyze_code</code> and <code>analyze_security</code>. Both have identical descriptions: \"Analyzes code for issues.\" The agent randomly picks between them for security-related requests. What is the most effective fix?",
+      opts:["Rename and rewrite descriptions: <code>analyze_code</code> for \"general code quality issues (complexity, style, performance)\" and <code>analyze_security</code> for \"security vulnerabilities (injection, auth, crypto)\"; include example inputs and boundaries","Merge both tools into a single <code>analyze</code> tool with a <code>type</code> parameter (\"quality\" or \"security\")","Add few-shot examples to the system prompt showing security requests routing to <code>analyze_security</code>","Rename <code>analyze_security</code> to <code>scan_for_vulnerabilities</code> to make the distinction obvious from the name"],
+      answer:0,
+      exp:"<strong>模糊或重疊的 tool descriptions 會導致 misrouting</strong>。重寫 descriptions 以清楚地區分每個 tool 的目的、預期輸入、輸出和何時使用它（包括輸入格式、邊界解釋），是解決 tool 混淆最有效的方法。只重命名（D）沒有提供足夠的 context；few-shot（C）不能解決根本原因。"
+    },
+    {
+      q:"You're building a code analysis agent that should always call a specific <code>run_analysis</code> tool as its first action, before calling any other tools. How do you implement this requirement?",
+      opts:["Set <code>tool_choice</code> to <code>{\"type\": \"tool\", \"name\": \"run_analysis\"}</code> for the first API call to force the analysis tool to be called, then process subsequent steps with <code>tool_choice: \"auto\"</code>","Set <code>tool_choice: \"any\"</code> to ensure the model calls some tool first, then rely on tool descriptions to guide it to <code>run_analysis</code>","Add to the system prompt: \"Always start every analysis by calling <code>run_analysis</code> before any other tools\"","Place <code>run_analysis</code> first in the tools array, as models have a bias toward tools listed earlier"],
+      answer:0,
+      exp:"<strong>強制特定工具選擇</strong>（<code>tool_choice: {\"type\": \"tool\", \"name\": \"run_analysis\"}</code>）確保指定的工具首先被調用，然後在後續 turns 中以 <code>tool_choice: \"auto\"</code> 處理後續步驟。這提供了確定性保障。<code>tool_choice: \"any\"</code>（B）只保證調用某個工具但不指定哪個；system prompt（C）是概率性的。"
+    },
+    {
+      q:"Your code generation agent sometimes returns a conversational response (\"I can help you with that! Let me generate the boilerplate code...\") without actually generating any code, especially for ambiguous requests. You want to guarantee the agent always generates structured output rather than conversational responses. How?",
+      opts:["Set <code>tool_choice: \"any\"</code> to guarantee the model calls a tool rather than returning conversational text","Add to the system prompt: \"Always generate code directly without conversational preamble\"","Set <code>tool_choice: \"auto\"</code> and add few-shot examples showing direct code generation","Use a temperature of 0 to make the model deterministic and more likely to follow the output format"],
+      answer:0,
+      exp:"設定 <strong><code>tool_choice: \"any\"</code></strong> 可以保證模型調用工具而不是返回對話文本，提供確定性保障，確保 agent 總是生成結構化輸出。這比依賴模型遵循 prompt 指令的概率性合規更可靠。temperature（D）影響隨機性，不影響 tool 調用行為。"
+    },
+    {
+      q:"A developer wants to understand a monorepo with 50+ packages before deciding which packages to modify for a new feature. The initial exploration phase would require reading hundreds of files and produce thousands of lines of output. What is the best approach?",
+      opts:["Use the Explore subagent for the verbose discovery phase; it isolates the extensive output and returns a summary to the main agent, preserving the main conversation context","Use <code>/compact</code> before starting exploration to free up as much context as possible","Read all files in the monorepo first to have complete information, then plan the feature","Use plan mode to explore the entire monorepo, since plan mode is designed for large-scale exploration"],
+      answer:0,
+      exp:"對於在多階段任務的發現階段可能耗盡 context window 的情況，使用 <strong>Explore subagent</strong> 進行冗長的發現階段，可以防止 context window 耗盡，同時向主 agent 返回摘要。<strong>subagent 委託隔離了冗長的探索輸出</strong>，同時主 agent 保持高層次的協調理解。"
+    },
+    {
+      q:"You're creating a <code>/analyze-dependencies</code> skill that requires a target package name as input. When developers invoke it without providing the package name, you want the skill to prompt them for it. What frontmatter option achieves this?",
+      opts:["<code>argument-hint: \"package name to analyze\"</code> — this prompts developers for required parameters when they invoke the skill without arguments","<code>required-args: [\"package_name\"]</code> — this enforces that the skill cannot run without the argument","<code>context: fork</code> — running in isolation means the skill will automatically request missing inputs","<code>allowed-tools: [\"AskUser\"]</code> — this enables the skill to ask for inputs"],
+      answer:0,
+      exp:"<strong><code>argument-hint</code></strong> frontmatter 選項在開發者沒有帶參數調用 skill 時，提示他們輸入所需的參數。這在 SKILL.md 中作為用戶界面提示，引導開發者在不理解如何調用 skill 時提供必要的輸入。"
+    },
+    {
+      q:"Your codebase has grown large and your CLAUDE.md has become hard to maintain. You want to better organize your Claude Code configuration. What is the recommended approach?",
+      opts:["Create <code>.claude/rules/</code> files organized by topic (<code>testing.md</code>, <code>api-conventions.md</code>, <code>security.md</code>) and use YAML frontmatter to specify which file patterns each rule set applies to","Use multiple CLAUDE.md files in different directories, each covering that directory's conventions","Use a single CLAUDE.md at the root with clearly labeled sections using H2 headers for each topic","Move all configuration to <code>.claude/settings.json</code> which supports structured configuration formats"],
+      answer:0,
+      exp:"<strong><code>.claude/rules/</code> 目錄</strong>允許將主題特定的規則文件組織成獨立文件，作為單一大型 CLAUDE.md 的替代方案。結合 YAML frontmatter 路徑字段，這些規則只在相關文件被編輯時加載，<strong>減少無關 context 和 token 消耗</strong>，比單一大型 CLAUDE.md 更容易維護。"
+    },
+    {
+      q:"During a long legacy codebase investigation, your main coordinator agent's responses become less precise—referencing \"typical Java patterns\" rather than the specific legacy classes it discovered 45 minutes ago. How should you redesign the agent?",
+      opts:["Spawn subagents to investigate specific questions (e.g., \"map all service interfaces\") while the main agent preserves high-level coordination, and have agents maintain scratchpad files for key findings","Use <code>/compact</code> more frequently to free up context for new discoveries","Reduce the scope of investigation to keep the main agent's context manageable","Switch to a model with a larger context window to accommodate the extended investigation"],
+      answer:0,
+      exp:"在擴展 session 中的 context 降解可以通過兩種互補方式解決：(1) <strong>生成 subagents 調查特定問題</strong>，同時主 agent 保持高層次的協調；(2) <strong>讓 agents 維護 scratchpad 文件</strong>記錄關鍵發現，在後續問題中引用它們。這樣就不依賴 context window 來記住早期發現。"
+    },
+    {
+      q:"You're tasked with \"adding comprehensive test coverage to a legacy codebase with no existing tests.\" How should you decompose this task?",
+      opts:["First map the codebase structure; identify high-impact, high-risk areas (core business logic, external integrations); then create a prioritized test plan that adapts as dependencies and hidden complexity are discovered","Start writing tests immediately for the most recently modified files since they're most likely to have bugs","Use a fixed pipeline: list all files → generate tests alphabetically → run tests → fix failures","Enter plan mode with a complete specification of all tests needed before writing any test code"],
+      answer:0,
+      exp:"開放式任務（如「為 legacy codebase 添加全面測試」）需要<strong>動態自適應的分解</strong>：首先映射結構、識別高影響力領域，然後創建一個隨著依賴關係和隱藏複雜性被發現而適應的優先計劃。固定的順序 pipeline（C）對開放式調查任務不靈活；等待完整規範（D）在探索之前是不可能的。"
+    }
+  ]
+},
+{
+  id:5,
+  title:"Scenario 5: Claude Code for Continuous Integration",
+  desc:"You are integrating Claude Code into your CI/CD pipeline. The system runs automated code reviews, generates test cases, and provides feedback on pull requests. You need to design prompts that provide actionable feedback and minimize false positives.",
+  domains:"Primary domains: Claude Code Configuration & Workflows · Prompt Engineering & Structured Output",
+  questions:[
+    {
+      q:"Your CI pipeline script runs <code>claude \"Review this pull request for security vulnerabilities\"</code> but the job hangs indefinitely, waiting for interactive input. What is the correct way to run Claude Code in an automated CI pipeline?",
+      opts:["Add the <code>-p</code> flag: <code>claude -p \"Review this pull request for security vulnerabilities\"</code> to run in non-interactive mode","Set the environment variable <code>CLAUDE_NONINTERACTIVE=true</code> before running the command","Redirect stdin: <code>claude \"Review this pull request\" < /dev/null</code>","Add the <code>--ci</code> flag: <code>claude --ci \"Review this pull request for security vulnerabilities\"</code>"],
+      answer:0,
+      exp:"<strong><code>-p</code>（或 <code>--print</code>）flag</strong> 是在自動化 pipeline 中以非交互模式運行 Claude Code 的正確方式。它處理 prompt，將結果輸出到 stdout，然後退出而不等待用戶輸入——這正是 CI/CD pipeline 所需要的。其他選項引用了不存在的功能（<code>CLAUDE_NONINTERACTIVE</code>、<code>--ci</code> flag）。"
+    },
+    {
+      q:"You want your CI pipeline to post Claude Code review findings as inline PR comments. The findings need to be machine-parseable with file path, line number, severity, and description fields. How should you invoke Claude Code?",
+      opts:["Use <code>--output-format json</code> with <code>--json-schema</code> to produce structured JSON output that matches a predefined schema with the required fields","Use <code>--output-format json</code> which automatically produces structured findings with all standard fields","Post-process Claude's text output with a regex parser to extract findings into JSON","Use the Claude API directly instead of Claude Code CLI for structured output requirements in CI"],
+      answer:0,
+      exp:"在 CI context 中，<strong><code>--output-format json</code> 結合 <code>--json-schema</code></strong> 可以強制結構化輸出，精確匹配預定義的 schema，包含所需欄位（文件路徑、行號、嚴重性、描述）。這產生機器可解析的結構化發現，可以自動化地發布為內聯 PR 評論。僅 <code>--output-format json</code>（B）不能保證特定的 schema。"
+    },
+    {
+      q:"You're using the same Claude session that wrote the code to also review it before merging. Reviews are catching fewer issues than expected. What is the fundamental problem?",
+      opts:["A model retains reasoning context from generation, making it less likely to question its own decisions; an independent review instance without the generator's prior context is more effective","The same model cannot simultaneously act as both code generator and reviewer due to role confusion","The context window fills up after code generation, leaving insufficient capacity for thorough review","Code review requires different model parameters (lower temperature) than code generation"],
+      answer:0,
+      exp:"<strong>Self-review 的局限性</strong>：模型保留了生成時的推理 context，使它不太可能在同一 session 中質疑自己的決策。<strong>沒有生成者先前推理 context 的獨立審查實例</strong>在捕捉微妙問題方面更有效，優於 self-review 指令或擴展思考。這是 multi-instance review 架構的基礎。"
+    },
+    {
+      q:"After a developer addresses review comments and pushes new commits, your CI pipeline runs a fresh review that re-flags all the issues from the previous review—even those already fixed—creating noise and frustrating developers. How should you fix this?",
+      opts:["Include prior review findings in context when re-running reviews after new commits, and instruct Claude to report only new issues or still-unaddressed issues from the previous review","Clear all previous comments before running a new review to avoid duplicates","Track which issues were marked as resolved in your issue tracker and filter those from new reviews","Only run reviews on files that changed between the first review commit and the current commit"],
+      answer:0,
+      exp:"在新 commits 後重新運行審查時，<strong>在 context 中包含先前的審查發現</strong>，並指示 Claude <strong>只報告新問題或仍未解決的問題</strong>，可以避免重複評論。這確保了每次審查都基於先前的反饋進行構建，而不是重新開始並重新標記已解決的問題。"
+    },
+    {
+      q:"Your CI review prompts instruct Claude to \"be conservative and only flag high-confidence issues.\" Production data shows 40% false positives in the \"unused variables\" category, causing developers to start ignoring all review comments. What should you do?",
+      opts:["Temporarily disable the unused variables category while improving its precision with explicit criteria (e.g., \"flag unused variables only when they are exported\"), to restore developer trust","Increase the confidence threshold instruction to \"only flag issues with 90%+ confidence\"","Add more context to the prompt about what constitutes a high-confidence issue","Run multiple independent review passes and only flag issues that appear in at least 2 out of 3 passes"],
+      answer:0,
+      exp:"<strong>高假陽性類別會損害對準確類別的信心</strong>。暫時停用高假陽性類別以恢復開發者信任，同時用<strong>明確的標準</strong>（而不是基於信心的過濾）改進這些類別的 prompts，這是正確的策略。「保守」或「高信心」等通用指令無法改善精確度——需要的是具體的分類標準。"
+    },
+    {
+      q:"You review code for three types of issues: security vulnerabilities, logic bugs, and style violations. Security and logic reviews are accurate, but style reviews have a 60% false positive rate. What is the most targeted fix?",
+      opts:["Define explicit criteria for style reviews: specify which style issues to report (violations of documented conventions in CLAUDE.md) versus skip (stylistic preferences not in the project's guidelines), with concrete examples","Remove style review from the CI pipeline since it has a low signal-to-noise ratio","Add a confidence filter: \"only report style issues when 95% confident they are genuine violations\"","Separate style review into a different CI job that runs less frequently to reduce noise"],
+      answer:0,
+      exp:"為 style reviews 定義<strong>明確的標準</strong>（哪些問題要報告，哪些要跳過）而不是依靠基於信心的過濾，可以最有效地解決假陽性問題。具體的、<strong>基於類別的標準</strong>比「報告高信心問題」更有效：「報告 CLAUDE.md 中記錄的約定違規，跳過未在項目指南中的風格偏好」。"
+    },
+    {
+      q:"Your CI review system flags issues with three severity levels—Critical, Warning, Info—but reviewers say the classifications are inconsistent: some style issues are marked Critical while serious security issues are marked Info. How do you fix severity classification?",
+      opts:["Define explicit severity criteria with 2-3 concrete code examples for each level: Critical for security vulnerabilities and data corruption, Warning for logic issues and deprecated APIs, Info for style and documentation","Have Claude self-report confidence scores alongside each finding, then map high-confidence findings to Critical","Implement a separate severity classification step that re-evaluates each finding after the initial review","Train reviewers to override severity levels in the PR comment interface to correct misclassifications"],
+      answer:0,
+      exp:"在 review prompt 中為每個嚴重性級別<strong>定義明確的標準，並帶有具體的代碼範例</strong>，可以實現一致的分類。沒有明確標準，模型會不一致地應用標籤。具體範例（Critical = 安全漏洞；Warning = 邏輯問題；Info = 風格）讓模型知道如何對每個發現進行分類。"
+    },
+    {
+      q:"Your CI pipeline generates test cases for new code. Despite detailed instructions about the desired format, Claude still produces tests with inconsistent naming conventions, varying assertion styles, and different coverage levels. What technique would most effectively achieve consistency?",
+      opts:["Add 2-3 few-shot examples showing complete test functions with the exact naming convention, assertion style, and coverage pattern you want","Increase the specificity of your format instructions to specify exact test method naming templates","Add the project's existing test files to context so Claude can infer the format from examples","Use a post-processing script to standardize test output formatting after Claude generates it"],
+      answer:0,
+      exp:"<strong>Few-shot 範例是在詳細指令單獨產生不一致結果時，實現一致格式化輸出最有效的技術</strong>。提供 2-3 個目標 few-shot 範例，展示具有確切命名約定、斷言風格和覆蓋模式的完整測試函數，讓模型學習並泛化這個格式。只加入測試文件（C）不如明確的 few-shot 範例有效。"
+    },
+    {
+      q:"Your CI pipeline generates test cases, but the generated tests frequently duplicate scenarios already covered by the existing test suite. How should you fix this?",
+      opts:["Provide existing test files in context so test generation can identify which scenarios are already covered and avoid suggesting duplicates","Implement deduplication logic that compares generated tests against existing tests before adding them","Instruct Claude in the system prompt to \"only generate novel tests not already in the codebase\"","Have Claude first list all existing test scenarios, then generate only new scenarios in a second pass"],
+      answer:0,
+      exp:"在 context 中<strong>提供現有測試文件</strong>，讓測試生成能夠避免建議已經被測試套件覆蓋的重複場景。這是在 CLAUDE.md 中文檔化並在每個 CI 調用中包含現有測試文件的推薦做法，讓模型能夠看到已有的內容並相應地生成<strong>補充測試</strong>。"
+    },
+    {
+      q:"Your CI system runs: (1) a blocking pre-merge check developers must wait for, and (2) a weekly security audit that generates an overnight report. Your manager suggests using the Message Batches API for both to save 50% on costs. How should you evaluate this?",
+      opts:["Use batch processing only for the weekly security audit; keep real-time API calls for the pre-merge check, since the Batches API has up to 24-hour processing times with no guaranteed latency SLA","Use batch processing for both—it often completes faster and 50% cost savings justifies any latency increase","Keep real-time calls for both to ensure consistent developer experience","Use batch for both with a timeout fallback to real-time if the batch takes more than 10 minutes"],
+      answer:0,
+      exp:"Message Batches API 提供 50% 的成本節省，但<strong>處理窗口最長達 24 小時，沒有保證的延遲 SLA</strong>。這使其不適合開發者在等待結果的阻塞式 pre-merge checks，但非常適合像每週安全審計這樣的隔夜批次工作。批次結果可以使用 <code>custom_id</code> 字段進行關聯。"
+    },
+    {
+      q:"Your team has a 30-hour SLA to complete security scans for compliance documentation. You're using the Message Batches API which has a maximum processing window of 24 hours. How should you structure batch submissions to guarantee the SLA?",
+      opts:["Submit batches at intervals no greater than 6 hours (30-hour SLA minus 24-hour max processing window), ensuring even the last submission before the deadline completes within the SLA","Submit all documents as a single batch 30 hours before the deadline, assuming it completes in under 10 hours","Use the synchronous API for compliance scans since SLA requirements make batch processing inappropriate","Submit in 12-hour intervals since batches typically complete much faster than the maximum window"],
+      answer:0,
+      exp:"<strong>根據 SLA 限制計算批次提交頻率</strong>：SLA（30 小時）減去批次 API 最大處理窗口（24 小時）= 必須在截止日期前至少 <strong>6 小時提交</strong>。提交間隔不超過 6 小時可保證即使是最後一次提交也能在 SLA 窗口內完成。依賴「通常更快」的完成（D）對合規性 SLA 是不可接受的。"
+    },
+    {
+      q:"Your team generates code with Claude Code and reviews it in the same Claude Code session. Reviews consistently miss subtle logic errors that human reviewers later find. What architectural change would most improve review effectiveness?",
+      opts:["Use a second independent Claude Code instance to review the generated code, without providing it the reasoning context from the generation session","Add a <code>/review</code> command that includes specific instructions to be more critical and thorough","Use extended thinking mode for the review step to allow deeper reasoning","Add few-shot examples of logic errors to the review prompt to help Claude recognize similar patterns"],
+      answer:0,
+      exp:"使用<strong>第二個獨立的 Claude 實例</strong>（沒有生成者的先前推理 context）來審查生成的代碼，比 self-review 指令或擴展思考<strong>更有效地捕捉微妙問題</strong>。模型保留了生成時的推理 context，使它不太可能在同一 session 中質疑自己的決策。"
+    },
+    {
+      q:"A PR modifies 12 files across the authentication system. Your single-pass review of all 12 files simultaneously produces inconsistent results: thorough feedback on some files but superficial comments on others, and flags the same pattern as problematic in one file while approving it in another. How should you restructure?",
+      opts:["Split into per-file passes: analyze each of the 12 files individually for local issues, then run a separate integration-focused pass examining cross-file data flow and consistency","Run the review 3 times on all 12 files and report only issues appearing in at least 2 of the 3 runs","Switch to a model with a larger context window to give all 12 files adequate attention in a single pass","Require the developer to split the PR into smaller submissions of 4-5 files before the automated review"],
+      answer:0,
+      exp:"將大型多文件審查<strong>分割為每個文件的本地分析 passes 加上單獨的 cross-file 集成 pass</strong>，可以避免注意力稀釋（attention dilution）和矛盾的發現。逐文件分析確保每個文件都得到一致深度的審查，而單獨的集成 pass 則捕捉跨文件的數據流問題。<strong>更大的 context window（C）不能解決注意力質量問題</strong>。"
+    },
+    {
+      q:"Your CI review system flags many false positives in the database query category. You want to track which code patterns are most frequently dismissed by developers to improve the prompts. What should you add to the structured review output?",
+      opts:["Add a <code>detected_pattern</code> field to each finding that records the specific code construct that triggered the review (e.g., \"raw string interpolation in SQL query\") to enable systematic analysis of dismissal patterns","Add a <code>developer_action</code> field that gets populated when developers mark findings as false positives","Log all dismissed findings to a database for manual analysis by the prompt engineering team","Implement A/B testing of different review prompts and compare false positive rates between variants"],
+      answer:0,
+      exp:"在結構化發現中添加 <strong><code>detected_pattern</code> 字段</strong>，記錄觸發審查的特定代碼構造（例如「SQL 查詢中的原始字符串插值」），可以對開發者消除模式進行<strong>系統性分析</strong>。這個反饋循環讓你能夠識別哪些代碼構造會觸發高假陽性率的發現，從而系統性地改進 prompts。"
+    },
+    {
+      q:"Your team wants to iteratively improve test generation quality. Currently, generated tests often miss edge cases and don't cover error paths. What approach would most effectively guide Claude toward better test generation?",
+      opts:["Write a representative test suite covering expected behavior, edge cases, and error paths; run Claude's generated tests against these; share the test failures with Claude to guide improvement","Add detailed instructions to the prompt specifying every edge case type that should be covered","Provide a test checklist in CLAUDE.md that Claude should verify for completeness after generating","Add few-shot examples of 3 complete test files showing the quality and coverage you expect"],
+      answer:0,
+      exp:"<strong>Test-driven iteration</strong>：首先編寫涵蓋預期行為、邊界案例和錯誤路徑的測試套件，然後通過<strong>分享測試失敗來迭代指導改進</strong>，是最有效的方式。測試失敗提供了具體、明確的改進信號——「這個 edge case 沒有被覆蓋」比試圖在 prompt 中預測和規定所有可能的 edge case 要好得多。"
+    }
+  ]
+},
+{
+  id:6,
+  title:"Scenario 6: Structured Data Extraction",
+  desc:"You are building a structured data extraction system using Claude. The system extracts information from unstructured documents, validates the output using JSON schemas, and maintains high accuracy. It must handle edge cases gracefully and integrate with downstream systems.",
+  domains:"Primary domains: Prompt Engineering & Structured Output · Context Management & Reliability",
+  questions:[
+    {
+      q:"You need to extract structured data (company name, revenue, fiscal year, currency) from financial report PDFs. Some reports use narrative format, others use tables. What is the most reliable approach to ensure schema-compliant output?",
+      opts:["Define an extraction tool with a JSON schema as input parameters and use <code>tool_use</code> with the Claude API to extract structured data, eliminating JSON syntax errors","Ask Claude to output the data as JSON in its response text, then parse the response with a JSON parser","Use a two-pass approach: first extract text, then convert to JSON in a separate API call","Use the <code>--json-schema</code> CLI flag to enforce structured output for PDF document extraction"],
+      answer:0,
+      exp:"使用 <strong>tool use (<code>tool_use</code>) 結合 JSON schemas</strong> 是獲得保證 schema 合規的結構化輸出最可靠的方式，<strong>消除了 JSON 語法錯誤</strong>。讓 Claude 在其響應文本中輸出 JSON（B）可能產生格式不正確的 JSON 或在 JSON 中混入解釋性文本。Tool use 確保輸出符合精確的 schema 定義。"
+    },
+    {
+      q:"Your extraction system processes different document types: financial reports, legal contracts, and technical specs. Each has its own extraction schema. You want to guarantee Claude always calls one of your extraction tools (not return conversational text) but you don't know in advance which document type a given document is. What <code>tool_choice</code> setting should you use?",
+      opts:["<code>tool_choice: \"any\"</code> — guarantees the model calls a tool but lets it choose which extraction schema based on the document type","<code>tool_choice: \"auto\"</code> — lets the model decide whether to call a tool or return text","<code>tool_choice: {\"type\": \"tool\", \"name\": \"extract_financial\"}</code> — forces a specific tool for consistent behavior","No <code>tool_choice</code> setting — the model will naturally select the appropriate extraction tool based on descriptions"],
+      answer:0,
+      exp:"<strong><code>tool_choice: \"any\"</code></strong> 保證模型調用工具（而不是返回對話文本），但讓它根據文檔類型選擇哪個提取 schema。<code>tool_choice: \"auto\"</code>（B）允許模型返回文本而不是調用工具；強制特定工具（C）在文檔類型未知時不適用；沒有 <code>tool_choice</code>（D）與 \"auto\" 相同，不保證工具調用。"
+    },
+    {
+      q:"When extracting data from financial reports, some reports don't include the CFO's name. Your current schema has <code>cfo_name</code> as a required field. Extractions frequently return placeholder text like \"Not mentioned\" or \"N/A\" for this field. How should you fix the schema?",
+      opts:["Make <code>cfo_name</code> an optional (nullable) field in the schema to prevent the model from fabricating values to satisfy required fields when the information is absent","Add instructions to return <code>null</code> for missing fields rather than placeholder text","Add a post-processing step that converts placeholder text values to <code>null</code>","Remove <code>cfo_name</code> from the schema and have a separate extraction step specifically for that field"],
+      answer:0,
+      exp:"當源文檔可能不包含某些信息時，應將 schema 字段設計為<strong>可選（nullable）</strong>，以防止模型為了滿足必填字段而<strong>捏造值</strong>。Required 字段會向模型施加壓力，促使其在信息缺失時提供某些值（即使是佔位符或捏造的值）。將 <code>cfo_name</code> 設計為 optional/nullable 讓模型在信息缺失時返回 null。"
+    },
+    {
+      q:"Your extraction schema for document classification needs to handle a wide variety of document types, but you only know 8 common types. New document types appear occasionally. How should you design the <code>document_type</code> field?",
+      opts:["Use an enum for the 8 known types plus <code>\"other\"</code>, with a separate <code>document_type_detail</code> string field where Claude specifies the type when <code>\"other\"</code> is selected","Use a free-text string field with no constraints, allowing Claude to describe any document type accurately","Use an enum with only the 8 known types, rejecting documents that don't fit","Use an enum with the 8 known types and add <code>\"unknown\"</code> for documents that can't be classified"],
+      answer:0,
+      exp:"使用 <strong>enum 加上「<code>other</code>」+ detail string 的模式</strong>允許可擴展的分類，同時保持對已知類型的結構化輸出。這讓模型可以為常見文檔類型使用預定義值，對不尋常類型在 detail 字段中提供描述，而不是在 free-text 字段中犧牲所有結構，也不是通過拒絕新類型（C）來破壞提取。"
+    },
+    {
+      q:"Your extraction system retrieves invoice data, but validation frequently fails because the calculated sum of line items doesn't match the invoice total field. Retries with the same prompt don't improve accuracy. What approach would most effectively fix this?",
+      opts:["Implement follow-up requests that include the original document, the failed extraction showing the specific discrepancy (line item sum vs. stated total), and the validation error for model self-correction","Add to the system prompt: \"always verify that line items sum to the total before returning results\"","Implement a post-processing calculation that replaces the extracted total with the calculated sum","Filter out invoices with discrepancies and only process invoices where totals are consistent"],
+      answer:0,
+      exp:"實作包含原始文件、失敗的提取和具體驗證錯誤的<strong>後續請求（retry-with-error-feedback）</strong>，可以引導模型自我修正。具體的驗證錯誤（「行項目總和為 $1,250，但聲明的總額為 $1,350」）比通用的 system prompt 指令更有效地指導模型找到問題所在。"
+    },
+    {
+      q:"Your extraction system processes research papers. Each paper should have a methodology section, but some papers don't include one explicitly—the methodology is woven throughout the text. Retrying with the same prompt consistently returns <code>null</code> even when you believe the information is present. What should you try first?",
+      opts:["Add few-shot examples showing correct extraction of methodology information from papers where it's woven throughout the text rather than in a dedicated section","Increase the maximum retry count from 3 to 10 to give the model more attempts","Change the methodology field from optional to required to force the model to extract something","Switch to a different extraction model known for better document understanding"],
+      answer:0,
+      exp:"重試在以下情況<strong>無效</strong>：信息確實存在於文件中但以不同的格式呈現（非專用 section）。在這種情況下，模型需要<strong>few-shot 範例</strong>來了解如何從分散的文本中提取 methodology，而不是從專用 section 中。增加重試次數（B）對方法論問題無效；使字段為必填（C）會增加幻覺。"
+    },
+    {
+      q:"Your code review extraction system flags issues, but developers dismiss 65% of \"type_mismatch\" findings as false positives. You want to systematically analyze what code patterns are triggering these false positives. What should you add to the extraction schema?",
+      opts:["Add a <code>detected_pattern</code> field to each finding that records the specific code construct that triggered the classification (e.g., \"implicit type coercion in comparison operator\")","Add a <code>developer_dismissed</code> boolean field that gets set when developers mark a finding as false positive","Add a <code>confidence_score</code> field and filter out findings below 0.8","Add a <code>false_positive_likelihood</code> field where Claude estimates whether the finding might be a false positive"],
+      answer:0,
+      exp:"在結構化發現中添加 <strong><code>detected_pattern</code> 字段</strong>，記錄觸發發現的特定代碼構造，可以對開發者消除模式進行<strong>系統性分析</strong>。這個反饋循環讓你識別哪些特定的代碼模式一致地觸發假陽性，從而系統性地改進提取 prompts 或 criteria。"
+    },
+    {
+      q:"Your extraction validation confirms that all extracted invoice fields have the correct data types (strings are strings, numbers are numbers), but amounts still don't sum to totals. What type of error is this, and what does it tell you?",
+      opts:["This is a semantic validation error (values don't sum correctly)—tool use with JSON schema eliminates syntax errors but cannot prevent semantic errors; additional business logic validation is needed beyond schema compliance","This is a schema syntax error indicating the JSON schema is not strict enough","This indicates a model accuracy issue solvable by switching to a more capable model","This is a formatting error where numbers are stored as strings that need explicit parsing"],
+      answer:0,
+      exp:"嚴格的 JSON schemas 通過 tool use <strong>消除語法錯誤</strong>（格式錯誤的 JSON、錯誤的數據類型），但<strong>不能防止語義錯誤</strong>（行項目不加總、值在錯誤的字段中）。Schema 合規性驗證和<strong>業務邏輯驗證</strong>（「計算的總額必須等於聲明的總額」）是互補的，而不是互替的。"
+    },
+    {
+      q:"Your legal team wants to use Claude to process 10,000 contract documents overnight for a compliance audit due by end of day tomorrow. Results don't need to be real-time but must be complete before the business day starts. What API approach should you use?",
+      opts:["The Message Batches API — it offers 50% cost savings and the 24-hour processing window fits within the overnight deadline","The synchronous API with parallel requests — this provides real-time processing and guaranteed completion time","The streaming API — this allows results to be consumed as they're produced","The Message Batches API only if document count exceeds 50,000, otherwise use synchronous API"],
+      answer:0,
+      exp:"<strong>Message Batches API</strong> 提供 50% 的成本節省和最長 24 小時的處理窗口，沒有保證的延遲 SLA。它非常適合<strong>非阻塞、延遲容忍的工作負載</strong>（隔夜報告、每週審計、夜間測試生成）。合規文件的隔夜批次處理符合這一模式——結果不需要是實時的，截止日期是明天，在 24 小時窗口內。"
+    },
+    {
+      q:"Your batch processing run of 500 contracts returns 480 successful extractions and 20 failures. Examining the failures: 15 failed because they exceeded the context limit (very long contracts) and 5 failed due to API errors. How should you handle resubmission?",
+      opts:["Resubmit the 5 API error failures as-is (identified by <code>custom_id</code>); resubmit the 15 context limit failures with modifications (chunking the long contracts into sections)","Resubmit all 20 failures with exponential backoff to handle both error types","Resubmit all 500 contracts to ensure consistency, identifying the 480 successful ones by <code>custom_id</code> to skip redundant processing","Mark the 15 context limit failures as unprocessable and only resubmit the 5 API error failures"],
+      answer:0,
+      exp:"使用 <strong><code>custom_id</code> 字段識別失敗的批次請求/響應對</strong>，然後根據失敗類型適當修改重新提交。API 錯誤（暫時性）可以原樣重新提交；<strong>超出 context 限制的失敗需要修改</strong>（將長文件分塊）才能成功。只重新提交失敗的文件，避免不必要的成本和重複處理。"
+    },
+    {
+      q:"Your extraction system processes medical records with highly varied formats. When diagnoses are written as ICD-10 codes, extraction is accurate. When diagnoses are written as free text in narrative format, key diagnoses are often missed. You have 20 example records showing correct extraction. What is the most effective fix?",
+      opts:["Add few-shot examples specifically showing correct extraction from narrative-format records, demonstrating how to identify diagnoses from flowing prose versus structured code lists","Add a preprocessing step that detects whether records use ICD-10 codes or free text and routes them to different prompts","Switch to a medical domain-specific model that better understands clinical narrative text","Add instructions to the prompt: \"Pay special attention to narrative diagnosis descriptions that may not use standard ICD codes\""],
+      answer:0,
+      exp:"<strong>Few-shot 範例在減少提取任務幻覺方面非常有效</strong>，特別是在處理多樣的文件結構時。添加具體展示從敘述格式記錄中正確提取的 few-shot 範例，讓模型學習如何從流動的 prose 文本中識別和提取診斷，而不僅僅是從結構化代碼列表中提取。"
+    },
+    {
+      q:"Your extraction agent calls a medical record lookup tool that returns 60 fields per patient record, but your extraction task only needs 6 fields. As you process thousands of records in a session, you notice increasing latency and quality degradation. What is the best fix?",
+      opts:["Trim the tool output to return only the 6 fields relevant to the extraction task before appending the result to the conversation context","Use <code>/compact</code> periodically to compress the accumulated tool results and free up context","Process records in smaller batches to prevent context accumulation across records","Implement a separate context manager agent that decides which fields to pass to the extraction agent"],
+      answer:0,
+      exp:"Tool 結果在 context 中積累，消耗與其相關性<strong>不成比例的 tokens</strong>（每次記錄查詢 60 個字段，但只需要 6 個）。<strong>在 tool 結果附加到 context 之前進行裁剪</strong>，可以防止這種積累並維護提取質量。這比定期壓縮（B）更主動，也更有針對性。"
+    },
+    {
+      q:"Your structured extraction system achieves 97% overall accuracy across 10,000 documents. Your manager wants to reduce human review from 30% to 5%, keeping only low-confidence extractions for review. What should you verify before making this change?",
+      opts:["Analyze accuracy by document type and field segment to verify consistent performance across all segments, since aggregate metrics like 97% may mask poor performance on specific document types or fields","Verify that the 97% accuracy is maintained over the last 3 months to ensure it's not a temporary improvement","Confirm that the 5% human review capacity can handle the review load within the SLA","Validate that the model version hasn't changed since the accuracy measurement"],
+      answer:0,
+      exp:"<strong>聚合準確率指標（例如 97% 的整體準確率）可能掩蓋特定文檔類型或字段上的差性能</strong>。在減少人工審查之前，應按文檔類型和字段分析準確率，以驗證跨所有 segments 的一致性能。如果某個文檔類型只有 60% 的準確率，97% 的整體數字會隱藏這個問題。"
+    },
+    {
+      q:"You want to efficiently route extractions to human review. You have two options: (A) route all extractions with model confidence below 0.8, and (B) route all extractions from document types with historically low accuracy. What provides better allocation of limited human review capacity?",
+      opts:["Calibrate field-level confidence scores using a labeled validation set, then route to human review based on these calibrated scores rather than uncalibrated model self-reports","Use approach A (confidence threshold) since it directly reflects model uncertainty","Use approach B (document type routing) since it's based on empirical accuracy data","Use both approaches and route to human review if either condition is triggered"],
+      answer:0,
+      exp:"<strong>Field-level confidence scores 使用 labeled validation sets 進行校準</strong>，可以比未校準的模型自我報告或基於文檔類型的路由更好地分配有限的人工審查能力。<strong>模型的自我報告信心通常校準不良</strong>——模型可能對錯誤的提取很有信心。使用 labeled validation set 校準閾值，確保 confidence score 準確預測準確率。"
+    },
+    {
+      q:"Your research document analysis system has a web search subagent and a document analysis subagent. Both find company revenue data, but from different time periods—web search finds 2024 data and document analysis finds 2022 data. The synthesis agent treats these as contradictions. What is the root cause and fix?",
+      opts:["Subagents are not including publication/collection dates in their structured outputs; requiring date metadata enables the synthesis agent to correctly interpret temporal differences rather than flagging them as contradictions","The synthesis agent needs better instructions for handling conflicting data from multiple sources","The web search subagent should only retrieve documents from the same time period as the document analysis results","The coordinator should reconcile conflicting data before passing it to the synthesis agent"],
+      answer:0,
+      exp:"當 subagents 沒有在結構化輸出中<strong>包含出版或數據收集日期</strong>時，synthesis agent 無法區分時間差異和真正的矛盾。要求 subagents 在結構化輸出中包含出版或數據收集日期，讓 synthesis agent <strong>正確解釋時間差異</strong>（2022 年數據 vs. 2024 年數據只是不同時間點），而不是誤標記為衝突。"
+    }
+  ]
+}
+];
+
+let state = {
+  current: 0,
+  answers: scenarios.map(s => new Array(s.questions.length).fill(-1))
+};
+
+function renderNav(){
+  const nav = document.getElementById('scenarioNav');
+  nav.innerHTML = scenarios.map((s,i) => {
+    const answered = state.answers[i].filter(a=>a!==-1).length;
+    const total = s.questions.length;
+    const done = answered === total;
+    return `<button onclick="switchScenario(${i})" class="${i===state.current?'active':done?'done':''}" id="nav-${i}">
+      Scenario ${s.id} ${done?'✓':'('+answered+'/'+total+')'}
+    </button>`;
+  }).join('');
+}
+
+function switchScenario(i){
+  state.current = i;
+  renderNav();
+  renderContent();
+}
+
+function renderContent(){
+  const s = scenarios[state.current];
+  const answered = state.answers[state.current];
+  const correct = answered.filter((a,i)=>a===s.questions[i].answer).length;
+  const total = answered.filter(a=>a!==-1).length;
+
+  let html = `
+    <div class="scenario-header">
+      <h2>${s.title}</h2>
+      <p>${s.desc}</p>
+      <div class="domains">${s.domains}</div>
+    </div>
+    <div class="progress">
+      <span>${total}/${s.questions.length} answered</span>
+      <div class="progress-bar"><div class="progress-fill" style="width:${(total/s.questions.length)*100}%"></div></div>
+      <span>${correct} correct</span>
+    </div>`;
+
+  if(total === s.questions.length){
+    const pct = Math.round((correct/s.questions.length)*100);
+    html += `<div class="result-panel show">
+      <div class="big-score">${pct}%</div>
+      <p>${correct} / ${s.questions.length} correct on Scenario ${s.id}</p>
+      <button class="btn-reset" onclick="resetScenario(${state.current})">Reset Scenario</button>
+    </div>`;
+  }
+
+  s.questions.forEach((q,qi) => {
+    const userAnswer = answered[qi];
+    const isAnswered = userAnswer !== -1;
+    html += `<div class="question-card${isAnswered?' answered':''}" id="qcard-${qi}">
+      <div class="q-header">
+        <div class="q-num">${qi+1}</div>
+        <div class="q-text">${q.q}</div>
+      </div>
+      <div class="options">`;
+    q.opts.forEach((opt,oi) => {
+      let cls = 'option';
+      if(isAnswered){
+        cls += ' disabled';
+        if(oi === q.answer) cls += ' correct';
+        else if(oi === userAnswer) cls += ' wrong';
+      }
+      html += `<div class="${cls}" onclick="${isAnswered?'':(`selectAnswer(${qi},${oi})`)}">
+        <span class="opt-label">${['A','B','C','D'][oi]}</span>
+        <span>${opt}</span>
+      </div>`;
+    });
+    html += `</div>
+      <div class="explanation${isAnswered?' show':''}" id="exp-${qi}">
+        <strong>解析：</strong> ${q.exp}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('mainContent').innerHTML = html;
+  updateTotal();
+}
+
+function selectAnswer(qi, oi){
+  state.answers[state.current][qi] = oi;
+  renderContent();
+  renderNav();
+  setTimeout(()=>{
+    const card = document.getElementById(`qcard-${qi}`);
+    if(card) card.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 100);
+}
+
+function resetScenario(i){
+  state.answers[i] = new Array(scenarios[i].questions.length).fill(-1);
+  renderNav();
+  renderContent();
+}
+
+function updateTotal(){
+  let total = 0, correct = 0;
+  scenarios.forEach((s,i) => {
+    s.questions.forEach((q,qi) => {
+      if(state.answers[i][qi] !== -1){
+        total++;
+        if(state.answers[i][qi] === q.answer) correct++;
+      }
+    });
+  });
+  document.getElementById('totalScore').textContent = `${correct} / ${total}`;
+}
+
+renderNav();
+renderContent();
+</script>
+</body>
+</html>
