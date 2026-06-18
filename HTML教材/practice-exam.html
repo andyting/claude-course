@@ -818,8 +818,14 @@ function updateTotal(){
   document.getElementById('totalScore').textContent = `${correct} / ${total}`;
 }
 
-// Shuffle option order once per page load so correct answer is not always A
+// Shuffle option order once per page load so correct answer is not always A.
+// Explanations reference distractors by their original letter (B/C/D), so we
+// remap those letter references to follow the shuffle — otherwise they would
+// point at the wrong displayed options. The regex only matches a standalone
+// A–D bounded by non-Latin chars, so multi-letter terms (API, ISO, JSON…) are
+// never touched.
 (function shuffleOptions(){
+  const L=['A','B','C','D'];
   scenarios.forEach(s=>{
     s.questions.forEach(q=>{
       const idx=[0,1,2,3];
@@ -827,6 +833,12 @@ function updateTotal(){
       const orig=q.opts.slice();
       q.opts=idx.map(i=>orig[i]);
       q.answer=idx.indexOf(q.answer);
+      // origPos -> new display position, used to relabel letter references
+      const origToNew={}; idx.forEach((origPos,newPos)=>{origToNew[origPos]=newPos;});
+      if(q.exp){
+        q.exp=q.exp.replace(/(^|[^A-Za-z])([A-D])(?![A-Za-z])/g,
+          (m,pre,ch)=>pre+L[origToNew[L.indexOf(ch)]]);
+      }
     });
   });
 })();
