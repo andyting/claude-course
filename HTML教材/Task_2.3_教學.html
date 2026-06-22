@@ -460,21 +460,28 @@ load_document = {
   </div>
   <div class="key"><b>重點:</b>高頻需求給專用工具;複雜案例路由回 coordinator。</div>
 
-  <h2><span class="num">技能 4</span> &nbsp;用 forced 強制先呼叫某工具；用 <code>"any"</code> 保證一定呼叫工具</h2>
-  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 有時在沒有呼叫任何工具的情況下就直接回覆閒聊文字，或跳過必要的 metadata 提取步驟，你需要用 tool_choice 設定來強制執行正確的操作順序並保證工具一定被呼叫。</div>
-  <p>兩個實用設定。<b>forced 強制指定</b>：確保某工具<b>第一個</b>被呼叫（例如先 <code>extract_metadata</code> 再做後續 enrichment），後續步驟在接下來的回合處理。<b><code>"any"</code></b>：當你<b>不要模型只回閒聊文字</b>、一定要它呼叫某個工具時使用。</p>
+  <h2><span class="num">技能 4</span> &nbsp;用 <code>tool_choice</code> forced 強制某個特定工具<b>第一個</b>被呼叫</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 跳過必要的 metadata 提取步驟就直接進入 enrichment，你需要用 tool_choice 的 forced 設定強制它第一步一定先呼叫 <code>extract_metadata</code>，確保操作順序正確。</div>
+  <p><b>forced 強制指定</b>:確保某工具<b>第一個</b>被呼叫(例如先 <code>extract_metadata</code> 再做後續 enrichment),後續步驟在接下來的回合處理。</p>
   <div class="codeblock">
     <button class="copy-btn">複製</button>
     <pre><code><span class="tok-com"># ✅ 強制先抽 metadata,再進入 enrichment;後續步驟下一回合再處理</span>
 first_turn = {
     <span class="tok-str">"tools"</span>: [extract_metadata, enrich_a, enrich_b],
     <span class="tok-str">"tool_choice"</span>: {<span class="tok-str">"type"</span>: <span class="tok-str">"tool"</span>, <span class="tok-str">"name"</span>: <span class="tok-str">"extract_metadata"</span>},  <span class="tok-com"># 非它不可,且最先</span>
-}
+}</code></pre>
+  </div>
+  <div class="key"><b>重點:</b>forced = 指定哪個工具一定第一個被呼叫。</div>
 
-<span class="tok-good"># ✅ 保證模型呼叫工具,而不是回一句閒聊文字</span>
+  <h2><span class="num">技能 5</span> &nbsp;用 <code>tool_choice: "any"</code> 保證模型一定呼叫工具，而不是回閒聊文字</h2>
+  <div class="trigger"><b>遇到這個問題時用到</b>你的 agent 有時在沒有呼叫任何工具的情況下就直接回覆閒聊文字，你需要用 tool_choice: "any" 保證它一定會呼叫某個工具，而不是返回對話式純文字。</div>
+  <p><b><code>"any"</code></b>:當你<b>不要模型只回閒聊文字</b>、一定要它呼叫某個工具時使用。</p>
+  <div class="codeblock">
+    <button class="copy-btn">複製</button>
+    <pre><code><span class="tok-good"># ✅ 保證模型呼叫工具,而不是回一句閒聊文字</span>
 must_use_tool = {<span class="tok-str">"tool_choice"</span>: {<span class="tok-str">"type"</span>: <span class="tok-str">"any"</span>}}</code></pre>
   </div>
-  <div class="key"><b>重點:</b>forced = 指定先用哪個工具;"any" = 保證一定用工具(不回純文字)。</div>
+  <div class="key"><b>重點:</b>"any" = 保證一定用工具(不回純文字)。</div>
 
   <div class="summary">
     <h2>整個 Task 2.3 的記憶骨架</h2>
